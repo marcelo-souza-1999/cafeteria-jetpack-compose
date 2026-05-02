@@ -12,16 +12,15 @@ import com.targaryen.cafeteria.app.ui.main.MainScreen
 
 @Composable
 fun MainNavigation() {
-    val backStack = rememberNavBackStack(Main)
+    val backStack = rememberNavBackStack(MainDestination)
 
     NavDisplay(
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
         entryProvider =
             entryProvider {
-                entry<Main> {
+                entry<MainDestination> {
                     MainScreen(
-                        onItemClick = { navKey -> backStack.add(navKey) },
                         modifier = Modifier
                           .safeDrawingPadding()
                           .padding(16.dp)

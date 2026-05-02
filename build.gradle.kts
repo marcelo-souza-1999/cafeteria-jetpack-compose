@@ -12,11 +12,13 @@ plugins {
     alias(libs.plugins.google.ksp) apply false
     alias(libs.plugins.kover) apply false
     alias(libs.plugins.detekt)
+    alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.hotswan.compiler) apply false
 }
 
 allprojects {
     apply(plugin = "io.gitlab.arturbosch.detekt")
+    apply(plugin = "org.jetbrains.kotlinx.kover")
 
     extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
         config.setFrom(files("$rootDir/config/detekt/detekt.yml"))

@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
@@ -43,6 +44,10 @@ android {
     buildFeatures {
         compose = true
     }
+
+    lint {
+        disable += "Instantiatable"
+    }
 }
 
 dependencies {
@@ -56,6 +61,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.activity)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -97,7 +103,11 @@ dependencies {
 ksp {
     arg("KOIN_DEFAULT_MODULE", "true")
     arg("KOIN_CONFIG_CHECK", "true")
-    arg("KOIN_ANNOTATIONS_ROOT_PACKAGE", "com.marcelo.souza.listadetarefas")
+    arg("KOIN_ANNOTATIONS_ROOT_PACKAGE", "com.targaryen.cafeteria.app")
+}
+
+tasks.register("detektAll") {
+    dependsOn(tasks.withType<io.gitlab.arturbosch.detekt.Detekt>())
 }
 
 kover {

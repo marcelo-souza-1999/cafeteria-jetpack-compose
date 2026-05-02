@@ -7,34 +7,34 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation3.runtime.NavKey
-import com.targaryen.cafeteria.app.data.DefaultDataRepository
+import org.koin.androidx.compose.koinViewModel
+import com.targaryen.cafeteria.app.ui.main.MainScreenUiState.Success
+import com.targaryen.cafeteria.app.ui.main.MainScreenUiState.Error
+import com.targaryen.cafeteria.app.ui.main.MainScreenUiState.Loading
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 
 @Composable
 fun MainScreen(
-  onItemClick: (NavKey) -> Unit,
   modifier: Modifier = Modifier,
-  viewModel: MainScreenViewModel = viewModel { MainScreenViewModel(DefaultDataRepository()) },
+  viewModel: MainScreenViewModel = koinViewModel(),
 ) {
   val state by viewModel.uiState.collectAsStateWithLifecycle()
-  when (state) {
-    MainScreenUiState.Loading -> {
+  when (val current = state) {
+    Loading -> {
       // Blank
     }
-    is MainScreenUiState.Success -> {
-      MainScreen(data = (state as MainScreenUiState.Success).data, modifier = modifier)
+    is Success -> {
+      MainScreen(data = current.data, modifier = modifier)
     }
-    is MainScreenUiState.Error -> {
-      Text("Error loading data: ${(state as MainScreenUiState.Error).throwable.message}")
+    is Error -> {
+      Text("Error loading data: ${current.throwable.message}")
     }
   }
 }
 
 @Composable
 internal fun MainScreen(data: List<String>, modifier: Modifier = Modifier) {
-  Column(modifier) { data.forEach { Greeting(it) } }
+  Column(modifier) { data.forEach { name -> Greeting(name) } }
 }
 
 @Composable
