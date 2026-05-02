@@ -1,0 +1,44 @@
+name: Absolute Inquisition (Main Forge)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  forge_and_seal:
+    name: Absolute Forge
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Arming the Forge (Permissions)
+        run: chmod +x gradlew
+
+      - name: Create Dummy google-services.json
+        run: echo "{}" > app/google-services.json
+
+      - name: Static Inquisition (Detekt)
+        run: ./gradlew detektAll lintRelease
+
+      - name: Final Test & Coverage
+        run: ./gradlew testReleaseUnitTest koverHtmlReportRelease
+
+      - name: Seal the Empire (Assemble Release)
+        run: ./gradlew assembleRelease
+
+      - name: Archive Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/

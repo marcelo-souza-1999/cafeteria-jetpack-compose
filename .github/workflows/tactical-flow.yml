@@ -1,0 +1,41 @@
+name: Tactical Flow (Develop Guard)
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  build_and_test:
+    name: Inquisition & Skirmish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Arming the Forge (Permissions)
+        run: chmod +x gradlew
+
+      - name: Create Dummy google-services.json
+        run: echo "{}" > app/google-services.json
+
+      - name: Static Inquisition (Detekt & Lint)
+        run: ./gradlew detektAll lintDebug
+
+      - name: Trench Warfare (Unit Tests & Kover)
+        run: ./gradlew testDebugUnitTest koverHtmlReportDebug
+
+      - name: Archive Kover Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: kover-html-report
+          path: app/build/reports/kover/htmlDebug/
