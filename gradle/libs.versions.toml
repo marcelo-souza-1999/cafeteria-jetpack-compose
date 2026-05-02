@@ -1,0 +1,159 @@
+[versions]
+# --- Build, Plugins & Compilers ---
+agp = "9.1.1"
+kotlin = "2.3.21"
+compileSdk = "36"
+minSdk = "26"
+targetSdk = "36"
+jvmTarget = "21"
+ksp = "2.3.6"
+hotSwanCompiler = "1.2.10"
+google-services = "4.4.4"
+detekt = "1.23.8"
+kover = "0.9.8"
+
+# --- AndroidX, Core & Lifecycle ---
+coreKtx = "1.18.0"
+lifecycleRuntimeKtx = "2.10.0"
+activityCompose = "1.13.0"
+
+# --- Jetpack Compose & UI ---
+composeBom = "2026.04.01"
+composeMaterialIcons = "1.7.8"
+constraintlayoutCompose = "1.1.1"
+compose-shimmer = "1.4.0"
+fancyComposeAlertDialog = "1.0.2"
+
+# --- Coroutines ---
+coroutines = "1.10.2"
+
+# --- Injeção de Dependências (Koin Annotations) ---
+koin = "4.2.1"
+koin-annotations = "2.3.1"
+
+# --- Arquitetura Offline-First (Room 3) ---
+room = "3.0.0-alpha03"
+
+# --- Navegação & Serialização ---
+navigation3 = "1.1.1"
+lifecycleViewmodelNavigation3 = "2.10.0"
+materialAdaptiveNavigation3 = "1.2.0"
+kotlinxSerializationCore = "1.11.0"
+
+# --- Imagens & Network ---
+coil = "3.4.0"
+okhttp = "5.3.2"
+
+# --- Inteligência Artificial ---
+generativeai = "0.9.0"
+
+# --- Firebase ---
+firebaseBom = "34.12.0"
+
+# --- Testes & Qualidade ---
+junit = "4.13.2"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
+mockk = "1.14.9"
+turbine = "1.2.1"
+robolectric = "4.16.1"
+shot = "6.1.0"
+
+[libraries]
+# --- AndroidX & Core ---
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+
+# --- Jetpack Compose UI & Material ---
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+androidx-compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core", version.ref = "composeMaterialIcons" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "composeMaterialIcons" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintlayoutCompose" }
+compose-shimmer = { group = "com.valentinilk.shimmer", name = "compose-shimmer", version.ref = "compose-shimmer"}
+compose-alert-dialog = { group = "com.github.PratikFagadiya", name = "FancyJetpackComposeDialog", version.ref = "fancyComposeAlertDialog" }
+
+# --- Coroutines ---
+coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+
+# --- Navegação Absoluta (Navigation 3) ---
+androidx-navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "navigation3" }
+androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "navigation3" }
+androidx-lifecycle-viewmodel-navigation3 = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNavigation3" }
+androidx-material3-adaptive-navigation3 = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation", version.ref = "materialAdaptiveNavigation3" }
+kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
+
+# --- Injeção de Dependências (Koin) ---
+koin = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-annotation = { group = "io.insert-koin", name = "koin-annotations", version.ref = "koin-annotations" }
+koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+koin-ksp-compiler = { group = "io.insert-koin", name = "koin-ksp-compiler", version.ref = "koin-annotations" }
+
+# --- Banco de Dados (Room Offline-First) ---
+room-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room" }
+room-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room" }
+
+# --- Network & Imagens (Coil) ---
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil"}
+coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil"}
+mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }
+
+# --- Firebase & Inteligência Artificial ---
+firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
+firebase-auth = { module = "com.google.firebase:firebase-auth" }
+generativeai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "generativeai" }
+
+# --- Testes Unitários & UI ---
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+mockk-io = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric"}
+turbine-test = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine"}
+koin-test = { group = "io.insert-koin", name = "koin-test", version.ref = "koin" }
+koin-test-junit = { group = "io.insert-koin", name = "koin-test-junit4", version.ref = "koin" }
+coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+coil-test = { group = "io.coil-kt.coil3", name = "coil-test", version.ref = "coil"}
+shot = { module = "com.karumi:shot", version.ref = "shot" }
+shot-android = { group = "com.karumi", name = "shot-android", version.ref = "shot" }
+
+[bundles]
+coroutines = ["coroutines", "coroutines-core"]
+firebase = ["firebase-firestore", "firebase-auth"]
+coil = ["coil-compose", "coil-network"]
+koin = ["koin", "koin-annotation", "koin-compose"]
+koin-test = ["koin-test", "koin-test-junit"]
+compose-icons = ["androidx-compose-material-icons-core", "androidx-compose-material-icons-extended"]
+navigation = [
+    "androidx-navigation3-runtime",
+    "androidx-navigation3-ui",
+    "androidx-lifecycle-viewmodel-navigation3",
+    "kotlinx-serialization-core",
+    "androidx-material3-adaptive-navigation3"
+]
+test-core = ["coroutines-test", "mockwebserver", "mockk-android", "coil-test"]
+test-snapshot = ["shot", "shot-android"]
+compose-foundation = ["androidx-compose-foundation"]
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
+google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+google-gms-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+hotswan-compiler = { id = "com.github.skydoves.compose.hotswan.compiler", version.ref = "hotSwanCompiler" }
