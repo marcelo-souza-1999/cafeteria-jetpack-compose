@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_login">REIVINDIQUE SEU CAFÉ</string>
+    <string name="label_email">E-mail</string>
+    <string name="label_password">Senha</string>
+    <string name="action_login">Fazer login</string>
+    <string name="action_login_google">Fazer login com o Google</string>
+    <string name="action_forgot_password">Esqueceu a senha?</string>
+    <string name="action_register">Ainda não tem conta? Cadastre-se</string>
+    <string name="error_invalid_email">E-mail inválido</string>
+    <string name="error_weak_password">Senha Fraca. Use no mínimo 6 caracteres</string>
+</resources>

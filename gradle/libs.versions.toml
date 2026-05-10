@@ -7,7 +7,7 @@ minSdk = "26"
 targetSdk = "36"
 jvmTarget = "21"
 ksp = "2.3.6"
-hotSwanCompiler = "1.2.10"
+hotSwanCompiler = "1.0.11"
 google-services = "4.4.4"
 detekt = "1.23.8"
 kover = "0.9.8"
@@ -49,6 +49,7 @@ generativeai = "0.9.0"
 
 # --- Firebase ---
 firebaseBom = "34.12.0"
+googlePlayServicesAuth = "21.5.1"
 
 # --- Testes & Qualidade ---
 junit = "4.13.2"
@@ -110,6 +111,7 @@ mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", versio
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
+google-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googlePlayServicesAuth" }
 generativeai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "generativeai" }
 
 # --- Testes Unitários & UI ---
@@ -131,7 +133,7 @@ shot-android = { group = "com.karumi", name = "shot-android", version.ref = "sho
 
 [bundles]
 coroutines = ["coroutines", "coroutines-core"]
-firebase = ["firebase-firestore", "firebase-auth"]
+firebase = ["firebase-firestore", "firebase-auth", "google-play-services-auth"]
 coil = ["coil-compose", "coil-network"]
 koin = ["koin", "koin-annotation", "koin-compose"]
 koin-test = ["koin-test", "koin-test-junit"]

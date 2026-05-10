@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
     alias(libs.plugins.hotswan.compiler)
-    // alias(libs.plugins.google.gms.services) // Ative quando adicionar o google-services.json real
+    alias(libs.plugins.google.gms.services)
 }
 
 apply(plugin = "shot")
@@ -54,6 +54,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:network"))
     implementation(project(":core:database"))
+    implementation(project(":feature:auth"))
     implementation(project(":feature:catalog"))
     implementation(project(":feature:cart"))
     implementation(project(":feature:chat"))

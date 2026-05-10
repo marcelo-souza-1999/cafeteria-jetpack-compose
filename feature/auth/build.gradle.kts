@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.targaryen.cafeteria.core_designsystem"
+    namespace = "com.targaryen.cafeteria.feature.auth"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
@@ -29,27 +29,32 @@ android {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
-    buildFeatures {
-        compose = true
-    }
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
+    implementation(project(":core:designsystem"))
+    implementation(project(":core:network"))
 
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
-    debugImplementation(libs.androidx.ui.tooling)
     implementation(libs.androidx.material3)
-    implementation(libs.bundles.compose.foundation)
     implementation(libs.bundles.compose.icons)
 
-    implementation(libs.bundles.koin)
     ksp(libs.koin.ksp.compiler)
+    implementation(libs.bundles.coroutines)
+    implementation(libs.bundles.koin)
+    implementation(libs.bundles.navigation)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.bundles.firebase)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)
     testImplementation(libs.turbine.test)
+    testImplementation(libs.bundles.test.core)
 }

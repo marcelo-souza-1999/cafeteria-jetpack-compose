@@ -14,3 +14,9 @@ val DimmedGold = Color(0xFFB8860B)
 
 val SilverHair = Color(0xFFE0E0E0)
 val TargaryenWhite = Color(0xFFF5F5F5)
+
+val GoogleDarkButtonContainer = Color(0xFF131314)
+
+val GoogleDarkButtonBorder = Color(0xFF8E918F)
+
+val GoogleDarkButtonContent = Color(0xFFE3E3E3)
