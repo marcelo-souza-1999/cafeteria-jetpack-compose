@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.targaryen.cafeteria.core_designsystem.R
 import com.targaryen.cafeteria.core_designsystem.theme.GoogleDarkButtonBorder
@@ -69,7 +70,7 @@ private fun GoogleSignInButtonPreviewContent() {
     )
 }
 
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Preview(showBackground = false)
 @Composable
 private fun GoogleSignInButtonPreviewLight() {
     TargaryenTheme(darkTheme = false) {
@@ -77,7 +78,7 @@ private fun GoogleSignInButtonPreviewLight() {
     }
 }
 
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true)
+@Preview(showBackground = true)
 @Composable
 private fun GoogleSignInButtonPreviewDark() {
     TargaryenTheme(darkTheme = true) {
