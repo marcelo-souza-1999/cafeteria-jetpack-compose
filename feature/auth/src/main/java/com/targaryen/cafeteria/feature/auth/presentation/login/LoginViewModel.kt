@@ -1,50 +1,55 @@
 package com.targaryen.cafeteria.feature.auth.presentation.login
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
+import com.targaryen.cafeteria.core_network.Resource
+import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithEmailUseCase
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
+@OptIn(kotlin.ExperimentalStdlibApi::class)
 @KoinViewModel
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val signInWithEmailUseCase: SignInWithEmailUseCase
+) : ViewModel() {
 
-    var email by mutableStateOf("")
-    var password by mutableStateOf("")
-    var isLoading by mutableStateOf(false)
+    val uiState: StateFlow<LoginUiState>
+        field: MutableStateFlow<LoginUiState> = MutableStateFlow(LoginUiState())
 
-    val isEmailValid: Boolean
-        get() = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    private val eventChannel = Channel<LoginEvent>()
+    val events = eventChannel.receiveAsFlow()
 
-    val isPasswordValid: Boolean
-        get() = password.length >= MIN_PASSWORD_LENGTH
-
-    val canLogin: Boolean
-        get() = isEmailValid && isPasswordValid && !isLoading
-
-    val emailError: Boolean
-        get() = email.isNotEmpty() && !isEmailValid
-
-    val passwordError: Boolean
-        get() = password.isNotEmpty() && !isPasswordValid
-
-    fun onLoginClick(onSuccess: () -> Unit) {
-        if (!canLogin) return
-
-        viewModelScope.launch {
-            isLoading = true
-            // Simulando o tempo de uma conquista
-            delay(SIMULATED_LOGIN_DELAY)
-            isLoading = false
-            onSuccess()
-        }
+    fun onEmailChanged(email: String) {
+        uiState.update { it.copy(email = email) }
     }
 
-    companion object {
-        private const val MIN_PASSWORD_LENGTH = 6
-        private const val SIMULATED_LOGIN_DELAY = 2000L
+    fun onPasswordChanged(password: String) {
+        uiState.update { it.copy(password = password) }
+    }
+
+    fun onLoginClick() {
+        val currentState = uiState.value
+        if (currentState.email.isBlank() || currentState.password.isBlank()) return
+
+        viewModelScope.launch {
+            uiState.update { it.copy(isLoading = true) }
+            
+            signInWithEmailUseCase(currentState.email, currentState.password).collect { resource ->
+                uiState.update { it.copy(isLoading = false) }
+                when (resource) {
+                    is Resource.Success -> {
+                        eventChannel.send(LoginEvent.LoginSuccess)
+                    }
+                    is Resource.Error -> {
+                        eventChannel.send(LoginEvent.ShowErrorToast(resource.error))
+                    }
+                }
+            }
+        }
     }
 }

@@ -35,6 +35,7 @@ fun TargaryenTextField(
         isError = isError,
         supportingText = supportingText,
         keyboardOptions = keyboardOptions,
+        singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = DragonScale,
             unfocusedContainerColor = DragonScale,

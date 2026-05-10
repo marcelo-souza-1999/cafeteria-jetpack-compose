@@ -29,6 +29,15 @@ android {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
+
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            freeCompilerArgs.addAll(
+                "-Xexplicit-backing-fields",
+                "-opt-in=kotlin.ExperimentalStdlibApi"
+            )
+        }
+    }
 }
 
 dependencies {

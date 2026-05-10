@@ -50,6 +50,7 @@ fun TargaryenPasswordField(
         isError = isError,
         supportingText = supportingText,
         keyboardOptions = keyboardOptions,
+        singleLine = true,
         trailingIcon = {
             val icon = if (passwordVisible) {
                 Icons.Outlined.Visibility

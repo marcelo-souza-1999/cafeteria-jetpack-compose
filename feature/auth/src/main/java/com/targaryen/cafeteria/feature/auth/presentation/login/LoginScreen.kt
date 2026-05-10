@@ -1,5 +1,6 @@
 package com.targaryen.cafeteria.feature.auth.presentation.login
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,8 +9,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -17,8 +21,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -26,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.targaryen.cafeteria.core_designsystem.components.TargaryenButton
 import com.targaryen.cafeteria.core_designsystem.components.TargaryenGoogleSignInButton
 import com.targaryen.cafeteria.core_designsystem.components.TargaryenPasswordField
@@ -36,6 +44,7 @@ import com.targaryen.cafeteria.core_designsystem.theme.SilverHair
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.feature.auth.R
+import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -45,16 +54,40 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = koinViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is LoginEvent.LoginSuccess -> {
+                    Toast.makeText(context, "Login realizado com sucesso! (Dracarys)", Toast.LENGTH_SHORT).show()
+                    onLoginClick()
+                }
+                is LoginEvent.ShowErrorToast -> {
+                    val errorMessage = when (event.error) {
+                        is AuthError.InvalidCredentials -> "Credenciais inválidas. Verifique e-mail e senha."
+                        is AuthError.UserNotFound -> "Usuário não encontrado em nossos registros."
+                        is AuthError.NetworkError -> "Falha de rede. Os corvos não puderam voar."
+                        is AuthError.TooManyRequests -> "Muitas tentativas falhas. Aguarde um momento."
+                        is AuthError.Unknown -> "Um erro desconhecido ocorreu: ${event.error.message}"
+                    }
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
     LoginContent(
-        email = viewModel.email,
-        password = viewModel.password,
-        isLoading = viewModel.isLoading,
-        emailError = viewModel.emailError,
-        passwordError = viewModel.passwordError,
-        canLogin = viewModel.canLogin,
-        onEmailChange = { viewModel.email = it },
-        onPasswordChange = { viewModel.password = it },
-        onLoginClick = { viewModel.onLoginClick(onLoginClick) },
+        email = uiState.email,
+        password = uiState.password,
+        isLoading = uiState.isLoading,
+        emailError = uiState.emailError,
+        passwordError = uiState.passwordError,
+        canLogin = uiState.canLogin,
+        onEmailChange = viewModel::onEmailChanged,
+        onPasswordChange = viewModel::onPasswordChanged,
+        onLoginClick = viewModel::onLoginClick,
         onRegisterClick = onRegisterClick,
         modifier = modifier
     )
@@ -78,6 +111,8 @@ private fun LoginContent(
         modifier = modifier
             .fillMaxSize()
             .background(Obsidian)
+            .imePadding()
+            .verticalScroll(rememberScrollState())
             .padding(TargaryenTheme.dimens.spaceLarge),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center

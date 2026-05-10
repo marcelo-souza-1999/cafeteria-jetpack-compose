@@ -37,7 +37,10 @@ allprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-            freeCompilerArgs.add("-Xexplicit-backing-fields")
+            freeCompilerArgs.addAll(
+                "-Xexplicit-backing-fields",
+                "-opt-in=kotlin.ExperimentalStdlibApi"
+            )
         }
     }
 }
