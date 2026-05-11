@@ -26,3 +26,4 @@ app/google-services.json
 .fvm/
 .pub-cache/
 .dart_tool/
+.hotswan/

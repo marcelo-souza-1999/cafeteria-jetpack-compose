@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ============================================== -->
+    <!-- Splash Screen                                  -->
+    <!-- ============================================== -->
+    <string name="splash_motto">Sangue do Dragão, Em Cada Gota</string>
+
+    <!-- ============================================== -->
+    <!-- Login Screen                                   -->
+    <!-- ============================================== -->
     <string name="title_login">REIVINDIQUE SEU CAFÉ</string>
     <string name="label_email">E-mail</string>
     <string name="label_password">Senha</string>
@@ -7,6 +15,16 @@
     <string name="action_login_google">Fazer login com o Google</string>
     <string name="action_forgot_password">Esqueceu a senha?</string>
     <string name="action_register">Ainda não tem conta? Cadastre-se</string>
+
+    <!-- Erros de Validação e Diálogos (Login) -->
     <string name="error_invalid_email">E-mail inválido</string>
     <string name="error_weak_password">Senha Fraca. Use no mínimo 6 caracteres</string>
+    <string name="error_auth_invalid_credentials">Credenciais inválidas. Verifique e-mail e senha.</string>
+    <string name="error_auth_user_not_found">Usuário não encontrado em nossos registros.</string>
+    <string name="error_auth_network">Falha de rede. Os corvos não puderam voar. Cheque sua conexão</string>
+    <string name="error_auth_too_many_requests">Muitas tentativas falhas. Aguarde um momento.</string>
+    <string name="error_auth_unknown">Um erro desconhecido ocorreu: %1$s</string>
+    <string name="dialog_error_title">Acesso Negado</string>
+    <string name="dialog_error_button_retry">Tentar Novamente</string>
+    <string name="dialog_error_button_cancel">Cancelar</string>
 </resources>

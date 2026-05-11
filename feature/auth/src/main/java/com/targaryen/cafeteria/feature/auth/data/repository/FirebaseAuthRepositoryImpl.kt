@@ -17,6 +17,10 @@ import org.koin.core.annotation.Single
 class FirebaseAuthRepositoryImpl(
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
 ) : AuthRepository {
+    override fun isUserLoggedIn(): Boolean {
+        return firebaseAuth.currentUser != null
+    }
+
     override fun signInWithEmail(email: String, pass: String): Flow<Resource<Unit, AuthError>> = callbackFlow {
         firebaseAuth.signInWithEmailAndPassword(email, pass)
             .addOnSuccessListener {

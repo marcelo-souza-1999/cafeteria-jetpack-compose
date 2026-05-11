@@ -46,7 +46,7 @@ class LoginViewModel(
                         eventChannel.send(LoginEvent.LoginSuccess)
                     }
                     is Resource.Error -> {
-                        eventChannel.send(LoginEvent.ShowErrorToast(resource.error))
+                        eventChannel.send(LoginEvent.ShowErrorDialog(resource.error))
                     }
                 }
             }

@@ -61,6 +61,8 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
+    
+    implementation(libs.compose.alert.dialog)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)

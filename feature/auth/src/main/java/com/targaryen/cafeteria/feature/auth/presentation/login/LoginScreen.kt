@@ -1,6 +1,5 @@
 package com.targaryen.cafeteria.feature.auth.presentation.login
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,9 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -45,6 +45,7 @@ import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.feature.auth.R
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
+import com.targaryen.cafeteria.feature.auth.presentation.components.AuthErrorFancyDialog
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -55,27 +56,37 @@ fun LoginScreen(
     viewModel: LoginViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    val (authError, setAuthError) = remember { mutableStateOf<AuthError?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
                 is LoginEvent.LoginSuccess -> {
-                    Toast.makeText(context, "Login realizado com sucesso! (Dracarys)", Toast.LENGTH_SHORT).show()
                     onLoginClick()
                 }
-                is LoginEvent.ShowErrorToast -> {
-                    val errorMessage = when (event.error) {
-                        is AuthError.InvalidCredentials -> "Credenciais inválidas. Verifique e-mail e senha."
-                        is AuthError.UserNotFound -> "Usuário não encontrado em nossos registros."
-                        is AuthError.NetworkError -> "Falha de rede. Os corvos não puderam voar."
-                        is AuthError.TooManyRequests -> "Muitas tentativas falhas. Aguarde um momento."
-                        is AuthError.Unknown -> "Um erro desconhecido ocorreu: ${event.error.message}"
-                    }
-                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                is LoginEvent.ShowErrorDialog -> {
+                    setAuthError(event.error)
                 }
             }
         }
+    }
+
+    authError?.let { error ->
+        val errorMessage = when (error) {
+            is AuthError.InvalidCredentials -> stringResource(id = R.string.error_auth_invalid_credentials)
+            is AuthError.UserNotFound -> stringResource(id = R.string.error_auth_user_not_found)
+            is AuthError.NetworkError -> stringResource(id = R.string.error_auth_network)
+            is AuthError.TooManyRequests -> stringResource(id = R.string.error_auth_too_many_requests)
+            is AuthError.Unknown -> stringResource(id = R.string.error_auth_unknown, error.message ?: "")
+        }
+
+        AuthErrorFancyDialog(
+            title = stringResource(id = R.string.dialog_error_title),
+            message = errorMessage,
+            isCancelable = false,
+            onRetryClick = { setAuthError(null) },
+            onDismissRequest = { setAuthError(null) }
+        )
     }
 
     LoginContent(

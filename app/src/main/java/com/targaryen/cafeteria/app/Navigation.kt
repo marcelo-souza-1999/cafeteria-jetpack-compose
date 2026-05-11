@@ -10,19 +10,35 @@ import androidx.navigation3.ui.NavDisplay
 import com.targaryen.cafeteria.app.ui.main.MainScreen
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.feature.auth.presentation.login.LoginScreen
+import com.targaryen.cafeteria.feature.auth.presentation.splash.SplashScreen
 
 @Composable
 fun MainNavigation() {
-    val backStack = rememberNavBackStack(LoginDestination)
+    val backStack = rememberNavBackStack(SplashDestination)
 
     NavDisplay(
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
         entryProvider =
             entryProvider {
+                entry<SplashDestination> {
+                    SplashScreen(
+                        onNavigateToMain = {
+                            backStack.clear()
+                            backStack.add(MainDestination)
+                        },
+                        onNavigateToLogin = {
+                            backStack.clear()
+                            backStack.add(LoginDestination)
+                        }
+                    )
+                }
                 entry<LoginDestination> {
                     LoginScreen(
-                        onLoginClick = { backStack.add(MainDestination) },
+                        onLoginClick = {
+                            backStack.clear()
+                            backStack.add(MainDestination)
+                        },
                         onRegisterClick = { /* O futuro julgará esta rota */ },
                         modifier = Modifier.safeDrawingPadding()
                     )
@@ -37,3 +53,4 @@ fun MainNavigation() {
             },
     )
 }
+
