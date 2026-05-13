@@ -1,5 +1,8 @@
 package com.targaryen.cafeteria.feature.auth.presentation.login
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.zIndex
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,8 +27,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -46,7 +51,13 @@ import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.feature.auth.R
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import com.targaryen.cafeteria.feature.auth.presentation.components.AuthErrorFancyDialog
+import com.targaryen.cafeteria.feature.auth.presentation.util.GoogleAuthUiClient
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
+import org.koin.core.qualifier.named
+
+private const val QUALIFIER_WEB_CLIENT_ID = "WebClientId"
 
 @Composable
 fun LoginScreen(
@@ -57,6 +68,10 @@ fun LoginScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val (authError, setAuthError) = remember { mutableStateOf<AuthError?>(null) }
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val webClientId: String = koinInject(named(QUALIFIER_WEB_CLIENT_ID))
+    val googleAuthUiClient = remember { GoogleAuthUiClient(context, webClientId) }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -89,26 +104,54 @@ fun LoginScreen(
         )
     }
 
-    LoginContent(
-        email = uiState.email,
-        password = uiState.password,
-        isLoading = uiState.isLoading,
-        emailError = uiState.emailError,
-        passwordError = uiState.passwordError,
-        canLogin = uiState.canLogin,
-        onEmailChange = viewModel::onEmailChanged,
-        onPasswordChange = viewModel::onPasswordChanged,
-        onLoginClick = viewModel::onLoginClick,
-        onRegisterClick = onRegisterClick,
-        modifier = modifier
-    )
+    Box(modifier = modifier.fillMaxSize()) {
+        LoginContent(
+            email = uiState.email,
+            password = uiState.password,
+            isEmailLoading = uiState.isEmailLoading,
+            isGoogleLoading = uiState.isGoogleLoading,
+            emailError = uiState.emailError,
+            passwordError = uiState.passwordError,
+            canLogin = uiState.canLogin,
+            onEmailChange = viewModel::onEmailChanged,
+            onPasswordChange = viewModel::onPasswordChanged,
+            onLoginClick = viewModel::onLoginClick,
+            onRegisterClick = onRegisterClick,
+            onGoogleSignInClick = {
+                coroutineScope.launch {
+                    try {
+                        val idToken = googleAuthUiClient.signIn()
+                        if (idToken != null) {
+                            viewModel.onGoogleSignIn(idToken)
+                        }
+                    } catch (e: Exception) {
+                        viewModel.onGoogleSignInError(e.message)
+                    }
+                }
+            },
+            modifier = Modifier.matchParentSize()
+        )
+
+        if (uiState.isGoogleLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Obsidian.copy(alpha = 0.7f))
+                    .zIndex(10f),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = ValyrianGold)
+            }
+        }
+    }
 }
 
 @Composable
 private fun LoginContent(
     email: String,
     password: String,
-    isLoading: Boolean,
+    isEmailLoading: Boolean,
+    isGoogleLoading: Boolean,
     emailError: Boolean,
     passwordError: Boolean,
     canLogin: Boolean,
@@ -116,6 +159,7 @@ private fun LoginContent(
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit,
+    onGoogleSignInClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -198,15 +242,16 @@ private fun LoginContent(
         TargaryenButton(
             text = stringResource(id = R.string.action_login),
             onClick = onLoginClick,
-            enabled = canLogin,
-            isLoading = isLoading
+            enabled = canLogin && !isGoogleLoading,
+            isLoading = isEmailLoading
         )
 
         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
 
         TargaryenGoogleSignInButton(
             text = stringResource(id = R.string.action_login_google),
-            onClick = { /* O futuro julgará esta rota */ }
+            onClick = onGoogleSignInClick,
+            enabled = !isEmailLoading
         )
 
         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
@@ -227,14 +272,16 @@ private fun LoginScreenPreviewLight() {
         LoginContent(
             email = "",
             password = "",
-            isLoading = false,
+            isEmailLoading = false,
+            isGoogleLoading = false,
             emailError = false,
             passwordError = false,
             canLogin = false,
             onEmailChange = {},
             onPasswordChange = {},
             onLoginClick = {},
-            onRegisterClick = {}
+            onRegisterClick = {},
+            onGoogleSignInClick = {}
         )
     }
 }
@@ -246,14 +293,16 @@ private fun LoginScreenPreviewDark() {
         LoginContent(
             email = "rhaenyra",
             password = "123",
-            isLoading = false,
+            isEmailLoading = false,
+            isGoogleLoading = false,
             emailError = true,
             passwordError = true,
             canLogin = false,
             onEmailChange = {},
             onPasswordChange = {},
             onLoginClick = {},
-            onRegisterClick = {}
+            onRegisterClick = {},
+            onGoogleSignInClick = {}
         )
     }
 }

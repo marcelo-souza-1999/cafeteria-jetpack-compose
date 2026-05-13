@@ -49,7 +49,8 @@ generativeai = "0.9.0"
 
 # --- Firebase ---
 firebaseBom = "34.12.0"
-googlePlayServicesAuth = "21.5.1"
+credentials = "1.3.0"
+googleid = "1.1.1"
 
 # --- Testes & Qualidade ---
 junit = "4.13.2"
@@ -111,7 +112,9 @@ mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", versio
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
-google-play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "googlePlayServicesAuth" }
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+androidx-credentials-play-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 generativeai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "generativeai" }
 
 # --- Testes Unitários & UI ---
@@ -133,7 +136,7 @@ shot-android = { group = "com.karumi", name = "shot-android", version.ref = "sho
 
 [bundles]
 coroutines = ["coroutines", "coroutines-core"]
-firebase = ["firebase-firestore", "firebase-auth", "google-play-services-auth"]
+firebase = ["firebase-firestore", "firebase-auth", "androidx-credentials", "androidx-credentials-play-auth", "googleid"]
 coil = ["coil-compose", "coil-network"]
 koin = ["koin", "koin-annotation", "koin-compose"]
 koin-test = ["koin-test", "koin-test-junit"]

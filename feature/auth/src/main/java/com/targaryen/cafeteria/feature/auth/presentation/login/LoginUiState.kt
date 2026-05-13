@@ -3,7 +3,8 @@ package com.targaryen.cafeteria.feature.auth.presentation.login
 data class LoginUiState(
     val email: String = "",
     val password: String = "",
-    val isLoading: Boolean = false
+    val isEmailLoading: Boolean = false,
+    val isGoogleLoading: Boolean = false
 ) {
     private val isEmailFormatValid: Boolean
         get() = email.contains("@") && email.contains(".")
@@ -18,5 +19,5 @@ data class LoginUiState(
         get() = password.isNotBlank() && !isPasswordFormatValid
 
     val canLogin: Boolean
-        get() = email.isNotBlank() && password.isNotBlank() && isEmailFormatValid && isPasswordFormatValid && !isLoading
+        get() = email.isNotBlank() && password.isNotBlank() && isEmailFormatValid && isPasswordFormatValid && !isEmailLoading && !isGoogleLoading
 }

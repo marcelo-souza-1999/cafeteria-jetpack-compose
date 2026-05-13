@@ -3,7 +3,9 @@ package com.targaryen.cafeteria.feature.auth.presentation.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.targaryen.cafeteria.core_network.Resource
+import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithEmailUseCase
+import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithGoogleUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,10 +14,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
-@OptIn(kotlin.ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 @KoinViewModel
 class LoginViewModel(
-    private val signInWithEmailUseCase: SignInWithEmailUseCase
+    private val signInWithEmailUseCase: SignInWithEmailUseCase,
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
 ) : ViewModel() {
 
     val uiState: StateFlow<LoginUiState>
@@ -37,10 +40,10 @@ class LoginViewModel(
         if (currentState.email.isBlank() || currentState.password.isBlank()) return
 
         viewModelScope.launch {
-            uiState.update { it.copy(isLoading = true) }
+            uiState.update { it.copy(isEmailLoading = true) }
             
             signInWithEmailUseCase(currentState.email, currentState.password).collect { resource ->
-                uiState.update { it.copy(isLoading = false) }
+                uiState.update { it.copy(isEmailLoading = false) }
                 when (resource) {
                     is Resource.Success -> {
                         eventChannel.send(LoginEvent.LoginSuccess)
@@ -50,6 +53,30 @@ class LoginViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun onGoogleSignIn(idToken: String) {
+        viewModelScope.launch {
+            uiState.update { it.copy(isGoogleLoading = true) }
+
+            signInWithGoogleUseCase(idToken).collect { resource ->
+                uiState.update { it.copy(isGoogleLoading = false) }
+                when (resource) {
+                    is Resource.Success -> {
+                        eventChannel.send(LoginEvent.LoginSuccess)
+                    }
+                    is Resource.Error -> {
+                        eventChannel.send(LoginEvent.ShowErrorDialog(resource.error))
+                    }
+                }
+            }
+        }
+    }
+
+    fun onGoogleSignInError(message: String?) {
+        viewModelScope.launch {
+            eventChannel.send(LoginEvent.ShowErrorDialog(AuthError.Unknown(message)))
         }
     }
 }
