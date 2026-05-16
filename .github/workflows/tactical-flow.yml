@@ -26,7 +26,33 @@ jobs:
         run: chmod +x gradlew
 
       - name: Create Dummy google-services.json
-        run: echo "{}" > app/google-services.json
+        run: |
+          cat <<EOF > app/google-services.json
+          {
+            "project_info": {
+              "project_number": "123456789012",
+              "project_id": "dummy-project"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:123456789012:android:0987654321abcdef",
+                  "android_client_info": {
+                    "package_name": "com.targaryen.cafeteria.app"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
+              }
+            ],
+            "configuration_version": "1"
+          }
+          EOF
 
       - name: Static Inquisition (Detekt & Lint)
         run: ./gradlew detektAll lintDebug
