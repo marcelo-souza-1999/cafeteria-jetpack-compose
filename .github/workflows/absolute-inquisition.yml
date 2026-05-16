@@ -41,7 +41,12 @@ jobs:
                     "package_name": "com.targaryen.cafeteria.app"
                   }
                 },
-                "oauth_client": [],
+                "oauth_client": [
+                  {
+                    "client_id": "dummy-web-client-id.apps.googleusercontent.com",
+                    "client_type": 3
+                  }
+                ],
                 "api_key": [
                   {
                     "current_key": "dummy-api-key"
