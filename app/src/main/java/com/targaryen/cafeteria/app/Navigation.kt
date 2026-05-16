@@ -1,5 +1,6 @@
 package com.targaryen.cafeteria.app
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
@@ -39,7 +40,9 @@ fun MainNavigation() {
                             backStack.clear()
                             backStack.add(MainDestination)
                         },
-                        onRegisterClick = { /* O futuro julgará esta rota */ },
+                        onRegisterClick = { 
+                            Log.d("AuthFlow", "Rota de registro acionada. O Corvo de Cadastro ainda será forjado.")
+                        },
                         modifier = Modifier.safeDrawingPadding()
                     )
                 }

@@ -75,7 +75,7 @@ private fun GoogleSignInButtonPreviewContent() {
 @Preview(showBackground = false)
 @Composable
 private fun GoogleSignInButtonPreviewLight() {
-    TargaryenTheme(darkTheme = false) {
+    TargaryenTheme() {
         GoogleSignInButtonPreviewContent()
     }
 }
@@ -83,7 +83,7 @@ private fun GoogleSignInButtonPreviewLight() {
 @Preview(showBackground = true)
 @Composable
 private fun GoogleSignInButtonPreviewDark() {
-    TargaryenTheme(darkTheme = true) {
+    TargaryenTheme() {
         GoogleSignInButtonPreviewContent()
     }
 }

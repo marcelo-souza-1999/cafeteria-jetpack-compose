@@ -87,7 +87,7 @@ fun TargaryenPasswordField(
 @Preview(showBackground = true)
 @Composable
 private fun TargaryenPasswordFieldPreviewLight() {
-    TargaryenTheme(darkTheme = false) {
+    TargaryenTheme() {
         TargaryenPasswordField(
             value = "senha123",
             onValueChange = {},
@@ -99,7 +99,7 @@ private fun TargaryenPasswordFieldPreviewLight() {
 @Preview(showBackground = true)
 @Composable
 private fun TargaryenPasswordFieldPreviewDark() {
-    TargaryenTheme(darkTheme = true) {
+    TargaryenTheme() {
         TargaryenPasswordField(
             value = "senha123",
             onValueChange = {},

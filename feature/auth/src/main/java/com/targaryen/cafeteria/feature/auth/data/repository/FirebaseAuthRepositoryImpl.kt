@@ -69,6 +69,28 @@ class FirebaseAuthRepositoryImpl(
         awaitClose { }
     }
 
+    override fun sendPasswordResetEmail(email: String): Flow<Resource<Unit, AuthError>> = callbackFlow {
+        firebaseAuth.sendPasswordResetEmail(email)
+            .addOnSuccessListener {
+                trySend(Resource.Success(Unit))
+            }
+            .addOnFailureListener { exception ->
+                val authError = when (exception) {
+                    is FirebaseAuthInvalidUserException -> AuthError.UserNotFound
+                    is FirebaseNetworkException -> AuthError.NetworkError
+                    is FirebaseAuthException -> {
+                        when (exception.errorCode) {
+                            ERROR_TOO_MANY_REQUESTS -> AuthError.TooManyRequests
+                            else -> AuthError.Unknown(exception.message)
+                        }
+                    }
+                    else -> AuthError.Unknown(exception.message)
+                }
+                trySend(Resource.Error(authError))
+            }
+        awaitClose { }
+    }
+
     companion object {
         private const val ERROR_TOO_MANY_REQUESTS = "ERROR_TOO_MANY_REQUESTS"
     }

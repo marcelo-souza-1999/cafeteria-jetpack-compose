@@ -16,6 +16,12 @@
     <string name="action_forgot_password">Esqueceu a senha?</string>
     <string name="action_register">Ainda não tem conta? Cadastre-se</string>
 
+    <!-- Esqueceu a Senha -->
+    <string name="title_forgot_password">REACENDER ACESSO</string>
+    <string name="msg_forgot_password">As chamas da sua memória vacilaram? Informe o e-mail de seu domínio e enviaremos um corvo para forjar uma nova senha.</string>
+    <string name="action_send_reset_email">Forjar Nova Senha</string>
+    <string name="msg_reset_email_sent">O corvo foi despachado. Verifique os céus (e a caixa de spam) do seu e-mail.</string>
+
     <!-- Erros de Validação e Diálogos (Login) -->
     <string name="error_invalid_email">E-mail inválido</string>
     <string name="error_weak_password">Senha Fraca. Use no mínimo 6 caracteres</string>
@@ -27,4 +33,6 @@
     <string name="dialog_error_title">Acesso Negado</string>
     <string name="dialog_error_button_retry">Tentar Novamente</string>
     <string name="dialog_error_button_cancel">Cancelar</string>
+    <string name="dialog_success_button_ok">Ok, Entendido</string>
+    <string name="dialog_success_title">O Corvo Voou</string>
 </resources>

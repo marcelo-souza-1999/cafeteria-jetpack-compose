@@ -28,7 +28,6 @@ private val TeamBlackColorScheme = darkColorScheme(
 
 @Composable
 fun TargaryenTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     val colorScheme = TeamBlackColorScheme

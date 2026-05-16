@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.targaryen.cafeteria.core_network.Resource
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
+import com.targaryen.cafeteria.feature.auth.domain.usecase.SendPasswordResetEmailUseCase
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithEmailUseCase
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithGoogleUseCase
 import kotlinx.coroutines.channels.Channel
@@ -18,7 +19,8 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class LoginViewModel(
     private val signInWithEmailUseCase: SignInWithEmailUseCase,
-    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase
 ) : ViewModel() {
 
     val uiState: StateFlow<LoginUiState>
@@ -33,6 +35,52 @@ class LoginViewModel(
 
     fun onPasswordChanged(password: String) {
         uiState.update { it.copy(password = password) }
+    }
+
+    fun onForgotPasswordClick() {
+        uiState.update { 
+            it.copy(
+                isForgotPasswordSheetOpen = true, 
+                forgotPasswordEmail = it.email, 
+                isForgotPasswordSuccess = false
+            ) 
+        }
+    }
+
+    fun onForgotPasswordDismiss() {
+        uiState.update { 
+            it.copy(
+                isForgotPasswordSheetOpen = false, 
+                forgotPasswordEmail = "", 
+                isForgotPasswordSuccess = false
+            ) 
+        }
+    }
+
+    fun onForgotPasswordEmailChanged(email: String) {
+        uiState.update { it.copy(forgotPasswordEmail = email) }
+    }
+
+    fun onSendPasswordResetClick() {
+        val email = uiState.value.forgotPasswordEmail
+        if (email.isBlank() || !uiState.value.canSendPasswordReset) return
+
+        viewModelScope.launch {
+            uiState.update { it.copy(isForgotPasswordLoading = true, isForgotPasswordSuccess = false) }
+            
+            sendPasswordResetEmailUseCase(email).collect { resource ->
+                uiState.update { it.copy(isForgotPasswordLoading = false) }
+                when (resource) {
+                    is Resource.Success -> {
+                        uiState.update { it.copy(isForgotPasswordSuccess = true) }
+                        eventChannel.send(LoginEvent.ResetPasswordEmailSent)
+                    }
+                    is Resource.Error -> {
+                        eventChannel.send(LoginEvent.ShowErrorDialog(resource.error))
+                    }
+                }
+            }
+        }
     }
 
     fun onLoginClick() {

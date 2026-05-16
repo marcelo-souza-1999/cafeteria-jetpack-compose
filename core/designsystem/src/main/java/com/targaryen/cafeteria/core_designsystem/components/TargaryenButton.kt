@@ -58,7 +58,7 @@ fun TargaryenButton(
 @Preview(showBackground = true)
 @Composable
 private fun TargaryenButtonPreviewLight() {
-    TargaryenTheme(darkTheme = false) {
+    TargaryenTheme() {
         TargaryenButton(
             text = "Reivindicar",
             onClick = {}
@@ -69,7 +69,7 @@ private fun TargaryenButtonPreviewLight() {
 @Preview(showBackground = true)
 @Composable
 private fun TargaryenButtonPreviewDark() {
-    TargaryenTheme(darkTheme = true) {
+    TargaryenTheme() {
         TargaryenButton(
             text = "Reivindicar",
             onClick = {}

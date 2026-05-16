@@ -58,7 +58,7 @@ fun TargaryenTextField(
 @Preview(showBackground = true)
 @Composable
 private fun TargaryenTextFieldPreviewLight() {
-    TargaryenTheme(darkTheme = false) {
+    TargaryenTheme() {
         TargaryenTextField(
             value = "",
             onValueChange = {},
@@ -70,7 +70,7 @@ private fun TargaryenTextFieldPreviewLight() {
 @Preview(showBackground = true)
 @Composable
 private fun TargaryenTextFieldPreviewDark() {
-    TargaryenTheme(darkTheme = true) {
+    TargaryenTheme() {
         TargaryenTextField(
             value = "",
             onValueChange = {},

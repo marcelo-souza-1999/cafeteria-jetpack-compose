@@ -2,54 +2,57 @@ package com.targaryen.cafeteria.feature.auth.presentation.components
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.targaryen.cafeteria.feature.auth.R
-import com.patrik.fancycomposedialogs.dialogs.ErrorFancyDialog
+import com.patrik.fancycomposedialogs.dialogs.SuccessFancyDialog
 import com.patrik.fancycomposedialogs.enums.DialogActionType
 import com.patrik.fancycomposedialogs.enums.DialogStyle
 import com.patrik.fancycomposedialogs.properties.DialogButtonProperties
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 
 @Composable
-fun AuthErrorFancyDialog(
+fun AuthSuccessFancyDialog(
     title: String,
     message: String,
+    buttonTextRes: Int = R.string.dialog_success_button_ok,
     isCancelable: Boolean = true,
-    onRetryClick: () -> Unit,
+    onConfirmClick: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    ErrorFancyDialog(
+    SuccessFancyDialog(
         title = title,
         showTitle = true,
         showMessage = true,
         message = message,
         isCancelable = isCancelable,
-        dialogActionType = DialogActionType.ACTIONABLE,
+        dialogActionType = DialogActionType.INFORMATIVE,
         dialogProperties = DialogButtonProperties(
-            positiveButtonText = R.string.dialog_error_button_retry,
-            negativeButtonText = R.string.dialog_error_button_cancel,
-            buttonColor = MaterialTheme.colorScheme.primary, 
-            buttonTextColor = MaterialTheme.colorScheme.onPrimary 
+            neutralButtonText = buttonTextRes,
+            buttonColor = MaterialTheme.colorScheme.primary,
+            buttonTextColor = Color.White
         ),
         dialogStyle = DialogStyle.UPPER_CUTTING,
-        positiveButtonClick = onRetryClick,
-        negativeButtonClick = onDismissRequest,
+        neutralButtonClick = {
+            onConfirmClick()
+            onDismissRequest()
+        },
         dismissTouchOutside = onDismissRequest
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun AuthErrorFancyDialogPreview() {
+private fun AuthSuccessFancyDialogPreview() {
     TargaryenTheme {
-        AuthErrorFancyDialog(
-            title = "Acesso Negado",
-            message = "Credenciais inválidas. Verifique e-mail e senha.",
-            isCancelable = false,
-            onRetryClick = {},
+        AuthSuccessFancyDialog(
+            title = "Sucesso!",
+            message = "Operação realizada com sucesso.",
+            buttonTextRes = R.string.dialog_success_button_ok,
+            isCancelable = true,
+            onConfirmClick = {},
             onDismissRequest = {}
         )
     }
 }
-
 
