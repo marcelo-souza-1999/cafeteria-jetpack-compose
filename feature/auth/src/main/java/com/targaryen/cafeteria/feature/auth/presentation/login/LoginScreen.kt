@@ -1,5 +1,6 @@
 package com.targaryen.cafeteria.feature.auth.presentation.login
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -208,8 +209,9 @@ private fun getErrorMessage(error: AuthError): String {
     }
 }
 
+@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 @Composable
-private fun ForgotPasswordContent(
+internal fun ForgotPasswordContent(
     uiState: LoginUiState,
     onEmailChange: (String) -> Unit,
     onSendClick: () -> Unit,
@@ -268,8 +270,9 @@ private fun ForgotPasswordContent(
     }
 }
 
+@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 @Composable
-private fun LoginContent(
+internal fun LoginContent(
     uiState: LoginUiState,
     callbacks: LoginCallbacks,
     modifier: Modifier = Modifier
@@ -403,4 +406,3 @@ private fun LoginScreenPreviewDark() {
         )
     }
 }
-

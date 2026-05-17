@@ -16,6 +16,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -36,6 +40,12 @@ android {
                 "-Xexplicit-backing-fields",
                 "-opt-in=kotlin.ExperimentalStdlibApi"
             )
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1,INDEX.LIST}"
         }
     }
 }
@@ -68,4 +78,13 @@ dependencies {
     testImplementation(libs.mockk.io)
     testImplementation(libs.turbine.test)
     testImplementation(libs.bundles.test.core)
+
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.bundles.koin.test)
+    androidTestImplementation(libs.bundles.test.core)
+
+    debugImplementation(libs.androidx.ui.test.manifest)
 }

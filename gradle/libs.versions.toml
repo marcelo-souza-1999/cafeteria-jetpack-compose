@@ -59,7 +59,6 @@ espressoCore = "3.7.0"
 mockk = "1.14.9"
 turbine = "1.2.1"
 robolectric = "4.16.1"
-shot = "6.1.0"
 
 [libraries]
 # --- AndroidX & Core ---
@@ -131,8 +130,6 @@ koin-test = { group = "io.insert-koin", name = "koin-test", version.ref = "koin"
 koin-test-junit = { group = "io.insert-koin", name = "koin-test-junit4", version.ref = "koin" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 coil-test = { group = "io.coil-kt.coil3", name = "coil-test", version.ref = "coil"}
-shot = { module = "com.karumi:shot", version.ref = "shot" }
-shot-android = { group = "com.karumi", name = "shot-android", version.ref = "shot" }
 
 [bundles]
 coroutines = ["coroutines", "coroutines-core"]
@@ -149,7 +146,6 @@ navigation = [
     "androidx-material3-adaptive-navigation3"
 ]
 test-core = ["coroutines-test", "mockwebserver", "mockk-android", "coil-test"]
-test-snapshot = ["shot", "shot-android"]
 compose-foundation = ["androidx-compose-foundation"]
 
 [plugins]

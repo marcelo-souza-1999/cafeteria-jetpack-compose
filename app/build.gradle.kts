@@ -9,8 +9,6 @@ plugins {
     alias(libs.plugins.google.gms.services)
 }
 
-apply(plugin = "shot")
-
 android {
     namespace = "com.targaryen.cafeteria.app"
     compileSdk = libs.versions.compileSdk.get().toInt()
@@ -22,7 +20,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "com.karumi.shot.ShotTestRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -95,7 +93,6 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation(libs.bundles.test.core)
-    androidTestImplementation(libs.bundles.test.snapshot)
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)

@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,7 +58,10 @@ fun TargaryenPasswordField(
             } else {
                 Icons.Outlined.VisibilityOff
             }
-            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+            IconButton(
+                onClick = { passwordVisible = !passwordVisible },
+                modifier = Modifier.testTag("password_visibility_toggle")
+            ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
