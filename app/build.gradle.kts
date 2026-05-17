@@ -6,10 +6,8 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
     alias(libs.plugins.hotswan.compiler)
-    // alias(libs.plugins.google.gms.services) // Ative quando adicionar o google-services.json real
+    alias(libs.plugins.google.gms.services)
 }
-
-apply(plugin = "shot")
 
 android {
     namespace = "com.targaryen.cafeteria.app"
@@ -22,7 +20,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "com.karumi.shot.ShotTestRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -54,6 +52,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:network"))
     implementation(project(":core:database"))
+    implementation(project(":feature:auth"))
     implementation(project(":feature:catalog"))
     implementation(project(":feature:cart"))
     implementation(project(":feature:chat"))
@@ -93,8 +92,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.bundles.koin.test)
     androidTestImplementation(libs.bundles.test.core)
-    androidTestImplementation(libs.bundles.test.snapshot)
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)

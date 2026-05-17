@@ -1,6 +1,7 @@
 buildscript {
-    dependencies {
-        classpath(libs.shot)
+    repositories {
+        google()
+        mavenCentral()
     }
 }
 
@@ -10,7 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.google.ksp) apply false
-    alias(libs.plugins.kover) apply false
+    alias(libs.plugins.kover)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.hotswan.compiler) apply false
@@ -37,7 +38,46 @@ allprojects {
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
-            freeCompilerArgs.add("-Xexplicit-backing-fields")
+            freeCompilerArgs.addAll(
+                "-Xexplicit-backing-fields",
+                "-opt-in=kotlin.ExperimentalStdlibApi"
+            )
+        }
+    }
+}
+
+dependencies {
+    add("kover", project(":app"))
+    add("kover", project(":core:database"))
+    add("kover", project(":core:designsystem"))
+    add("kover", project(":core:network"))
+    add("kover", project(":feature:auth"))
+    add("kover", project(":feature:cart"))
+    add("kover", project(":feature:catalog"))
+    add("kover", project(":feature:chat"))
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                classes(
+                    "*ComposableSingletons*",
+                    "*_Factory*",
+                    "*MapperImpl*",
+                    "*BuildConfig*",
+                    "*Resource*",
+                    "*.R",
+                    "*.R$*",
+                    "*Gencom*",
+                    "*KoinMeta*",
+                    "org.koin.ksp.generated.*",
+                    "com.targaryen.cafeteria.feature.auth.presentation.components.ComposableSingletons*",
+                    "com.targaryen.cafeteria.feature.auth.presentation.login.ComposableSingletons*",
+                    "com.targaryen.cafeteria.feature.auth.presentation.splash.ComposableSingletons*"
+                )
+                annotatedBy("androidx.compose.runtime.Composable")
+            }
         }
     }
 }

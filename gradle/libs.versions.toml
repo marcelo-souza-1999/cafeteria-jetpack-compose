@@ -1,13 +1,13 @@
 [versions]
 # --- Build, Plugins & Compilers ---
-agp = "9.1.1"
+agp = "9.2.1"
 kotlin = "2.3.21"
-compileSdk = "36"
+compileSdk = "37"
 minSdk = "26"
-targetSdk = "36"
+targetSdk = "37"
 jvmTarget = "21"
 ksp = "2.3.6"
-hotSwanCompiler = "1.2.10"
+hotSwanCompiler = "1.3.2"
 google-services = "4.4.4"
 detekt = "1.23.8"
 kover = "0.9.8"
@@ -18,21 +18,21 @@ lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
 
 # --- Jetpack Compose & UI ---
-composeBom = "2026.04.01"
+composeBom = "2026.05.00"
 composeMaterialIcons = "1.7.8"
 constraintlayoutCompose = "1.1.1"
 compose-shimmer = "1.4.0"
 fancyComposeAlertDialog = "1.0.2"
 
 # --- Coroutines ---
-coroutines = "1.10.2"
+coroutines = "1.11.0"
 
 # --- Injeção de Dependências (Koin Annotations) ---
 koin = "4.2.1"
 koin-annotations = "2.3.1"
 
 # --- Arquitetura Offline-First (Room 3) ---
-room = "3.0.0-alpha03"
+room = "3.0.0-alpha04"
 
 # --- Navegação & Serialização ---
 navigation3 = "1.1.1"
@@ -48,7 +48,9 @@ okhttp = "5.3.2"
 generativeai = "0.9.0"
 
 # --- Firebase ---
-firebaseBom = "34.12.0"
+firebaseBom = "34.13.0"
+credentials = "1.6.0"
+googleid = "1.2.0"
 
 # --- Testes & Qualidade ---
 junit = "4.13.2"
@@ -57,7 +59,6 @@ espressoCore = "3.7.0"
 mockk = "1.14.9"
 turbine = "1.2.1"
 robolectric = "4.16.1"
-shot = "6.1.0"
 
 [libraries]
 # --- AndroidX & Core ---
@@ -110,9 +111,12 @@ mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", versio
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+androidx-credentials-play-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 generativeai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "generativeai" }
 
-# --- Testes Unitários & UI ---
+# --- Testes Unitários & Qualidade ---
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -126,12 +130,10 @@ koin-test = { group = "io.insert-koin", name = "koin-test", version.ref = "koin"
 koin-test-junit = { group = "io.insert-koin", name = "koin-test-junit4", version.ref = "koin" }
 coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 coil-test = { group = "io.coil-kt.coil3", name = "coil-test", version.ref = "coil"}
-shot = { module = "com.karumi:shot", version.ref = "shot" }
-shot-android = { group = "com.karumi", name = "shot-android", version.ref = "shot" }
 
 [bundles]
 coroutines = ["coroutines", "coroutines-core"]
-firebase = ["firebase-firestore", "firebase-auth"]
+firebase = ["firebase-firestore", "firebase-auth", "androidx-credentials", "androidx-credentials-play-auth", "googleid"]
 coil = ["coil-compose", "coil-network"]
 koin = ["koin", "koin-annotation", "koin-compose"]
 koin-test = ["koin-test", "koin-test-junit"]
@@ -144,7 +146,6 @@ navigation = [
     "androidx-material3-adaptive-navigation3"
 ]
 test-core = ["coroutines-test", "mockwebserver", "mockk-android", "coil-test"]
-test-snapshot = ["shot", "shot-android"]
 compose-foundation = ["androidx-compose-foundation"]
 
 [plugins]
