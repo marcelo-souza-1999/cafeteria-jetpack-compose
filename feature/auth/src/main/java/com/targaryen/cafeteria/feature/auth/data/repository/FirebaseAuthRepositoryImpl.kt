@@ -77,17 +77,45 @@ class FirebaseAuthRepositoryImpl(
                 val user = result.user
                 val isNewUser = result.additionalUserInfo?.isNewUser ?: false
 
-                if (isNewUser && user != null) {
-                    saveUserToFirestoreAndRoom(
-                        uid = user.uid,
-                        name = user.displayName ?: "",
-                        email = user.email ?: "",
-                        photoUrl = user.photoUrl?.toString(),
-                        onSuccess = { trySend(Resource.Success(Unit)) },
-                        onFailure = { e -> trySend(Resource.Error(AuthError.Unknown(e.message))) }
-                    )
-                } else {
+                if (user != null) {
                     trySend(Resource.Success(Unit))
+
+                    if (isNewUser) {
+                        saveUserToFirestoreAndRoom(
+                            uid = user.uid,
+                            name = user.displayName ?: "",
+                            email = user.email ?: "",
+                            photoUrl = user.photoUrl?.toString(),
+                            onSuccess = { },
+                            onFailure = { }
+                        )
+                    } else {
+                        // Veterano: Sincroniza Firestore -> Room (Oportunista)
+                        firestore.collection(COLLECTION_USERS).document(user.uid).get()
+                            .addOnSuccessListener { document ->
+                                if (document.exists()) {
+                                    val name = document.getString(KEY_NAME) ?: ""
+                                    val emailFromDb = document.getString(KEY_EMAIL) ?: user.email ?: ""
+                                    val photoUrl = document.getString(KEY_PHOTO_URL)
+                                    repositoryScope.launch {
+                                        try {
+                                            userDao.insertUser(
+                                                UserEntity(
+                                                    uid = user.uid,
+                                                    name = name,
+                                                    email = emailFromDb,
+                                                    photoUrl = photoUrl
+                                                )
+                                            )
+                                        } catch (e: Exception) {
+                                            // Silencioso
+                                        }
+                                    }
+                                }
+                            }
+                    }
+                } else {
+                    trySend(Resource.Error(AuthError.Unknown(MSG_USER_RETRIEVAL_FAILED)))
                 }
             }
             .addOnFailureListener { exception ->
@@ -113,22 +141,26 @@ class FirebaseAuthRepositoryImpl(
             .addOnSuccessListener { result ->
                 val user = result.user
                 if (user != null) {
-                    // Sincroniza Firestore -> Room ao logar
+                    trySend(Resource.Success(Unit))
+                    // Sincroniza Firestore -> Room ao logar (Oportunista)
                     firestore.collection(COLLECTION_USERS).document(user.uid).get()
                         .addOnSuccessListener { document ->
                             if (document.exists()) {
                                 val name = document.getString(KEY_NAME) ?: ""
-                                val photoUrl = document.getString("photoUrl")
+                                val photoUrl = document.getString(KEY_PHOTO_URL)
                                 repositoryScope.launch {
-                                    userDao.insertUser(
-                                        UserEntity(
-                                            uid = user.uid,
-                                            name = name,
-                                            email = email,
-                                            photoUrl = photoUrl
+                                    try {
+                                        userDao.insertUser(
+                                            UserEntity(
+                                                uid = user.uid,
+                                                name = name,
+                                                email = email,
+                                                photoUrl = photoUrl
+                                            )
                                         )
-                                    )
-                                    trySend(Resource.Success(Unit))
+                                    } catch (e: Exception) {
+                                        // Silencioso, falha local não deve derrubar o app
+                                    }
                                 }
                             } else {
                                 // Se não houver documento no Firestore (caso raro), criamos um básico
@@ -137,13 +169,10 @@ class FirebaseAuthRepositoryImpl(
                                     name = user.displayName ?: "Aliado",
                                     email = email,
                                     photoUrl = user.photoUrl?.toString(),
-                                    onSuccess = { trySend(Resource.Success(Unit)) },
-                                    onFailure = { e -> trySend(Resource.Error(AuthError.Unknown(e.message))) }
+                                    onSuccess = { },
+                                    onFailure = { }
                                 )
                             }
-                        }
-                        .addOnFailureListener { e ->
-                            trySend(Resource.Error(AuthError.Unknown(e.message)))
                         }
                 } else {
                     trySend(Resource.Error(AuthError.Unknown(MSG_USER_RETRIEVAL_FAILED)))
@@ -197,12 +226,13 @@ class FirebaseAuthRepositoryImpl(
         onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit
     ) {
-        val userData = hashMapOf(
+        val userData = hashMapOf<String, Any>(
             KEY_UID to uid,
             KEY_NAME to name,
             KEY_EMAIL to email,
             KEY_CREATED_AT to Timestamp.now()
         )
+        photoUrl?.let { userData[KEY_PHOTO_URL] = it }
 
         // 1. Salva na Nuvem (Firestore)
         firestore.collection(COLLECTION_USERS).document(uid)
@@ -233,6 +263,7 @@ class FirebaseAuthRepositoryImpl(
         private const val KEY_UID = "uid"
         private const val KEY_NAME = "name"
         private const val KEY_EMAIL = "email"
+        private const val KEY_PHOTO_URL = "photoUrl"
         private const val KEY_CREATED_AT = "createdAt"
         private const val MSG_USER_RETRIEVAL_FAILED = "Falha ao recuperar usuário criado"
     }

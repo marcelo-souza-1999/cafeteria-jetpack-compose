@@ -25,6 +25,8 @@ class RegisterViewModel(
     private val eventChannel = Channel<RegisterEvent>()
     val events = eventChannel.receiveAsFlow()
 
+    private val EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$".toRegex()
+
     fun onNameChanged(name: String) {
         uiState.update {
             it.copy(
@@ -38,7 +40,7 @@ class RegisterViewModel(
         uiState.update {
             it.copy(
                 email = email,
-                emailError = !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+                emailError = !EMAIL_REGEX.matches(email)
             )
         }
     }
