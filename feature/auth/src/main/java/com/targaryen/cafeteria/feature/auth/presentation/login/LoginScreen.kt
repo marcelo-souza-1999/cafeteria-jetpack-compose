@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -185,11 +186,10 @@ fun LoginScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Obsidian.copy(alpha = 0.7f))
-                    .zIndex(10f),
+                    .background(Obsidian.copy(alpha = TargaryenTheme.dimens.alphaOverlay))
+                    .zIndex(TargaryenTheme.dimens.zIndexOverlay),
                 contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = ValyrianGold)
+            ) {                CircularProgressIndicator(color = ValyrianGold)
             }
         }
     }
@@ -200,6 +200,7 @@ private fun getErrorMessage(error: AuthError): String {
     return when (error) {
         is AuthError.InvalidCredentials -> stringResource(id = R.string.error_auth_invalid_credentials)
         is AuthError.UserNotFound -> stringResource(id = R.string.error_auth_user_not_found)
+        is AuthError.EmailAlreadyInUse -> stringResource(id = R.string.error_auth_unknown, "Este e-mail já existe. Tente fazer login.")
         is AuthError.NetworkError -> stringResource(id = R.string.error_auth_network)
         is AuthError.TooManyRequests -> stringResource(id = R.string.error_auth_too_many_requests)
         is AuthError.Unknown -> stringResource(
@@ -227,9 +228,7 @@ internal fun ForgotPasswordContent(
         Text(
             text = stringResource(id = R.string.title_forgot_password),
             color = DimmedGold,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = FontFamily.Serif,
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = TargaryenTheme.dimens.spaceNormal)
         )
 
@@ -291,15 +290,14 @@ internal fun LoginContent(
             painter = painterResource(id = R.drawable.ic_logo_login_screen),
             contentDescription = null,
             modifier = Modifier
+                .size(TargaryenTheme.dimens.logoAuth)
                 .padding(bottom = TargaryenTheme.dimens.spaceNormal)
         )
 
         Text(
             text = stringResource(id = R.string.title_login),
             color = DimmedGold,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = FontFamily.Serif,
+            style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(bottom = TargaryenTheme.dimens.spaceExtraLarge)
         )
 

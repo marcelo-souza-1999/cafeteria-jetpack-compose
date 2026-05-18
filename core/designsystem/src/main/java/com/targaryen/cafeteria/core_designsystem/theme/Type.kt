@@ -33,10 +33,26 @@ val Typography = Typography(
 
     titleLarge = TextStyle(
         fontFamily = CinzelFontFamily,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
         letterSpacing = 0.sp
+    ),
+
+    titleMedium = TextStyle(
+        fontFamily = CinzelFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.1.sp
+    ),
+
+    titleSmall = TextStyle(
+        fontFamily = CinzelFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp
     ),
 
     bodyLarge = TextStyle(

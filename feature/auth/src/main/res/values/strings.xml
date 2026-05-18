@@ -35,4 +35,18 @@
     <string name="dialog_error_button_cancel">Cancelar</string>
     <string name="dialog_success_button_ok">Ok, Entendido</string>
     <string name="dialog_success_title">O Corvo Voou</string>
+
+    <!-- ============================================== -->
+    <!-- Register Screen                                -->
+    <!-- ============================================== -->
+    <string name="title_register">FORJAR ALIANÇA</string>
+    <string name="subtitle_register">O FOGO CORRE EM SUAS VEIAS</string>
+    <string name="label_name">Nome</string>
+    <string name="label_confirm_password">Confirmar Senha</string>
+    <string name="action_do_register">Cadastrar-se</string>
+    <string name="action_register_google">Cadastrar com o Google</string>
+    <string name="action_already_have_account">Já possui um estandarte? Fazer Login</string>
+    <string name="error_passwords_not_match">As senhas não coincidem.</string>
+    <string name="error_name_empty">Informe seu nome.</string>
+    <string name="error_auth_email_already_in_use">Este e-mail já pertence a outro lorde. Tente recuperar a senha.</string>
 </resources>

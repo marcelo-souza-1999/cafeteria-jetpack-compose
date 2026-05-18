@@ -11,6 +11,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.targaryen.cafeteria.app.ui.main.MainScreen
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.feature.auth.presentation.login.LoginScreen
+import com.targaryen.cafeteria.feature.auth.presentation.register.RegisterScreen
 import com.targaryen.cafeteria.feature.auth.presentation.splash.SplashScreen
 
 @Composable
@@ -41,7 +42,19 @@ fun MainNavigation() {
                             backStack.add(MainDestination)
                         },
                         onRegisterClick = { 
-                            Log.d("AuthFlow", "Rota de registro acionada. O Corvo de Cadastro ainda será forjado.")
+                            backStack.add(RegisterDestination)
+                        },
+                        modifier = Modifier.safeDrawingPadding()
+                    )
+                }
+                entry<RegisterDestination> {
+                    RegisterScreen(
+                        onNavigateBack = {
+                            backStack.removeLastOrNull()
+                        },
+                        onRegisterSuccess = {
+                            backStack.clear()
+                            backStack.add(MainDestination)
                         },
                         modifier = Modifier.safeDrawingPadding()
                     )
