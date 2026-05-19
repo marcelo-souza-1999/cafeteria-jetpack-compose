@@ -171,7 +171,7 @@ private fun getErrorMessage(error: AuthError): String {
     return when (error) {
         is AuthError.InvalidCredentials -> stringResource(id = R.string.error_auth_invalid_credentials)
         is AuthError.UserNotFound -> stringResource(id = R.string.error_auth_user_not_found)
-        is AuthError.EmailAlreadyInUse -> stringResource(id = R.string.error_auth_unknown, "Este e-mail já existe.")
+        is AuthError.EmailAlreadyInUse -> stringResource(id = R.string.error_auth_email_already_in_use)
         is AuthError.NetworkError -> stringResource(id = R.string.error_auth_network)
         is AuthError.TooManyRequests -> stringResource(id = R.string.error_auth_too_many_requests)
         is AuthError.Unknown -> stringResource(id = R.string.error_auth_unknown, error.message ?: "")
