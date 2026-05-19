@@ -2,6 +2,7 @@ package com.targaryen.cafeteria.feature.auth.presentation.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.targaryen.cafeteria.core_network.Resource
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignUpWithEmailUseCase
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithGoogleUseCase
 import kotlinx.coroutines.channels.Channel
@@ -25,7 +26,7 @@ class RegisterViewModel(
     private val eventChannel = Channel<RegisterEvent>()
     val events = eventChannel.receiveAsFlow()
 
-    private val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$".toRegex()
+    private val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
 
     fun onNameChanged(name: String) {
         uiState.update {
@@ -78,10 +79,10 @@ class RegisterViewModel(
             ).collect { resource ->
                 uiState.update { it.copy(isEmailLoading = false) }
                 when (resource) {
-                    is com.targaryen.cafeteria.core_network.Resource.Success -> {
+                    is Resource.Success -> {
                         eventChannel.send(RegisterEvent.RegisterSuccess)
                     }
-                    is com.targaryen.cafeteria.core_network.Resource.Error -> {
+                    is Resource.Error -> {
                         eventChannel.send(RegisterEvent.ShowErrorDialog(resource.error))
                     }
                 }
@@ -96,10 +97,10 @@ class RegisterViewModel(
             signInWithGoogleUseCase(idToken).collect { resource ->
                 uiState.update { it.copy(isGoogleLoading = false) }
                 when (resource) {
-                    is com.targaryen.cafeteria.core_network.Resource.Success -> {
+                    is Resource.Success -> {
                         eventChannel.send(RegisterEvent.RegisterSuccess)
                     }
-                    is com.targaryen.cafeteria.core_network.Resource.Error -> {
+                    is Resource.Error -> {
                         eventChannel.send(RegisterEvent.ShowErrorDialog(resource.error))
                     }
                 }
