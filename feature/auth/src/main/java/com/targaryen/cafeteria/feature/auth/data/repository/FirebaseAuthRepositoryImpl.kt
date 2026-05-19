@@ -1,5 +1,6 @@
 package com.targaryen.cafeteria.feature.auth.data.repository
 
+import android.util.Log
 import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -10,8 +11,8 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
-import com.targaryen.cafeteria.core_database.dao.UserDao
-import com.targaryen.cafeteria.core_database.model.UserEntity
+import com.targaryen.cafeteria.coredatabase.dao.UserDao
+import com.targaryen.cafeteria.coredatabase.model.UserEntity
 import com.targaryen.cafeteria.core_network.Resource
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import com.targaryen.cafeteria.feature.auth.domain.repository.AuthRepository
@@ -31,108 +32,50 @@ class FirebaseAuthRepositoryImpl(
 ) : AuthRepository {
     private val repositoryScope = CoroutineScope(Dispatchers.IO)
 
-    override fun isUserLoggedIn(): Boolean {
-        return firebaseAuth.currentUser != null
-    }
+    override fun isUserLoggedIn(): Boolean = firebaseAuth.currentUser != null
 
-    override fun signUpWithEmail(name: String, email: String, pass: String): Flow<Resource<Unit, AuthError>> = callbackFlow {
-        firebaseAuth.createUserWithEmailAndPassword(email, pass)
-            .addOnSuccessListener { result ->
-                val user = result.user
-                if (user != null) {
-                    val profileUpdates = UserProfileChangeRequest.Builder()
-                        .setDisplayName(name)
-                        .build()
-
-                    user.updateProfile(profileUpdates)
-                        .addOnCompleteListener {
+    override fun signUpWithEmail(name: String, email: String, pass: String): Flow<Resource<Unit, AuthError>> =
+        callbackFlow {
+            firebaseAuth.createUserWithEmailAndPassword(email, pass)
+                .addOnSuccessListener { result ->
+                    val user = result.user
+                    if (user != null) {
+                        val profileUpdates = UserProfileChangeRequest.Builder().setDisplayName(name).build()
+                        user.updateProfile(profileUpdates).addOnCompleteListener {
                             saveUserToFirestoreAndRoom(
-                                uid = user.uid,
-                                name = name,
-                                email = email,
-                                photoUrl = null,
-                                onSuccess = { trySend(Resource.Success(Unit)) },
-                                onFailure = { e -> trySend(Resource.Error(AuthError.Unknown(e.message))) }
+                                UserEntity(user.uid, name, email, null),
+                                { trySend(Resource.Success(Unit)) },
+                                { e -> trySend(Resource.Error(AuthError.Unknown(e.message))) }
                             )
                         }
-                } else {
-                    trySend(Resource.Error(AuthError.Unknown(MSG_USER_RETRIEVAL_FAILED)))
+                    } else {
+                        trySend(Resource.Error(AuthError.Unknown(MSG_USER_RETRIEVAL_FAILED)))
+                    }
                 }
-            }
-            .addOnFailureListener { exception ->
-                val authError = when (exception) {
-                    is FirebaseAuthUserCollisionException -> AuthError.EmailAlreadyInUse
-                    is FirebaseNetworkException -> AuthError.NetworkError
-                    else -> AuthError.Unknown(exception.message)
-                }
-                trySend(Resource.Error(authError))
-            }
-        awaitClose { }
-    }
+                .addOnFailureListener { trySend(Resource.Error(mapAuthException(it))) }
+            awaitClose { }
+        }
 
     override fun signInWithGoogle(idToken: String): Flow<Resource<Unit, AuthError>> = callbackFlow {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         firebaseAuth.signInWithCredential(credential)
             .addOnSuccessListener { result ->
                 val user = result.user
-                val isNewUser = result.additionalUserInfo?.isNewUser ?: false
-
                 if (user != null) {
                     trySend(Resource.Success(Unit))
-
-                    if (isNewUser) {
-                        saveUserToFirestoreAndRoom(
-                            uid = user.uid,
-                            name = user.displayName ?: "",
-                            email = user.email ?: "",
-                            photoUrl = user.photoUrl?.toString(),
-                            onSuccess = { },
-                            onFailure = { }
-                        )
+                    val entity = UserEntity(
+                        user.uid, user.displayName ?: "", user.email ?: "", user.photoUrl?.toString()
+                    )
+                    if (result.additionalUserInfo?.isNewUser == true) {
+                        saveUserToFirestoreAndRoom(entity, { }, { })
                     } else {
-                        // Veterano: Sincroniza Firestore -> Room (Oportunista)
-                        firestore.collection(COLLECTION_USERS).document(user.uid).get()
-                            .addOnSuccessListener { document ->
-                                if (document.exists()) {
-                                    val name = document.getString(KEY_NAME) ?: ""
-                                    val emailFromDb = document.getString(KEY_EMAIL) ?: user.email ?: ""
-                                    val photoUrl = document.getString(KEY_PHOTO_URL)
-                                    repositoryScope.launch {
-                                        try {
-                                            userDao.insertUser(
-                                                UserEntity(
-                                                    uid = user.uid,
-                                                    name = name,
-                                                    email = emailFromDb,
-                                                    photoUrl = photoUrl
-                                                )
-                                            )
-                                        } catch (e: Exception) {
-                                            // Silencioso
-                                        }
-                                    }
-                                }
-                            }
+                        syncUserFromFirestore(entity.uid, entity.email)
                     }
                 } else {
                     trySend(Resource.Error(AuthError.Unknown(MSG_USER_RETRIEVAL_FAILED)))
                 }
             }
-            .addOnFailureListener { exception ->
-                val authError = when (exception) {
-                    is FirebaseAuthInvalidCredentialsException -> AuthError.InvalidCredentials
-                    is FirebaseAuthInvalidUserException -> AuthError.UserNotFound
-                    is FirebaseNetworkException -> AuthError.NetworkError
-                    is FirebaseAuthException -> {
-                        when (exception.errorCode) {
-                            ERROR_TOO_MANY_REQUESTS -> AuthError.TooManyRequests
-                            else -> AuthError.Unknown(exception.message)
-                        }
-                    }
-                    else -> AuthError.Unknown(exception.message)
-                }
-                trySend(Resource.Error(authError))
-            }
+            .addOnFailureListener { trySend(Resource.Error(mapAuthException(it))) }
         awaitClose { }
     }
 
@@ -142,119 +85,77 @@ class FirebaseAuthRepositoryImpl(
                 val user = result.user
                 if (user != null) {
                     trySend(Resource.Success(Unit))
-                    // Sincroniza Firestore -> Room ao logar (Oportunista)
-                    firestore.collection(COLLECTION_USERS).document(user.uid).get()
-                        .addOnSuccessListener { document ->
-                            if (document.exists()) {
-                                val name = document.getString(KEY_NAME) ?: ""
-                                val photoUrl = document.getString(KEY_PHOTO_URL)
-                                repositoryScope.launch {
-                                    try {
-                                        userDao.insertUser(
-                                            UserEntity(
-                                                uid = user.uid,
-                                                name = name,
-                                                email = email,
-                                                photoUrl = photoUrl
-                                            )
-                                        )
-                                    } catch (e: Exception) {
-                                        // Silencioso, falha local não deve derrubar o app
-                                    }
-                                }
-                            } else {
-                                // Se não houver documento no Firestore (caso raro), criamos um básico
-                                saveUserToFirestoreAndRoom(
-                                    uid = user.uid,
-                                    name = user.displayName ?: "Aliado",
-                                    email = email,
-                                    photoUrl = user.photoUrl?.toString(),
-                                    onSuccess = { },
-                                    onFailure = { }
-                                )
-                            }
-                        }
+                    syncUserFromFirestore(user.uid, email)
                 } else {
                     trySend(Resource.Error(AuthError.Unknown(MSG_USER_RETRIEVAL_FAILED)))
                 }
             }
-            .addOnFailureListener { exception ->
-                val authError = when (exception) {
-                    is FirebaseAuthInvalidCredentialsException -> AuthError.InvalidCredentials
-                    is FirebaseAuthInvalidUserException -> AuthError.UserNotFound
-                    is FirebaseNetworkException -> AuthError.NetworkError
-                    is FirebaseAuthException -> {
-                        when (exception.errorCode) {
-                            ERROR_TOO_MANY_REQUESTS -> AuthError.TooManyRequests
-                            else -> AuthError.Unknown(exception.message)
+            .addOnFailureListener { trySend(Resource.Error(mapAuthException(it))) }
+        awaitClose { }
+    }
+
+    private fun syncUserFromFirestore(uid: String, email: String) {
+        firestore.collection(COLLECTION_USERS).document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val name = document.getString(KEY_NAME) ?: ""
+                    val emailFromDb = document.getString(KEY_EMAIL) ?: email
+                    val photoUrl = document.getString(KEY_PHOTO_URL)
+                    repositoryScope.launch {
+                        try {
+                            userDao.insertUser(UserEntity(uid, name, emailFromDb, photoUrl))
+                        } catch (e: IllegalStateException) {
+                            Log.e("AuthRepository", "Failed to insert user locally", e)
                         }
                     }
-                    else -> AuthError.Unknown(exception.message)
+                } else {
+                    val fallback = UserEntity(
+                        uid, firebaseAuth.currentUser?.displayName ?: "Aliado",
+                        email, firebaseAuth.currentUser?.photoUrl?.toString()
+                    )
+                    saveUserToFirestoreAndRoom(fallback, { }, { })
                 }
-                trySend(Resource.Error(authError))
             }
-        awaitClose { }
     }
 
     override fun sendPasswordResetEmail(email: String): Flow<Resource<Unit, AuthError>> = callbackFlow {
         firebaseAuth.sendPasswordResetEmail(email)
-            .addOnSuccessListener {
-                trySend(Resource.Success(Unit))
-            }
-            .addOnFailureListener { exception ->
-                val authError = when (exception) {
-                    is FirebaseAuthInvalidUserException -> AuthError.UserNotFound
-                    is FirebaseNetworkException -> AuthError.NetworkError
-                    is FirebaseAuthException -> {
-                        when (exception.errorCode) {
-                            ERROR_TOO_MANY_REQUESTS -> AuthError.TooManyRequests
-                            else -> AuthError.Unknown(exception.message)
-                        }
-                    }
-                    else -> AuthError.Unknown(exception.message)
-                }
-                trySend(Resource.Error(authError))
-            }
+            .addOnSuccessListener { trySend(Resource.Success(Unit)) }
+            .addOnFailureListener { trySend(Resource.Error(mapAuthException(it))) }
         awaitClose { }
     }
 
-    private fun saveUserToFirestoreAndRoom(
-        uid: String,
-        name: String,
-        email: String,
-        photoUrl: String?,
-        onSuccess: () -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
+    private fun saveUserToFirestoreAndRoom(user: UserEntity, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val userData = hashMapOf<String, Any>(
-            KEY_UID to uid,
-            KEY_NAME to name,
-            KEY_EMAIL to email,
-            KEY_CREATED_AT to Timestamp.now()
+            KEY_UID to user.uid, KEY_NAME to user.name, KEY_EMAIL to user.email, KEY_CREATED_AT to Timestamp.now()
         )
-        photoUrl?.let { userData[KEY_PHOTO_URL] = it }
-
-        // 1. Salva na Nuvem (Firestore)
-        firestore.collection(COLLECTION_USERS).document(uid)
-            .set(userData)
+        user.photoUrl?.let { userData[KEY_PHOTO_URL] = it }
+        firestore.collection(COLLECTION_USERS).document(user.uid).set(userData)
             .addOnSuccessListener {
-                // 2. Salva no Banco Local (Room) - Doutrina Offline-First
                 repositoryScope.launch {
                     try {
-                        val userEntity = UserEntity(
-                            uid = uid,
-                            name = name,
-                            email = email,
-                            photoUrl = photoUrl
-                        )
-                        userDao.insertUser(userEntity)
+                        userDao.insertUser(user)
                         onSuccess()
-                    } catch (e: Exception) {
+                    } catch (e: IllegalStateException) {
                         onFailure(e)
                     }
                 }
             }
-            .addOnFailureListener { e -> onFailure(e) }
+            .addOnFailureListener { onFailure(it) }
+    }
+
+    private fun mapAuthException(exception: Exception): AuthError {
+        return when (exception) {
+            is FirebaseAuthUserCollisionException -> AuthError.EmailAlreadyInUse
+            is FirebaseAuthInvalidCredentialsException -> AuthError.InvalidCredentials
+            is FirebaseAuthInvalidUserException -> AuthError.UserNotFound
+            is FirebaseNetworkException -> AuthError.NetworkError
+            is FirebaseAuthException -> {
+                if (exception.errorCode == ERROR_TOO_MANY_REQUESTS) AuthError.TooManyRequests
+                else AuthError.Unknown(exception.message)
+            }
+            else -> AuthError.Unknown(exception.message)
+        }
     }
 
     companion object {
@@ -265,6 +166,6 @@ class FirebaseAuthRepositoryImpl(
         private const val KEY_EMAIL = "email"
         private const val KEY_PHOTO_URL = "photoUrl"
         private const val KEY_CREATED_AT = "createdAt"
-        private const val MSG_USER_RETRIEVAL_FAILED = "Falha ao recuperar usuário criado"
+        private const val MSG_USER_RETRIEVAL_FAILED = "Falha ao recuperar usuário"
     }
 }

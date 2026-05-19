@@ -1,10 +1,10 @@
-package com.targaryen.cafeteria.core_database.dao
+package com.targaryen.cafeteria.coredatabase.dao
 
 import androidx.room3.Dao
 import androidx.room3.Insert
 import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
-import com.targaryen.cafeteria.core_database.model.UserEntity
+import com.targaryen.cafeteria.coredatabase.model.UserEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

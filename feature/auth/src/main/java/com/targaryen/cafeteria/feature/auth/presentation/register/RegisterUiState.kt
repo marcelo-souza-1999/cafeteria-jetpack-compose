@@ -19,3 +19,13 @@ data class RegisterUiState(
                 confirmPassword.isNotBlank() && !confirmPasswordError &&
                 !isEmailLoading && !isGoogleLoading
 }
+
+data class RegisterActions(
+    val onNameChange: (String) -> Unit,
+    val onEmailChange: (String) -> Unit,
+    val onPasswordChange: (String) -> Unit,
+    val onConfirmPasswordChange: (String) -> Unit,
+    val onRegisterClick: () -> Unit,
+    val onGoogleSignInClick: () -> Unit,
+    val onBackClick: () -> Unit
+)

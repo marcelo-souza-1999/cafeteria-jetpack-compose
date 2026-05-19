@@ -1,15 +1,15 @@
-package com.targaryen.cafeteria.core_database.di
+package com.targaryen.cafeteria.coredatabase.di
 
 import android.content.Context
 import androidx.room3.Room
-import com.targaryen.cafeteria.core_database.TargaryenDatabase
-import com.targaryen.cafeteria.core_database.dao.UserDao
+import com.targaryen.cafeteria.coredatabase.TargaryenDatabase
+import com.targaryen.cafeteria.coredatabase.dao.UserDao
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
 @Module
-@ComponentScan("com.targaryen.cafeteria.core_database")
+@ComponentScan("com.targaryen.cafeteria.coredatabase")
 class DatabaseModule {
 
     @Single

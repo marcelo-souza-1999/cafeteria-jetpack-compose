@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.targaryen.cafeteria.core_database"
+    namespace = "com.targaryen.cafeteria.coredatabase"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
@@ -43,4 +43,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)
     testImplementation(libs.turbine.test)
+
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.coroutines.test)
 }

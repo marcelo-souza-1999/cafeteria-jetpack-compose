@@ -25,7 +25,7 @@ class RegisterViewModel(
     private val eventChannel = Channel<RegisterEvent>()
     val events = eventChannel.receiveAsFlow()
 
-    private val EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$".toRegex()
+    private val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$".toRegex()
 
     fun onNameChanged(name: String) {
         uiState.update {
@@ -40,7 +40,7 @@ class RegisterViewModel(
         uiState.update {
             it.copy(
                 email = email,
-                emailError = !EMAIL_REGEX.matches(email)
+                emailError = !emailRegex.matches(email)
             )
         }
     }
@@ -49,7 +49,7 @@ class RegisterViewModel(
         uiState.update {
             it.copy(
                 password = password,
-                passwordError = password.length < 6,
+                passwordError = password.length < PASSWORD_MIN_LENGTH,
                 confirmPasswordError = it.confirmPassword.isNotEmpty() && password != it.confirmPassword
             )
         }
@@ -109,7 +109,15 @@ class RegisterViewModel(
 
     fun onGoogleSignInError(message: String?) {
         viewModelScope.launch {
-            eventChannel.send(RegisterEvent.ShowErrorDialog(com.targaryen.cafeteria.feature.auth.domain.model.AuthError.Unknown(message)))
+            eventChannel.send(
+                RegisterEvent.ShowErrorDialog(
+                    com.targaryen.cafeteria.feature.auth.domain.model.AuthError.Unknown(message)
+                )
+            )
         }
+    }
+
+    companion object {
+        private const val PASSWORD_MIN_LENGTH = 6
     }
 }

@@ -62,16 +62,6 @@ import org.koin.core.qualifier.named
 
 private const val QUALIFIER_WEB_CLIENT_ID = "WebClientId"
 
-class RegisterCallbacks(
-    val onNameChange: (String) -> Unit,
-    val onEmailChange: (String) -> Unit,
-    val onPasswordChange: (String) -> Unit,
-    val onConfirmPasswordChange: (String) -> Unit,
-    val onRegisterClick: () -> Unit,
-    val onGoogleSignInClick: () -> Unit,
-    val onBackClick: () -> Unit
-)
-
 @Composable
 fun RegisterScreen(
     onNavigateBack: () -> Unit,
@@ -81,14 +71,32 @@ fun RegisterScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val (authError, setAuthError) = remember { mutableStateOf<AuthError?>(null) }
-
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val webClientId: String = koinInject(named(QUALIFIER_WEB_CLIENT_ID))
     val googleAuthUiClient = remember { GoogleAuthUiClient(context, webClientId) }
 
-    val callbacks = remember {
-        RegisterCallbacks(
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is RegisterEvent.RegisterSuccess -> onRegisterSuccess()
+                is RegisterEvent.ShowErrorDialog -> setAuthError(event.error)
+            }
+        }
+    }
+
+    if (authError != null) {
+        AuthErrorFancyDialog(
+            title = stringResource(id = R.string.dialog_error_title),
+            message = getErrorMessage(authError),
+            isCancelable = false,
+            onRetryClick = { setAuthError(null) },
+            onDismissRequest = { setAuthError(null) }
+        )
+    }
+
+    val actions = remember {
+        RegisterActions(
             onNameChange = viewModel::onNameChanged,
             onEmailChange = viewModel::onEmailChanged,
             onPasswordChange = viewModel::onPasswordChanged,
@@ -98,9 +106,7 @@ fun RegisterScreen(
                 coroutineScope.launch {
                     try {
                         val idToken = googleAuthUiClient.signIn()
-                        if (idToken != null) {
-                            viewModel.onGoogleSignIn(idToken)
-                        }
+                        if (idToken != null) viewModel.onGoogleSignIn(idToken)
                     } catch (e: GetCredentialException) {
                         viewModel.onGoogleSignInError(e.message)
                     }
@@ -110,36 +116,7 @@ fun RegisterScreen(
         )
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is RegisterEvent.RegisterSuccess -> {
-                    onRegisterSuccess()
-                }
-
-                is RegisterEvent.ShowErrorDialog -> {
-                    setAuthError(event.error)
-                }
-            }
-        }
-    }
-
-    authError?.let { error ->
-        val errorMessage = getErrorMessage(error)
-        AuthErrorFancyDialog(
-            title = stringResource(id = R.string.dialog_error_title),
-            message = errorMessage,
-            isCancelable = false,
-            onRetryClick = { setAuthError(null) },
-            onDismissRequest = { setAuthError(null) }
-        )
-    }
-
-    RegisterContent(
-        uiState = uiState,
-        callbacks = callbacks,
-        modifier = modifier.fillMaxSize()
-    )
+    RegisterContent(uiState, actions, modifier.fillMaxSize())
 }
 
 @Composable
@@ -150,10 +127,7 @@ private fun getErrorMessage(error: AuthError): String {
         is AuthError.UserNotFound -> stringResource(id = R.string.error_auth_user_not_found)
         is AuthError.NetworkError -> stringResource(id = R.string.error_auth_network)
         is AuthError.TooManyRequests -> stringResource(id = R.string.error_auth_too_many_requests)
-        is AuthError.Unknown -> stringResource(
-            id = R.string.error_auth_unknown,
-            error.message ?: ""
-        )
+        is AuthError.Unknown -> stringResource(id = R.string.error_auth_unknown, error.message ?: "")
     }
 }
 
@@ -161,14 +135,14 @@ private fun getErrorMessage(error: AuthError): String {
 @Composable
 internal fun RegisterContent(
     uiState: RegisterUiState,
-    callbacks: RegisterCallbacks,
+    actions: RegisterActions,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
         topBar = {
             TargaryenTopBar(
                 title = stringResource(id = R.string.title_register),
-                onBackClick = callbacks.onBackClick
+                onBackClick = actions.onBackClick
             )
         },
         containerColor = Obsidian,
@@ -191,150 +165,134 @@ internal fun RegisterContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_logo_login_screen),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(TargaryenTheme.dimens.logoAuth)
-                        .padding(bottom = TargaryenTheme.dimens.spaceNormal)
-                )
-
-                Text(
-                    text = stringResource(id = R.string.subtitle_register),
-                    color = com.targaryen.cafeteria.core_designsystem.theme.DimmedGold,
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(bottom = TargaryenTheme.dimens.spaceExtraLarge)
-                )
-                TargaryenTextField(
-                    value = uiState.name,
-                    onValueChange = callbacks.onNameChange,
-                    label = stringResource(id = R.string.label_name),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Person,
-                            contentDescription = null,
-                            tint = ValyrianGold
-                        )
-                    },
-                    isError = uiState.nameError,
-                    supportingText = if (uiState.nameError) {
-                        { Text(text = stringResource(id = R.string.error_name_empty)) }
-                    } else null,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        capitalization = KeyboardCapitalization.Words,
-                        imeAction = ImeAction.Next
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
-
-                TargaryenTextField(
-                    value = uiState.email,
-                    onValueChange = callbacks.onEmailChange,
-                    label = stringResource(id = R.string.label_email),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Email,
-                            contentDescription = null,
-                            tint = ValyrianGold
-                        )
-                    },
-                    isError = uiState.emailError,
-                    supportingText = if (uiState.emailError) {
-                        { Text(text = stringResource(id = R.string.error_invalid_email)) }
-                    } else null,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
-
-                TargaryenPasswordField(
-                    value = uiState.password,
-                    onValueChange = callbacks.onPasswordChange,
-                    label = stringResource(id = R.string.label_password),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Lock,
-                            contentDescription = null,
-                            tint = ValyrianGold
-                        )
-                    },
-                    isError = uiState.passwordError,
-                    supportingText = if (uiState.passwordError) {
-                        { Text(text = stringResource(id = R.string.error_weak_password)) }
-                    } else null,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Next
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
-
-                TargaryenPasswordField(
-                    value = uiState.confirmPassword,
-                    onValueChange = callbacks.onConfirmPasswordChange,
-                    label = stringResource(id = R.string.label_confirm_password),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Filled.Lock,
-                            contentDescription = null,
-                            tint = ValyrianGold
-                        )
-                    },
-                    isError = uiState.confirmPasswordError,
-                    supportingText = if (uiState.confirmPasswordError) {
-                        { Text(text = stringResource(id = R.string.error_passwords_not_match)) }
-                    } else null,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Done
-                    )
-                )
-
+                RegisterHeader()
+                RegisterForm(uiState, actions)
                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceExtraLarge))
-
-                TargaryenButton(
-                    text = stringResource(id = R.string.action_do_register),
-                    onClick = callbacks.onRegisterClick,
-                    enabled = uiState.canRegister,
-                    isLoading = uiState.isEmailLoading
-                )
-
-                Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
-
-                TargaryenGoogleSignInButton(
-                    text = stringResource(id = R.string.action_register_google),
-                    onClick = callbacks.onGoogleSignInClick,
-                    enabled = !uiState.isEmailLoading
-                )
-
-                Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
-
-                Text(
-                    text = stringResource(id = R.string.action_already_have_account),
-                    color = com.targaryen.cafeteria.core_designsystem.theme.SilverHair,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.clickable { callbacks.onBackClick() }
-                )
+                RegisterFooter(uiState, actions)
             }
-
-            if (uiState.isGoogleLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Obsidian.copy(alpha = TargaryenTheme.dimens.alphaOverlay))
-                        .zIndex(TargaryenTheme.dimens.zIndexOverlay),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = ValyrianGold)
-                }
-            }
+            if (uiState.isGoogleLoading) RegisterLoadingOverlay()
         }
+    }
+}
+
+@Composable
+private fun RegisterHeader() {
+    Image(
+        painter = painterResource(id = R.drawable.ic_logo_login_screen),
+        contentDescription = null,
+        modifier = Modifier
+            .size(TargaryenTheme.dimens.logoAuth)
+            .padding(bottom = TargaryenTheme.dimens.spaceNormal)
+    )
+    Text(
+        text = stringResource(id = R.string.subtitle_register),
+        color = com.targaryen.cafeteria.core_designsystem.theme.DimmedGold,
+        style = MaterialTheme.typography.titleSmall,
+        modifier = Modifier.padding(bottom = TargaryenTheme.dimens.spaceExtraLarge)
+    )
+}
+
+@Composable
+private fun RegisterForm(uiState: RegisterUiState, actions: RegisterActions) {
+    TargaryenTextField(
+        value = uiState.name,
+        onValueChange = actions.onNameChange,
+        label = stringResource(id = R.string.label_name),
+        leadingIcon = {
+            Icon(imageVector = Icons.Filled.Person, contentDescription = null, tint = ValyrianGold)
+        },
+        isError = uiState.nameError,
+        supportingText = if (uiState.nameError) {
+            { Text(text = stringResource(id = R.string.error_name_empty)) }
+        } else null,
+        keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Text,
+            capitalization = KeyboardCapitalization.Words,
+            imeAction = ImeAction.Next
+        )
+    )
+    Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
+    RegisterEmailAndPasswordFields(uiState, actions)
+}
+
+@Composable
+private fun RegisterEmailAndPasswordFields(uiState: RegisterUiState, actions: RegisterActions) {
+    TargaryenTextField(
+        value = uiState.email,
+        onValueChange = actions.onEmailChange,
+        label = stringResource(id = R.string.label_email),
+        leadingIcon = {
+            Icon(imageVector = Icons.Filled.Email, contentDescription = null, tint = ValyrianGold)
+        },
+        isError = uiState.emailError,
+        supportingText = if (uiState.emailError) {
+            { Text(text = stringResource(id = R.string.error_invalid_email)) }
+        } else null,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next)
+    )
+    Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
+    TargaryenPasswordField(
+        value = uiState.password,
+        onValueChange = actions.onPasswordChange,
+        label = stringResource(id = R.string.label_password),
+        leadingIcon = {
+            Icon(imageVector = Icons.Filled.Lock, contentDescription = null, tint = ValyrianGold)
+        },
+        isError = uiState.passwordError,
+        supportingText = if (uiState.passwordError) {
+            { Text(text = stringResource(id = R.string.error_weak_password)) }
+        } else null,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next)
+    )
+    Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
+    TargaryenPasswordField(
+        value = uiState.confirmPassword,
+        onValueChange = actions.onConfirmPasswordChange,
+        label = stringResource(id = R.string.label_confirm_password),
+        leadingIcon = {
+            Icon(imageVector = Icons.Filled.Lock, contentDescription = null, tint = ValyrianGold)
+        },
+        isError = uiState.confirmPasswordError,
+        supportingText = if (uiState.confirmPasswordError) {
+            { Text(text = stringResource(id = R.string.error_passwords_not_match)) }
+        } else null,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done)
+    )
+}
+
+@Composable
+private fun RegisterFooter(uiState: RegisterUiState, actions: RegisterActions) {
+    TargaryenButton(
+        text = stringResource(id = R.string.action_do_register),
+        onClick = actions.onRegisterClick,
+        enabled = uiState.canRegister,
+        isLoading = uiState.isEmailLoading
+    )
+    Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
+    TargaryenGoogleSignInButton(
+        text = stringResource(id = R.string.action_register_google),
+        onClick = actions.onGoogleSignInClick,
+        enabled = !uiState.isEmailLoading
+    )
+    Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
+    Text(
+        text = stringResource(id = R.string.action_already_have_account),
+        color = com.targaryen.cafeteria.core_designsystem.theme.SilverHair,
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.clickable { actions.onBackClick() }
+    )
+}
+
+@Composable
+private fun RegisterLoadingOverlay() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Obsidian.copy(alpha = TargaryenTheme.dimens.alphaOverlay))
+            .zIndex(TargaryenTheme.dimens.zIndexOverlay),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(color = ValyrianGold)
     }
 }
 
@@ -342,26 +300,7 @@ internal fun RegisterContent(
 @Composable
 private fun RegisterScreenPreviewLight() {
     TargaryenTheme {
-        RegisterContent(
-            uiState = RegisterUiState(),
-            callbacks = RegisterCallbacks({}, {}, {}, {}, {}, {}, {})
-        )
-    }
-}
-
-@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun RegisterScreenPreviewDark() {
-    TargaryenTheme {
-        RegisterContent(
-            uiState = RegisterUiState(
-                name = "Aegon Targaryen",
-                email = "aegon@dragonstone.com",
-                password = "fire",
-                passwordError = true,
-                confirmPassword = "fire"
-            ),
-            callbacks = RegisterCallbacks({}, {}, {}, {}, {}, {}, {})
-        )
+        val actions = RegisterActions({}, {}, {}, {}, {}, {}, {})
+        RegisterContent(RegisterUiState(), actions)
     }
 }

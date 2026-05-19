@@ -1,7 +1,7 @@
 package com.targaryen.cafeteria.app
 
 import android.content.Context
-import com.targaryen.cafeteria.core_database.di.DatabaseModule
+import com.targaryen.cafeteria.coredatabase.di.DatabaseModule
 import com.targaryen.cafeteria.feature.auth.di.AuthModule
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module

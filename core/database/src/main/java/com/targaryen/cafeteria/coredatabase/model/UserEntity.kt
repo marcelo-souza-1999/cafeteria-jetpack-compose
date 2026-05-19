@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.core_database.model
+package com.targaryen.cafeteria.coredatabase.model
 
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
