@@ -6,6 +6,8 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.firestore.FirebaseFirestore
+import com.targaryen.cafeteria.coredatabase.dao.UserDao
 import com.targaryen.cafeteria.core_network.Resource
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import io.mockk.every
@@ -21,11 +23,17 @@ import org.junit.Test
 class FirebaseAuthRepositoryImplTest {
 
     private val firebaseAuth: FirebaseAuth = mockk(relaxed = true)
+    private val firestore: FirebaseFirestore = mockk(relaxed = true)
+    private val userDao: UserDao = mockk(relaxed = true)
     private lateinit var repository: FirebaseAuthRepositoryImpl
 
     @Before
     fun setup() {
-        repository = FirebaseAuthRepositoryImpl(firebaseAuth)
+        repository = FirebaseAuthRepositoryImpl(
+            firebaseAuth = firebaseAuth,
+            firestore = firestore,
+            userDao = userDao
+        )
     }
 
     @Test
@@ -43,7 +51,9 @@ class FirebaseAuthRepositoryImplTest {
     @Test
     fun signInWithEmail_shouldEmitSuccess_whenFirebaseSucceeds() = runTest {
         val authResult = mockk<AuthResult>()
-        every { firebaseAuth.signInWithEmailAndPassword(any(), any()) } returns Tasks.forResult(authResult)
+        every { firebaseAuth.signInWithEmailAndPassword(any(), any()) } returns Tasks.forResult(
+            authResult
+        )
 
         val result = repository.signInWithEmail("test@test.com", "password").first()
 
@@ -51,20 +61,28 @@ class FirebaseAuthRepositoryImplTest {
     }
 
     @Test
-    fun signInWithEmail_shouldEmitInvalidCredentials_whenFirebaseThrowsInvalidCredentials() = runTest {
-        val exception = FirebaseAuthInvalidCredentialsException("error", "message")
-        every { firebaseAuth.signInWithEmailAndPassword(any(), any()) } returns Tasks.forException(exception)
+    fun signInWithEmail_shouldEmitInvalidCredentials_whenFirebaseThrowsInvalidCredentials() =
+        runTest {
+            val exception = FirebaseAuthInvalidCredentialsException("error", "message")
+            every {
+                firebaseAuth.signInWithEmailAndPassword(
+                    any(),
+                    any()
+                )
+            } returns Tasks.forException(exception)
 
-        val result = repository.signInWithEmail("test@test.com", "password").first()
+            val result = repository.signInWithEmail("test@test.com", "password").first()
 
-        assertTrue(result is Resource.Error)
-        assertEquals(AuthError.InvalidCredentials, (result as Resource.Error).error)
-    }
+            assertTrue(result is Resource.Error)
+            assertEquals(AuthError.InvalidCredentials, (result as Resource.Error).error)
+        }
 
     @Test
     fun signInWithEmail_shouldEmitUserNotFound_whenFirebaseThrowsInvalidUser() = runTest {
         val exception = FirebaseAuthInvalidUserException("error", "message")
-        every { firebaseAuth.signInWithEmailAndPassword(any(), any()) } returns Tasks.forException(exception)
+        every { firebaseAuth.signInWithEmailAndPassword(any(), any()) } returns Tasks.forException(
+            exception
+        )
 
         val result = repository.signInWithEmail("test@test.com", "password").first()
 
@@ -75,7 +93,9 @@ class FirebaseAuthRepositoryImplTest {
     @Test
     fun signInWithEmail_shouldEmitNetworkError_whenFirebaseThrowsNetworkException() = runTest {
         val exception = FirebaseNetworkException("no connection")
-        every { firebaseAuth.signInWithEmailAndPassword(any(), any()) } returns Tasks.forException(exception)
+        every { firebaseAuth.signInWithEmailAndPassword(any(), any()) } returns Tasks.forException(
+            exception
+        )
 
         val result = repository.signInWithEmail("test@test.com", "password").first()
 
@@ -86,7 +106,9 @@ class FirebaseAuthRepositoryImplTest {
     @Test
     fun signInWithEmail_shouldEmitUnknownError_whenFirebaseThrowsGenericException() = runTest {
         val exception = Exception("generic error")
-        every { firebaseAuth.signInWithEmailAndPassword(any(), any()) } returns Tasks.forException(exception)
+        every { firebaseAuth.signInWithEmailAndPassword(any(), any()) } returns Tasks.forException(
+            exception
+        )
 
         val result = repository.signInWithEmail("test@test.com", "password").first()
 

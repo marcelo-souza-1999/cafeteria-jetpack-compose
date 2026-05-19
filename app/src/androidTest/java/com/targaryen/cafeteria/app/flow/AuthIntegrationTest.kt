@@ -85,4 +85,45 @@ class AuthIntegrationTest : KoinTest {
         
         composeTestRule.onNodeWithText("Targaryen Cafe", substring = true).assertIsDisplayed()
     }
+
+    @Test
+    fun registrationFlow_shouldNavigateToMainScreen_onSuccess() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        
+        // Arrange
+        every { authRepository.isUserLoggedIn() } returns false
+        every { authRepository.signUpWithEmail(any(), any(), any()) } returns flowOf(Resource.Success(Unit))
+
+        // Act & Assert
+        // 1. Wait for Login Screen
+        composeTestRule.waitUntil(timeoutMillis = 15000) {
+            composeTestRule.onAllNodesWithText(context.getString(AuthR.string.title_login)).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // 2. Click Register link
+        composeTestRule.onNodeWithText(context.getString(AuthR.string.action_register)).performClick()
+
+        // 3. Wait for Register Screen
+        composeTestRule.waitUntil(timeoutMillis = 10000) {
+            composeTestRule.onAllNodesWithText(context.getString(AuthR.string.title_register)).fetchSemanticsNodes().isNotEmpty()
+        }
+
+        // 4. Fill registration details
+        composeTestRule.onNodeWithText(context.getString(AuthR.string.label_name)).performTextInput("Viserys")
+        composeTestRule.onNodeWithText(context.getString(AuthR.string.label_email)).performTextInput("viserys@targaryen.com")
+        composeTestRule.onNodeWithText(context.getString(AuthR.string.label_password)).performTextInput("Dragon123")
+        composeTestRule.onNodeWithText(context.getString(AuthR.string.label_confirm_password)).performTextInput("Dragon123")
+
+        Espresso.closeSoftKeyboard()
+
+        // 5. Click Register button
+        composeTestRule.onNodeWithText(context.getString(AuthR.string.action_do_register)).performClick()
+
+        // 6. Verify we reach MainScreen
+        composeTestRule.waitUntil(timeoutMillis = 20000) {
+            composeTestRule.onAllNodesWithText("Targaryen Cafe", substring = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        
+        composeTestRule.onNodeWithText("Targaryen Cafe", substring = true).assertIsDisplayed()
+    }
 }

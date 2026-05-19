@@ -56,4 +56,16 @@ class UseCasesTest {
 
         verify { repository.sendPasswordResetEmail(email) }
     }
+
+    @Test
+    fun `SignUpWithEmailUseCase should delegate to repository`() = runTest {
+        val name = "Test User"
+        val email = "test@test.com"
+        val password = "pass"
+        every { repository.signUpWithEmail(name, email, password) } returns flowOf(Resource.Success(Unit))
+
+        SignUpWithEmailUseCase(repository)(name, email, password).collect()
+
+        verify { repository.signUpWithEmail(name, email, password) }
+    }
 }

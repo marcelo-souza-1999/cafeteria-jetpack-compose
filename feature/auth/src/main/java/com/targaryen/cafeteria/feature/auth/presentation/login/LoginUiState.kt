@@ -37,3 +37,12 @@ data class LoginUiState(
         get() = forgotPasswordEmail.isNotBlank() && 
                 isForgotPasswordEmailFormatValid && !isForgotPasswordLoading
 }
+
+data class LoginActions(
+    val onEmailChange: (String) -> Unit,
+    val onPasswordChange: (String) -> Unit,
+    val onForgotPasswordClick: () -> Unit,
+    val onLoginClick: () -> Unit,
+    val onRegisterClick: () -> Unit,
+    val onGoogleSignInClick: () -> Unit
+)
