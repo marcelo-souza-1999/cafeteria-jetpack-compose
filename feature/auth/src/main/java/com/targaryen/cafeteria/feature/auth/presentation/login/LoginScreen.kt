@@ -259,7 +259,7 @@ private fun LoginHeader() {
         painter = painterResource(id = R.drawable.ic_logo_login_screen),
         contentDescription = null,
         modifier = Modifier
-            .size(TargaryenTheme.dimens.logoAuth)
+            .size(TargaryenTheme.dimens.logoSplash)
             .padding(bottom = TargaryenTheme.dimens.spaceNormal)
     )
     Text(
