@@ -1,5 +1,6 @@
 package com.targaryen.cafeteria.feature_catalog.presentation.view
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -38,7 +39,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.targaryen.cafeteria.core_designsystem.R
 import com.targaryen.cafeteria.core_designsystem.components.CategoryFilters
 import com.targaryen.cafeteria.core_designsystem.components.TargaryenBottomBar
 import com.targaryen.cafeteria.core_designsystem.components.TargaryenTopBar
@@ -103,15 +107,13 @@ fun CatalogScreenContent(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
-    // Configurar o Pager de 4 páginas
     val pagerState = rememberPagerState(initialPage = 0) { TargaryenTab.entries.size }
 
-    // Sincronizar o estado do Pager com a BottomBar
     val currentTab = TargaryenTab.entries[pagerState.currentPage]
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = pagerState.currentPage == TargaryenTab.CATALOG.ordinal,
+        gesturesEnabled = true,
         drawerContent = {
             ModalDrawerSheet(
                 drawerContainerColor = DragonScale,
@@ -119,28 +121,27 @@ fun CatalogScreenContent(
             ) {
                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
 
-                // Cabeçalho Imperial
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(TargaryenTheme.dimens.spaceMedium),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    androidx.compose.foundation.Image(
-                        painter = androidx.compose.ui.res.painterResource(
-                            id = com.targaryen.cafeteria.core_designsystem.R.drawable.ic_logo_login_screen
+                    Image(
+                        painter = painterResource(
+                            id = R.drawable.ic_logo_login_screen
                         ),
-                        contentDescription = "Brasão Targaryen",
+                        contentDescription = null,
                         modifier = Modifier.size(TargaryenTheme.dimens.iconSizeExtraLarge * BRAND_LOGO_SCALE)
                     )
                     Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
                     Text(
-                        text = "CASA TARGARYEN",
+                        text = CatalogConstants.DRAWER_BRAND_TITLE,
                         style = MaterialTheme.typography.titleMedium,
                         color = ValyrianGold
                     )
                     Text(
-                        text = "Fogo e Sangue",
+                        text = CatalogConstants.DRAWER_BRAND_SUBTITLE,
                         style = MaterialTheme.typography.labelSmall,
                         color = SilverHair.copy(alpha = 0.7f)
                     )
@@ -148,9 +149,8 @@ fun CatalogScreenContent(
 
                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
 
-                // Itens de Navegação do Drawer
                 NavigationDrawerItem(
-                    label = { Text("O Menu do Dragão", color = ValyrianGold) },
+                    label = { Text(CatalogConstants.DRAWER_MENU_HOME, color = ValyrianGold) },
                     selected = currentTab == TargaryenTab.CATALOG,
                     onClick = {
                         scope.launch {
@@ -173,8 +173,8 @@ fun CatalogScreenContent(
                 )
 
                 NavigationDrawerItem(
-                    label = { Text("Banquetes Agendados", color = ValyrianGold) },
-                    selected = false,
+                    label = { Text(CatalogConstants.DRAWER_MENU_FAVORITES, color = ValyrianGold) },
+                    selected = currentTab == TargaryenTab.FAVORITES,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -189,16 +189,21 @@ fun CatalogScreenContent(
                         )
                     },
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color.Transparent,
+                        selectedContainerColor = BloodRed.copy(alpha = 0.3f),
                         unselectedContainerColor = Color.Transparent
                     ),
                     modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall)
                 )
 
                 NavigationDrawerItem(
-                    label = { Text("Tesouros da Coroa", color = ValyrianGold) },
-                    selected = false,
-                    onClick = { scope.launch { drawerState.close() } },
+                    label = { Text(CatalogConstants.DRAWER_MENU_CART, color = ValyrianGold) },
+                    selected = currentTab == TargaryenTab.CART,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            pagerState.animateScrollToPage(TargaryenTab.CART.ordinal)
+                        }
+                    },
                     icon = {
                         Icon(
                             Icons.Default.CardGiftcard,
@@ -207,16 +212,21 @@ fun CatalogScreenContent(
                         )
                     },
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color.Transparent,
+                        selectedContainerColor = BloodRed.copy(alpha = 0.3f),
                         unselectedContainerColor = Color.Transparent
                     ),
                     modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall)
                 )
 
                 NavigationDrawerItem(
-                    label = { Text("Mensagens do Corvo", color = ValyrianGold) },
-                    selected = false,
-                    onClick = { scope.launch { drawerState.close() } },
+                    label = { Text(CatalogConstants.DRAWER_MENU_PROFILE, color = ValyrianGold) },
+                    selected = currentTab == TargaryenTab.PROFILE,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            pagerState.animateScrollToPage(TargaryenTab.PROFILE.ordinal)
+                        }
+                    },
                     icon = {
                         Icon(
                             Icons.Default.Email,
@@ -225,7 +235,7 @@ fun CatalogScreenContent(
                         )
                     },
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color.Transparent,
+                        selectedContainerColor = BloodRed.copy(alpha = 0.3f),
                         unselectedContainerColor = Color.Transparent
                     ),
                     modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall)
@@ -234,7 +244,7 @@ fun CatalogScreenContent(
                 Spacer(modifier = Modifier.weight(1f))
 
                 NavigationDrawerItem(
-                    label = { Text("Abandonar o Trono", color = BloodRed) },
+                    label = { Text(CatalogConstants.DRAWER_MENU_LOGOUT, color = BloodRed) },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -289,6 +299,7 @@ fun CatalogScreenContent(
         ) { paddingValues ->
             HorizontalPager(
                 state = pagerState,
+                userScrollEnabled = false,
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Obsidian)
@@ -299,7 +310,6 @@ fun CatalogScreenContent(
                         Column(modifier = Modifier.fillMaxSize()) {
                             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
 
-                            // Campo de busca
                             CatalogSearchBar(
                                 query = uiState.searchQuery,
                                 onQueryChange = { text -> onIntent(CatalogIntent.Search(text)) },
@@ -309,7 +319,6 @@ fun CatalogScreenContent(
 
                             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
 
-                            // Filtros por Categoria
                             CategoryFilters(
                                 categories = categories,
                                 selectedCategory = uiState.selectedCategory,
@@ -324,7 +333,6 @@ fun CatalogScreenContent(
 
                             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
 
-                            // Grid de Produtos
                             ProductGrid(
                                 products = uiState.products,
                                 onProductClick = { item -> onIntent(CatalogIntent.SelectProduct(item)) },
@@ -351,7 +359,7 @@ fun CatalogScreenContent(
                             Column(modifier = Modifier.fillMaxSize()) {
                                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
                                 Text(
-                                    text = "Seus Favoritos",
+                                    text = CatalogConstants.FAVORITES_TAB_TITLE,
                                     style = MaterialTheme.typography.titleMedium,
                                     color = ValyrianGold,
                                     modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceNormal)
@@ -392,7 +400,6 @@ fun CatalogScreenContent(
                 }
             }
 
-            // ModalBottomSheet de Detalhe do Produto
             if (uiState.selectedProduct != null) {
                 ProductDetailBottomSheet(
                     product = uiState.selectedProduct,
@@ -424,16 +431,16 @@ fun FavoritesScreenStub() {
         )
         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
         Text(
-            text = "Favoritos do Trono",
+            text = CatalogConstants.FAVORITES_STUB_TITLE,
             style = MaterialTheme.typography.titleLarge,
             color = ValyrianGold
         )
         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
         Text(
-            text = "Suas iguarias preferidas do reino surgirão aqui sob o selo do dragão.",
+            text = CatalogConstants.FAVORITES_STUB_DESC,
             style = MaterialTheme.typography.bodyMedium,
             color = SilverHair,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -456,7 +463,7 @@ fun CartScreenStub(badgeCount: Int) {
         )
         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
         Text(
-            text = "Bússola de Banquetes",
+            text = CatalogConstants.CART_STUB_TITLE,
             style = MaterialTheme.typography.titleLarge,
             color = ValyrianGold
         )
@@ -469,7 +476,7 @@ fun CartScreenStub(badgeCount: Int) {
             },
             style = MaterialTheme.typography.bodyMedium,
             color = SilverHair,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -492,16 +499,16 @@ fun ProfileScreenStub() {
         )
         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
         Text(
-            text = "Linhagem de Nobreza",
+            text = CatalogConstants.PROFILE_STUB_TITLE,
             style = MaterialTheme.typography.titleLarge,
             color = ValyrianGold
         )
         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
         Text(
-            text = "Lorde de Westeros\nNível de Fidelidade: Herdeiro do Trono",
+            text = CatalogConstants.PROFILE_STUB_DESC,
             style = MaterialTheme.typography.bodyMedium,
             color = SilverHair,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            textAlign = TextAlign.Center
         )
     }
 }

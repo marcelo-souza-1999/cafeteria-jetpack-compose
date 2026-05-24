@@ -18,4 +18,23 @@ object CatalogConstants {
     const val BUTTON_CLOSE = "Fechar"
 
     const val TOP_BAR_TITLE = "O Menu do Dragão"
+
+    const val DRAWER_MENU_HOME = "O Menu do Dragão"
+    const val DRAWER_MENU_FAVORITES = "Banquetes Agendados"
+    const val DRAWER_MENU_CART = "Tesouros da Coroa"
+    const val DRAWER_MENU_PROFILE = "Mensagens do Corvo"
+    const val DRAWER_MENU_LOGOUT = "Abandonar o Trono"
+    const val DRAWER_BRAND_TITLE = "CASA TARGARYEN"
+    const val DRAWER_BRAND_SUBTITLE = "Fogo e Sangue"
+    
+    const val FAVORITES_TAB_TITLE = "Seus Favoritos"
+    const val FAVORITES_STUB_TITLE = "Favoritos do Trono"
+    const val FAVORITES_STUB_DESC = "Suas iguarias preferidas do reino surgirão aqui sob o selo do dragão."
+    
+    const val CART_STUB_TITLE = "Bússola de Banquetes"
+    const val PROFILE_STUB_TITLE = "Linhagem de Nobreza"
+    const val PROFILE_STUB_DESC = "Lorde de Westeros\nNível de Fidelidade: Herdeiro do Trono"
+    
+    const val EMPTY_STATE_TITLE = "BANQUETE VAZIO"
+    const val EMPTY_STATE_DESC = "Nenhuma iguaria ou elixir imperial atende a esta busca."
 }

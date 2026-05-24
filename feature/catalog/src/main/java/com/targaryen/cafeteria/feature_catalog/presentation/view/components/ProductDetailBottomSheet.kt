@@ -2,32 +2,32 @@ package com.targaryen.cafeteria.feature_catalog.presentation.view.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Coffee
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -91,11 +91,11 @@ fun ProductDetailBottomSheet(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.Coffee,
+                coil3.compose.AsyncImage(
+                    model = product.imageUrl?.replace(" ", "%20"),
                     contentDescription = product.name,
-                    modifier = Modifier.size(TargaryenTheme.dimens.iconSizeExtraLarge),
-                    tint = ValyrianGold
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
                 )
 
                 // Botão de Favorito Flutuante
@@ -156,7 +156,12 @@ fun ProductDetailBottomSheet(
                     color = SilverHair
                 )
                 Text(
-                    text = String.format(java.util.Locale("pt", "BR"), "%s %.2f", CatalogConstants.CURRENCY_SYMBOL, product.price),
+                    text = String.format(
+                        Locale.forLanguageTag("pt-BR"),
+                        "%s %.2f",
+                        CatalogConstants.CURRENCY_SYMBOL,
+                        product.price
+                    ),
                     style = MaterialTheme.typography.titleMedium,
                     color = ValyrianGold
                 )
@@ -176,7 +181,7 @@ fun ProductDetailBottomSheet(
                     )
                     Text(
                         text = String.format(
-                            java.util.Locale("pt", "BR"),
+                            Locale.forLanguageTag("pt-BR"),
                             "%s %.2f",
                             CatalogConstants.CURRENCY_SYMBOL,
                             product.price * product.quantityInCart
@@ -259,7 +264,7 @@ fun ProductDetailBottomSheetPreview() {
         id = "5",
         name = "Banquete de Aegon",
         description = "Uma seleção rústica e farta de pães artesanais de Westeros " +
-            "servidos quentes com geleia de frutas silvestres e manteiga trufada.",
+                "servidos quentes com geleia de frutas silvestres e manteiga trufada.",
         price = 35.0,
         category = CatalogConstants.CATEGORY_ROYAL_FEAST,
         quantityInCart = 2

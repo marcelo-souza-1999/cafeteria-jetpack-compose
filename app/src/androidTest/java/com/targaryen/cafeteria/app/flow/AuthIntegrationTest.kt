@@ -9,7 +9,7 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.targaryen.cafeteria.app.MainActivity
+import com.targaryen.cafeteria.app.ui.main.MainActivity
 import com.targaryen.cafeteria.app.ui.main.MainScreenUiState
 import com.targaryen.cafeteria.app.ui.main.MainScreenViewModel
 import com.targaryen.cafeteria.core_network.Resource

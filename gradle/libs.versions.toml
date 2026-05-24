@@ -35,7 +35,7 @@ koin-annotations = "2.3.1"
 room = "3.0.0-alpha04"
 
 # --- Navegação & Serialização ---
-navigation3 = "1.1.1"
+navigation3 = "1.1.2"
 lifecycleViewmodelNavigation3 = "2.10.0"
 materialAdaptiveNavigation3 = "1.2.0"
 kotlinxSerializationCore = "1.11.0"

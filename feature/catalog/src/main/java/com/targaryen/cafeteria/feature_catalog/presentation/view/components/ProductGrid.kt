@@ -18,7 +18,16 @@ import com.targaryen.cafeteria.core_designsystem.theme.SilverHair
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.feature_catalog.presentation.model.ProductUiModel
 
-private const val EMPTY_STATE_TEXT = "Nenhuma infusão encontrada nos Sete Reinos."
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material3.Icon
+import androidx.compose.ui.text.style.TextAlign
+import com.targaryen.cafeteria.core_designsystem.model.CatalogConstants
+import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 
 @Composable
 fun ProductGrid(
@@ -30,18 +39,7 @@ fun ProductGrid(
     modifier: Modifier = Modifier
 ) {
     if (products.isEmpty()) {
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(TargaryenTheme.dimens.spaceLarge),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = EMPTY_STATE_TEXT,
-                color = SilverHair,
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
+        WesterosEmptyState(modifier = modifier)
     } else {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -95,6 +93,38 @@ fun ProductGridPreview() {
             onIncreaseQuantity = {},
             onDecreaseQuantity = {},
             modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Composable
+fun WesterosEmptyState(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(TargaryenTheme.dimens.spaceLarge),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.SearchOff,
+            contentDescription = null,
+            modifier = Modifier.size(TargaryenTheme.dimens.iconSizeExtraLarge),
+            tint = ValyrianGold
+        )
+        Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceMedium))
+        Text(
+            text = CatalogConstants.EMPTY_STATE_TITLE,
+            style = MaterialTheme.typography.titleLarge,
+            color = ValyrianGold,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
+        Text(
+            text = CatalogConstants.EMPTY_STATE_DESC,
+            color = SilverHair,
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
         )
     }
 }

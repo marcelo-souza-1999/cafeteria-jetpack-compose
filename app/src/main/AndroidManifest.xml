@@ -9,9 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:windowSoftInputMode="adjustResize"
+        android:usesCleartextTraffic="true"
         android:theme="@style/Theme.MyApplication">
         <activity
-            android:name="com.targaryen.cafeteria.app.MainActivity"
+            android:name="com.targaryen.cafeteria.app.ui.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

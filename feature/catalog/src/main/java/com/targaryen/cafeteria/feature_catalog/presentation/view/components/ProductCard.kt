@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Coffee
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,8 +28,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import coil3.compose.AsyncImage
 import com.targaryen.cafeteria.core_designsystem.model.CatalogConstants
 import com.targaryen.cafeteria.core_designsystem.theme.BloodRed
 import com.targaryen.cafeteria.core_designsystem.theme.DragonScale
@@ -40,7 +41,6 @@ import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenWhite
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.feature_catalog.presentation.model.ProductUiModel
-import java.util.Locale
 
 @Composable
 fun ProductCard(
@@ -51,7 +51,7 @@ fun ProductCard(
     onDecreaseQuantity: (ProductUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+    val locale = LocalConfiguration.current.locales[0]
 
     Card(
         modifier = modifier
@@ -69,8 +69,9 @@ fun ProductCard(
         Column(
             modifier = Modifier.padding(TargaryenTheme.dimens.spaceMedium)
         ) {
-            // Placeholder visual imperial para a imagem do produto
-            Box(
+            AsyncImage(
+                model = product.imageUrl?.replace(" ", "%20"),
+                contentDescription = product.name,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(TargaryenTheme.dimens.cardImageHeight)
@@ -80,19 +81,11 @@ fun ProductCard(
                             colors = listOf(Obsidian, BloodRed.copy(alpha = 0.5f))
                         )
                     ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Coffee,
-                    contentDescription = "Café de Westeros",
-                    modifier = Modifier.size(TargaryenTheme.dimens.iconSizeLarge),
-                    tint = ValyrianGold
-                )
-            }
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+            )
 
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
 
-            // Nome (Cinzel)
             Text(
                 text = product.name,
                 style = MaterialTheme.typography.titleSmall,
@@ -103,28 +96,30 @@ fun ProductCard(
 
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceExtraSmall))
 
-            // Descrição (Montserrat)
             Text(
                 text = product.description,
                 style = MaterialTheme.typography.labelMedium,
                 color = SilverHair,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.height(TargaryenTheme.dimens.descriptionHeight) // Altura fixa para manter o grid simétrico
+                modifier = Modifier.height(TargaryenTheme.dimens.descriptionHeight)
             )
 
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
 
-            // Preço
             Text(
-                text = String.format(locale, "%s %.2f", CatalogConstants.CURRENCY_SYMBOL, product.price),
+                text = String.format(
+                    locale,
+                    "%s %.2f",
+                    CatalogConstants.CURRENCY_SYMBOL,
+                    product.price
+                ),
                 style = MaterialTheme.typography.titleMedium,
                 color = ValyrianGold
             )
 
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceMedium))
 
-            // Controles / Ação
             if (product.quantityInCart == 0) {
                 Box(
                     modifier = Modifier
