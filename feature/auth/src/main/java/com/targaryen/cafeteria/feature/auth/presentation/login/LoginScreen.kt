@@ -3,6 +3,7 @@ package com.targaryen.cafeteria.feature.auth.presentation.login
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import com.targaryen.cafeteria.core_designsystem.R as DesignSystemR
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -256,7 +257,7 @@ internal fun LoginContent(
 @Composable
 private fun LoginHeader() {
     Image(
-        painter = painterResource(id = R.drawable.ic_logo_login_screen),
+        painter = painterResource(id = DesignSystemR.drawable.ic_logo_login_screen),
         contentDescription = null,
         modifier = Modifier
             .size(TargaryenTheme.dimens.logoSplash)

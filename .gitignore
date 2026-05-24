@@ -27,3 +27,6 @@ app/google-services.json
 .pub-cache/
 .dart_tool/
 .hotswan/
+
+# Arsenal de Agentes (Antigravity CLI)
+.agents/

@@ -3,6 +3,7 @@ package com.targaryen.cafeteria.feature.auth.presentation.splash
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import com.targaryen.cafeteria.core_designsystem.R as DesignSystemR
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -57,7 +58,7 @@ fun SplashContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_logo_login_screen),
+                painter = painterResource(id = DesignSystemR.drawable.ic_logo_login_screen),
                 contentDescription = null,
                 modifier = Modifier.size(TargaryenTheme.dimens.logoSplash)
             )

@@ -30,7 +30,18 @@ data class TargaryenDimens(
     val logoAuth: Dp = 120.dp,
 
     val alphaOverlay: Float = 0.7f,
-    val zIndexOverlay: Float = 10f
+    val zIndexOverlay: Float = 10f,
+
+    val cardImageHeight: Dp = 110.dp,
+    val iconSizeSmall: Dp = 16.dp,
+    val iconSizeMedium: Dp = 24.dp,
+    val iconSizeLarge: Dp = 40.dp,
+    val buttonHeightMedium: Dp = 36.dp,
+    val descriptionHeight: Dp = 32.dp,
+    val bottomSheetImageHeight: Dp = 180.dp,
+    val iconSizeExtraLarge: Dp = 80.dp,
+    val quantitySelectorWidth: Dp = 130.dp,
+    val quantitySelectorHeight: Dp = 44.dp
 )
 
 val LocalTargaryenDimens = staticCompositionLocalOf { TargaryenDimens() }
