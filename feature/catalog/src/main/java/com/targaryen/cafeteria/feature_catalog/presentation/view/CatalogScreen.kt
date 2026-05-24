@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -59,6 +58,7 @@ import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.feature_catalog.presentation.intent.CatalogIntent
 import com.targaryen.cafeteria.feature_catalog.presentation.model.ProductUiModel
 import com.targaryen.cafeteria.feature_catalog.presentation.state.CatalogUiState
+import com.targaryen.cafeteria.feature_catalog.presentation.view.components.CartScreen
 import com.targaryen.cafeteria.feature_catalog.presentation.view.components.CatalogSearchBar
 import com.targaryen.cafeteria.feature_catalog.presentation.view.components.ProductDetailBottomSheet
 import com.targaryen.cafeteria.feature_catalog.presentation.view.components.ProductGrid
@@ -395,7 +395,13 @@ fun CatalogScreenContent(
                         }
                     }
 
-                    TargaryenTab.CART.ordinal -> CartScreenStub(badgeCount = uiState.badgeCount)
+                    TargaryenTab.CART.ordinal -> CartScreen(
+                        products = uiState.products.filter { product -> product.quantityInCart > 0 },
+                        onIncreaseQuantity = { item -> onIntent(CatalogIntent.AddToCart(item)) },
+                        onDecreaseQuantity = { item -> onIntent(CatalogIntent.RemoveFromCart(item)) },
+                        onRemoveProduct = { item -> onIntent(CatalogIntent.UpdateProductQuantity(item.id, 0)) },
+                        onProductClick = { item -> onIntent(CatalogIntent.SelectProduct(item)) }
+                    )
                     TargaryenTab.PROFILE.ordinal -> ProfileScreenStub()
                 }
             }
@@ -438,42 +444,6 @@ fun FavoritesScreenStub() {
         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
         Text(
             text = CatalogConstants.FAVORITES_STUB_DESC,
-            style = MaterialTheme.typography.bodyMedium,
-            color = SilverHair,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-fun CartScreenStub(badgeCount: Int) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Obsidian)
-            .padding(TargaryenTheme.dimens.spaceLarge),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.ShoppingCart,
-            contentDescription = null,
-            modifier = Modifier.size(TargaryenTheme.dimens.iconSizeExtraLarge),
-            tint = ValyrianGold
-        )
-        Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
-        Text(
-            text = CatalogConstants.CART_STUB_TITLE,
-            style = MaterialTheme.typography.titleLarge,
-            color = ValyrianGold
-        )
-        Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
-        Text(
-            text = if (badgeCount > 0) {
-                "Você possui $badgeCount itens selecionados no baú. Aguardando suas moedas de ouro para selar o banquete."
-            } else {
-                "Seu baú de banquetes está vazio. Visite o catálogo e ordene suas provisões."
-            },
             style = MaterialTheme.typography.bodyMedium,
             color = SilverHair,
             textAlign = TextAlign.Center

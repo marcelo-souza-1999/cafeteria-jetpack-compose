@@ -11,5 +11,6 @@ data class ProductEntity(
     val price: Double,
     val imageUrl: String,
     val category: String,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val quantityInCart: Int = 0
 )

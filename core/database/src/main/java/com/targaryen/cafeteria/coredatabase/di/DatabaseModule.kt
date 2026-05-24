@@ -18,7 +18,8 @@ class DatabaseModule {
         return Room.databaseBuilder<TargaryenDatabase>(
             context = context,
             name = "targaryen_database"
-        ).build()
+        ).fallbackToDestructiveMigration()
+            .build()
     }
 
     @Single

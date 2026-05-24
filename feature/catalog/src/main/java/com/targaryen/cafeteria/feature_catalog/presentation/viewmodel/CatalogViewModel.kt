@@ -3,6 +3,7 @@ package com.targaryen.cafeteria.feature_catalog.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.targaryen.cafeteria.core_designsystem.model.CatalogConstants
+import com.targaryen.cafeteria.feature_catalog.domain.repository.CatalogRepository
 import com.targaryen.cafeteria.feature_catalog.domain.usecase.GetCatalogUseCase
 import com.targaryen.cafeteria.feature_catalog.domain.usecase.ToggleFavoriteUseCase
 import com.targaryen.cafeteria.feature_catalog.presentation.intent.CatalogIntent
@@ -21,7 +22,8 @@ import org.koin.android.annotation.KoinViewModel
 @KoinViewModel
 class CatalogViewModel(
     getCatalogUseCase: GetCatalogUseCase,
-    private val toggleFavoriteUseCase: ToggleFavoriteUseCase
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val repository: CatalogRepository
 ) : ViewModel() {
 
     val uiState: StateFlow<CatalogUiState>
@@ -29,13 +31,12 @@ class CatalogViewModel(
             CatalogUiState(selectedCategory = CatalogConstants.CATEGORY_ALL)
         )
 
-    private val cartQuantities = MutableStateFlow<Map<String, Int>>(emptyMap())
     private var currentAllUiProducts: List<ProductUiModel> = emptyList()
 
     init {
         getCatalogUseCase()
-            .combine(cartQuantities) { products, cartMap ->
-                products.map { domainProduct ->
+            .onEach { products ->
+                val uiProducts = products.map { domainProduct ->
                     ProductUiModel(
                         id = domainProduct.id,
                         name = domainProduct.name,
@@ -44,11 +45,9 @@ class CatalogViewModel(
                         category = domainProduct.category,
                         imageUrl = domainProduct.imageUrl,
                         isFavorite = domainProduct.isFavorite,
-                        quantityInCart = cartMap[domainProduct.id] ?: 0
+                        quantityInCart = domainProduct.quantityInCart
                     )
                 }
-            }
-            .onEach { uiProducts ->
                 currentAllUiProducts = uiProducts
                 updateFilteredProducts()
             }
@@ -69,16 +68,22 @@ class CatalogViewModel(
                 uiState.update { state -> state.copy(selectedProduct = intent.product) }
             }
             is CatalogIntent.UpdateProductQuantity -> {
-                updateQuantity(intent.productId, intent.quantity)
+                viewModelScope.launch {
+                    repository.updateProductQuantity(intent.productId, intent.quantity)
+                }
             }
             is CatalogIntent.AddToCart -> {
-                val currentQty = cartQuantities.value[intent.product.id] ?: 0
-                updateQuantity(intent.product.id, currentQty + 1)
+                val currentQty = currentAllUiProducts.find { product -> product.id == intent.product.id }?.quantityInCart ?: 0
+                viewModelScope.launch {
+                    repository.updateProductQuantity(intent.product.id, currentQty + 1)
+                }
             }
             is CatalogIntent.RemoveFromCart -> {
-                val currentQty = cartQuantities.value[intent.product.id] ?: 0
+                val currentQty = currentAllUiProducts.find { product -> product.id == intent.product.id }?.quantityInCart ?: 0
                 if (currentQty > 0) {
-                    updateQuantity(intent.product.id, currentQty - 1)
+                    viewModelScope.launch {
+                        repository.updateProductQuantity(intent.product.id, currentQty - 1)
+                    }
                 }
             }
             is CatalogIntent.ClearSearch -> {
@@ -90,14 +95,6 @@ class CatalogViewModel(
                     toggleFavoriteUseCase(intent.product.id)
                 }
             }
-        }
-    }
-
-    private fun updateQuantity(productId: String, quantity: Int) {
-        cartQuantities.update { currentMap ->
-            val newMap = currentMap.toMutableMap()
-            newMap[productId] = quantity
-            newMap
         }
     }
 

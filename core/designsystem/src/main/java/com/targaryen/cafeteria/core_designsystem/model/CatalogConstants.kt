@@ -30,11 +30,19 @@ object CatalogConstants {
     const val FAVORITES_TAB_TITLE = "Seus Favoritos"
     const val FAVORITES_STUB_TITLE = "Favoritos do Trono"
     const val FAVORITES_STUB_DESC = "Suas iguarias preferidas do reino surgirão aqui sob o selo do dragão."
-    
-    const val CART_STUB_TITLE = "Bússola de Banquetes"
+
     const val PROFILE_STUB_TITLE = "Linhagem de Nobreza"
     const val PROFILE_STUB_DESC = "Lorde de Westeros\nNível de Fidelidade: Herdeiro do Trono"
-    
     const val EMPTY_STATE_TITLE = "BANQUETE VAZIO"
     const val EMPTY_STATE_DESC = "Nenhuma iguaria ou elixir imperial atende a esta busca."
+
+    const val CART_TITLE = "TESOUROS DA COROA"
+    const val CART_SUBTITLE = "As suas provisões e elixires reais estão ordenados. Sele a partilha antes que a frota de guerra zarpe."
+    const val CART_EMPTY_TITLE = "BÚSSOLA DE BANQUETES"
+    const val CART_EMPTY_DESC = "Seu baú de banquetes está vazio. Visite o catálogo e ordene suas provisões."
+    const val CART_LABEL_SUBTOTAL = "Subtotal das Provisões"
+    const val CART_LABEL_SHIPPING = "Tributo do Corvo (Frete)"
+    const val CART_LABEL_SHIPPING_FREE = "Grátis (Imperial)"
+    const val CART_LABEL_TOTAL = "Tributo Real (Total)"
+    const val CART_BUTTON_CHECKOUT = "🔥 SELAR E ENVIAR BANQUETE"
 }

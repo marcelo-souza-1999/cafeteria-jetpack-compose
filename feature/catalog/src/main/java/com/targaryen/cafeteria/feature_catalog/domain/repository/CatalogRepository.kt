@@ -6,4 +6,5 @@ import kotlinx.coroutines.flow.Flow
 interface CatalogRepository {
     fun getProducts(): Flow<List<Product>>
     suspend fun toggleFavorite(productId: String)
+    suspend fun updateProductQuantity(productId: String, quantity: Int)
 }

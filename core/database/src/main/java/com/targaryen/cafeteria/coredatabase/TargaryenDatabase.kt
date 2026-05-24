@@ -9,7 +9,7 @@ import com.targaryen.cafeteria.coredatabase.model.ProductEntity
 
 @Database(
     entities = [UserEntity::class, ProductEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class TargaryenDatabase : RoomDatabase() {

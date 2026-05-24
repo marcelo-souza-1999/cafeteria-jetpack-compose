@@ -5,7 +5,10 @@ import com.targaryen.cafeteria.core_designsystem.model.CatalogConstants
 import com.targaryen.cafeteria.coredatabase.model.ProductEntity
 import com.targaryen.cafeteria.feature_catalog.domain.model.Product
 
-fun DocumentSnapshot.toProductEntity(currentIsFavorite: Boolean = false): ProductEntity {
+fun DocumentSnapshot.toProductEntity(
+    currentIsFavorite: Boolean = false,
+    currentQuantity: Int = 0
+): ProductEntity {
     val rawCategory = this.getString("category") ?: ""
     val name = this.getString("name") ?: ""
     val desc = this.getString("description") ?: ""
@@ -35,7 +38,8 @@ fun DocumentSnapshot.toProductEntity(currentIsFavorite: Boolean = false): Produc
         price = this.getDouble("price") ?: 0.0,
         imageUrl = this.getString("imageUrl") ?: "",
         category = mappedCategory,
-        isFavorite = currentIsFavorite
+        isFavorite = currentIsFavorite,
+        quantityInCart = currentQuantity
     )
 }
 
@@ -48,6 +52,6 @@ fun ProductEntity.toDomain(): Product {
         imageUrl = this.imageUrl,
         category = this.category,
         isFavorite = this.isFavorite,
-        quantityInCart = 0
+        quantityInCart = this.quantityInCart
     )
 }

@@ -19,7 +19,7 @@ import org.koin.core.annotation.Single
 @Single
 class CatalogRepositoryImpl(
     private val localDao: ProductDao,
-    private val remoteDataSource: FirestoreDataSource
+    remoteDataSource: FirestoreDataSource
 ) : CatalogRepository {
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -29,10 +29,15 @@ class CatalogRepositoryImpl(
             .onEach { snapshot ->
                 val currentLocalProducts = localDao.getProducts().firstOrNull() ?: emptyList()
                 val favoriteMap = currentLocalProducts.associate { it.id to it.isFavorite }
+                val quantityMap = currentLocalProducts.associate { it.id to it.quantityInCart }
 
                 val entitiesToInsert = snapshot.documents.map { doc ->
                     val isFavorite = favoriteMap[doc.id] ?: false
-                    doc.toProductEntity(isFavorite)
+                    val quantity = quantityMap[doc.id] ?: 0
+                    doc.toProductEntity(
+                        currentIsFavorite = isFavorite,
+                        currentQuantity = quantity
+                    )
                 }
 
                 if (entitiesToInsert.isNotEmpty()) {
@@ -54,5 +59,9 @@ class CatalogRepositoryImpl(
             val newStatus = !product.isFavorite
             localDao.updateFavoriteStatus(productId, newStatus)
         }
+    }
+
+    override suspend fun updateProductQuantity(productId: String, quantity: Int) {
+        localDao.updateCartQuantity(productId, quantity)
     }
 }
