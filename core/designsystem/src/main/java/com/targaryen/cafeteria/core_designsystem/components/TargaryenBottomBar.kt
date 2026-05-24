@@ -71,32 +71,28 @@ private fun RowScope.TargaryenBottomBarItem(
         TargaryenTab.PROFILE -> "Perfil"
     }
 
-    val glowScale: Float
-    val glowAlpha: Float
-    if (isSelected) {
-        val infiniteTransition = rememberInfiniteTransition(label = "DragonEmbers")
-        glowScale = infiniteTransition.animateFloat(
-            initialValue = 0.8f,
-            targetValue = 1.3f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "GlowScale"
-        ).value
-        glowAlpha = infiniteTransition.animateFloat(
-            initialValue = 0.2f,
-            targetValue = 0.6f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "GlowAlpha"
-        ).value
-    } else {
-        glowScale = 0f
-        glowAlpha = 0f
-    }
+    val infiniteTransition = rememberInfiniteTransition(label = "DragonEmbers")
+    val animatedScale = infiniteTransition.animateFloat(
+        initialValue = 0.8f,
+        targetValue = 1.3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "GlowScale"
+    )
+    val animatedAlpha = infiniteTransition.animateFloat(
+        initialValue = 0.2f,
+        targetValue = 0.6f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "GlowAlpha"
+    )
+
+    val glowScale = if (isSelected) animatedScale.value else 0f
+    val glowAlpha = if (isSelected) animatedAlpha.value else 0f
 
     val iconModifier = if (isSelected) {
         Modifier.drawBehind {

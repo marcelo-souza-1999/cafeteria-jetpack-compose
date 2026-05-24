@@ -99,11 +99,11 @@ class CatalogViewModel : ViewModel() {
                 updateQuantity(intent.productId, intent.quantity)
             }
             is CatalogIntent.AddToCart -> {
-                val currentQty = intent.product.quantityInCart
+                val currentQty = masterProducts.find { product -> product.id == intent.product.id }?.quantityInCart ?: 0
                 updateQuantity(intent.product.id, currentQty + 1)
             }
             is CatalogIntent.RemoveFromCart -> {
-                val currentQty = intent.product.quantityInCart
+                val currentQty = masterProducts.find { product -> product.id == intent.product.id }?.quantityInCart ?: 0
                 if (currentQty > 0) {
                     updateQuantity(intent.product.id, currentQty - 1)
                 }

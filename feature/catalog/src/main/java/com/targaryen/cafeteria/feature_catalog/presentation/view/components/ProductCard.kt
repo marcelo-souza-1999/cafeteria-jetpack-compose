@@ -115,7 +115,7 @@ fun ProductCard(
 
             // Preço
             Text(
-                text = String.format(java.util.Locale("pt", "BR"), "%s %.2f", CatalogConstants.CURRENCY_SYMBOL, product.price),
+                text = String.format(java.util.Locale.getDefault(), "%s %.2f", CatalogConstants.CURRENCY_SYMBOL, product.price),
                 style = MaterialTheme.typography.titleMedium,
                 color = ValyrianGold
             )

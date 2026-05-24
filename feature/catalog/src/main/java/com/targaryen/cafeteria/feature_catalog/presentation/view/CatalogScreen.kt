@@ -104,7 +104,7 @@ fun CatalogScreenContent(
     val scope = rememberCoroutineScope()
 
     // Configurar o Pager de 4 páginas
-    val pagerState = rememberPagerState(initialPage = 0) { 4 }
+    val pagerState = rememberPagerState(initialPage = 0) { TargaryenTab.entries.size }
 
     // Sincronizar o estado do Pager com a BottomBar
     val currentTab = TargaryenTab.entries[pagerState.currentPage]
