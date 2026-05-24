@@ -111,7 +111,7 @@ fun CatalogScreenContent(
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        gesturesEnabled = pagerState.currentPage == 0,
+        gesturesEnabled = pagerState.currentPage == TargaryenTab.CATALOG.ordinal,
         drawerContent = {
             ModalDrawerSheet(
                 drawerContainerColor = DragonScale,
@@ -131,7 +131,7 @@ fun CatalogScreenContent(
                             id = com.targaryen.cafeteria.core_designsystem.R.drawable.ic_logo_login_screen
                         ),
                         contentDescription = "Brasão Targaryen",
-                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeExtraLarge * 1.3f)
+                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeExtraLarge * BRAND_LOGO_SCALE)
                     )
                     Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
                     Text(
@@ -265,6 +265,7 @@ fun CatalogScreenContent(
                 TargaryenTopBar(
                     title = TOP_BAR_TITLE,
                     onMenuClick = {
+                        onMenuClick()
                         scope.launch {
                             if (drawerState.isClosed) drawerState.open() else drawerState.close()
                         }
@@ -343,7 +344,7 @@ fun CatalogScreenContent(
                         }
                     }
 
-                    1 -> {
+                    TargaryenTab.FAVORITES.ordinal -> {
                         if (uiState.favoriteProducts.isEmpty()) {
                             FavoritesScreenStub()
                         } else {
@@ -386,8 +387,8 @@ fun CatalogScreenContent(
                         }
                     }
 
-                    2 -> CartScreenStub(badgeCount = uiState.badgeCount)
-                    3 -> ProfileScreenStub()
+                    TargaryenTab.CART.ordinal -> CartScreenStub(badgeCount = uiState.badgeCount)
+                    TargaryenTab.PROFILE.ordinal -> ProfileScreenStub()
                 }
             }
 
@@ -590,3 +591,5 @@ fun CatalogScreenPreview() {
         )
     }
 }
+
+private const val BRAND_LOGO_SCALE = 1.3f

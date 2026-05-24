@@ -109,7 +109,7 @@ fun ProductDetailBottomSheet(
                         imageVector = if (product.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = "Favoritar",
                         tint = if (product.isFavorite) BloodRed else SilverHair,
-                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeMedium * 1.5f)
+                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeMedium * FAVORITE_ICON_SCALE)
                     )
                 }
             }
@@ -274,3 +274,5 @@ fun ProductDetailBottomSheetPreview() {
         )
     }
 }
+
+private const val FAVORITE_ICON_SCALE = 1.5f

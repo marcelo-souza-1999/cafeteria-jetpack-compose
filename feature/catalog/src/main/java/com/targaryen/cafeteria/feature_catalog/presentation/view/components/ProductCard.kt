@@ -51,6 +51,8 @@ fun ProductCard(
     onDecreaseQuantity: (ProductUiModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -115,7 +117,7 @@ fun ProductCard(
 
             // Preço
             Text(
-                text = String.format(java.util.Locale.getDefault(), "%s %.2f", CatalogConstants.CURRENCY_SYMBOL, product.price),
+                text = String.format(locale, "%s %.2f", CatalogConstants.CURRENCY_SYMBOL, product.price),
                 style = MaterialTheme.typography.titleMedium,
                 color = ValyrianGold
             )
