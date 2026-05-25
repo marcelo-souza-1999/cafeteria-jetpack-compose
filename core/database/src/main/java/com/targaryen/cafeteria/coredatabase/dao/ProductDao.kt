@@ -27,6 +27,9 @@ interface ProductDao {
     @Query("UPDATE products SET quantityInCart = :quantity WHERE id = :id")
     suspend fun updateCartQuantity(id: String, quantity: Int)
 
+    @Query("UPDATE products SET quantityInCart = 0")
+    suspend fun clearCart()
+
     @Query("DELETE FROM products")
     suspend fun deleteAll()
 }

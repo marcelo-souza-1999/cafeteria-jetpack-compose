@@ -1,12 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.hotswan.compiler)
-    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
-    namespace = "com.targaryen.cafeteria.core_network"
+    namespace = "com.targaryen.cafeteria.feature_checkout"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
@@ -29,17 +29,32 @@ android {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
+    buildFeatures {
+        compose = true
+    }
 }
 
 dependencies {
+    implementation(project(":core:designsystem"))
+    implementation(project(":core:network"))
+    implementation(project(":feature:cart"))
+    implementation(project(":feature:catalog"))
+    
     implementation(libs.androidx.core.ktx)
-
-    implementation(libs.koin)
-    implementation(libs.koin.annotation)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.browser)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.bundles.compose.icons)
+    
+    implementation(libs.bundles.coroutines)
+    implementation(libs.bundles.koin)
     ksp(libs.koin.ksp.compiler)
-
-    implementation(libs.bundles.ktor)
-    implementation(libs.kotlinx.serialization.core)
+    implementation(libs.compose.alert.dialog)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)

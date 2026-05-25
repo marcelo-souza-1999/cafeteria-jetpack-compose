@@ -63,6 +63,7 @@ fun CartScreen(
     onDecreaseQuantity: (ProductUiModel) -> Unit,
     onRemoveProduct: (ProductUiModel) -> Unit,
     onProductClick: (ProductUiModel) -> Unit,
+    onCheckoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -179,11 +180,7 @@ fun CartScreen(
             }
 
             Button(
-                onClick = {
-                    val message = String.format(Locale.US, "🔥 [Selo Real] A frota Targaryen foi despachada para o banquete! Total: R$ %.2f", total)
-                    Toast.makeText(context, "Selo Real Aplicado! Suas provisões estão a caminho.", Toast.LENGTH_LONG).show()
-                    android.util.Log.d("TargaryenCart", message)
-                },
+                onClick = onCheckoutClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -370,7 +367,8 @@ fun CartScreenEmptyPreview() {
                 onIncreaseQuantity = {},
                 onDecreaseQuantity = {},
                 onRemoveProduct = {},
-                onProductClick = {}
+                onProductClick = {},
+                onCheckoutClick = {}
             )
         }
     }
@@ -416,7 +414,8 @@ fun CartScreenItemsPreview() {
                 onIncreaseQuantity = {},
                 onDecreaseQuantity = {},
                 onRemoveProduct = {},
-                onProductClick = {}
+                onProductClick = {},
+                onCheckoutClick = {}
             )
         }
     }

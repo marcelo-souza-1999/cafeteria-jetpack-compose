@@ -7,4 +7,5 @@ interface CatalogRepository {
     fun getProducts(): Flow<List<Product>>
     suspend fun toggleFavorite(productId: String)
     suspend fun updateProductQuantity(productId: String, quantity: Int)
+    suspend fun clearCart()
 }

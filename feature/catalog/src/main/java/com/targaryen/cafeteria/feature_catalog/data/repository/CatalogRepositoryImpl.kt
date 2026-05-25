@@ -64,4 +64,8 @@ class CatalogRepositoryImpl(
     override suspend fun updateProductQuantity(productId: String, quantity: Int) {
         localDao.updateCartQuantity(productId, quantity)
     }
+
+    override suspend fun clearCart() {
+        localDao.clearCart()
+    }
 }
