@@ -13,3 +13,6 @@ data object RegisterRoute
 
 @Serializable
 data object CatalogRoute
+
+@Serializable
+data object CheckoutRoute

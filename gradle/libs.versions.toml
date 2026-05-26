@@ -16,9 +16,9 @@ kover = "0.9.8"
 coreKtx = "1.18.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
-
 # --- Jetpack Compose & UI ---
-composeBom = "2026.05.00"
+browser = "1.10.0"
+composeBom = "2026.05.01"
 composeMaterialIcons = "1.7.8"
 constraintlayoutCompose = "1.1.1"
 compose-shimmer = "1.4.0"
@@ -32,7 +32,7 @@ koin = "4.2.1"
 koin-annotations = "2.3.1"
 
 # --- Arquitetura Offline-First (Room 3) ---
-room = "3.0.0-alpha04"
+room = "3.0.0-alpha05"
 
 # --- Navegação & Serialização ---
 navigation3 = "1.1.2"
@@ -43,6 +43,7 @@ kotlinxSerializationCore = "1.11.0"
 # --- Imagens & Network ---
 coil = "3.4.0"
 okhttp = "5.3.2"
+ktor = "3.5.0"
 
 # --- Inteligência Artificial ---
 generativeai = "0.9.0"
@@ -62,6 +63,7 @@ robolectric = "4.16.1"
 
 [libraries]
 # --- AndroidX & Core ---
+androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browser" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -106,6 +108,10 @@ room-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room"
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil"}
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil"}
 mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp" }
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 # --- Firebase & Inteligência Artificial ---
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
@@ -135,6 +141,7 @@ coil-test = { group = "io.coil-kt.coil3", name = "coil-test", version.ref = "coi
 coroutines = ["coroutines", "coroutines-core"]
 firebase = ["firebase-firestore", "firebase-auth", "androidx-credentials", "androidx-credentials-play-auth", "googleid"]
 coil = ["coil-compose", "coil-network"]
+ktor = ["ktor-client-core", "ktor-client-okhttp", "ktor-client-content-negotiation", "ktor-serialization-kotlinx-json"]
 koin = ["koin", "koin-annotation", "koin-compose"]
 koin-test = ["koin-test", "koin-test-junit"]
 compose-icons = ["androidx-compose-material-icons-core", "androidx-compose-material-icons-extended"]

@@ -32,8 +32,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,6 +73,7 @@ fun CatalogScreen(
     onTabSelected: (TargaryenTab) -> Unit,
     onMenuClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onCheckoutClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CatalogViewModel = koinViewModel()
 ) {
@@ -82,10 +85,12 @@ fun CatalogScreen(
         onTabSelected = onTabSelected,
         onMenuClick = onMenuClick,
         onLogoutClick = onLogoutClick,
+        onCheckoutClick = onCheckoutClick,
         modifier = modifier
     )
 }
 
+@Suppress("LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogScreenContent(
@@ -94,6 +99,7 @@ fun CatalogScreenContent(
     onTabSelected: (TargaryenTab) -> Unit,
     onMenuClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onCheckoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val categories = listOf(
@@ -110,6 +116,16 @@ fun CatalogScreenContent(
     val pagerState = rememberPagerState(initialPage = 0) { TargaryenTab.entries.size }
 
     val currentTab = TargaryenTab.entries[pagerState.currentPage]
+
+    val cartItemsCount = remember(uiState.products) {
+        uiState.products.count { product -> product.quantityInCart > 0 }
+    }
+
+    LaunchedEffect(cartItemsCount) {
+        if (cartItemsCount == 0 && pagerState.currentPage == TargaryenTab.CART.ordinal) {
+            pagerState.scrollToPage(TargaryenTab.CATALOG.ordinal)
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -400,7 +416,8 @@ fun CatalogScreenContent(
                         onIncreaseQuantity = { item -> onIntent(CatalogIntent.AddToCart(item)) },
                         onDecreaseQuantity = { item -> onIntent(CatalogIntent.RemoveFromCart(item)) },
                         onRemoveProduct = { item -> onIntent(CatalogIntent.UpdateProductQuantity(item.id, 0)) },
-                        onProductClick = { item -> onIntent(CatalogIntent.SelectProduct(item)) }
+                        onProductClick = { item -> onIntent(CatalogIntent.SelectProduct(item)) },
+                        onCheckoutClick = onCheckoutClick
                     )
                     TargaryenTab.PROFILE.ordinal -> ProfileScreenStub()
                 }
@@ -564,7 +581,8 @@ fun CatalogScreenPreview() {
             onIntent = {},
             onTabSelected = {},
             onMenuClick = {},
-            onLogoutClick = {}
+            onLogoutClick = {},
+            onCheckoutClick = {}
         )
     }
 }

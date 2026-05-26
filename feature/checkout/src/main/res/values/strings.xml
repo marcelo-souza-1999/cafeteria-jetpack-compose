@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ============================================== -->
+    <!-- Checkout Screen                                -->
+    <!-- ============================================== -->
+    <string name="checkout_title">Tributo da Coroa</string>
+    <string name="checkout_address_section">Para onde enviaremos o banquete?</string>
+    <string name="checkout_label_cep">CEP</string>
+    <string name="checkout_action_no_cep">Não sei meu CEP</string>
+    <string name="checkout_label_street">Logradouro</string>
+    <string name="checkout_label_city">Cidade</string>
+    <string name="checkout_label_state">UF</string>
+    <string name="checkout_label_number">Número (Obrigatório)</string>
+    <string name="checkout_label_reference">Ponto de Referência (Obrigatório)</string>
+    <string name="checkout_label_recipient">Nome do Destinatário</string>
+    <string name="checkout_action_submit">OFERECER TRIBUTO AO TRONO</string>
+    
+    <string name="checkout_message_disabled_fields">Por favor, insira o CEP ou clique em \"Não sei meu CEP\".</string>
+    
+    <!-- Busca pelo Corvo Dialog -->
+    <string name="dialog_cep_search_title">Busca pelo Corvo</string>
+    <string name="dialog_cep_search_label_uf">UF (Ex: SP)</string>
+    <string name="dialog_cep_search_label_city">Cidade</string>
+    <string name="dialog_cep_search_label_street">Logradouro</string>
+    <string name="dialog_cep_search_action_search">Enviar Corvo</string>
+    <string name="dialog_cep_search_action_cancel">Cancelar</string>
+    
+    <!-- Erros de Checkout -->
+    <string name="error_checkout_required_fields">Preencha os campos obrigatórios: CEP, Número e Referência</string>
+    <string name="error_checkout_payment_failed">Falha ao gerar o tributo no Mercado Pago</string>
+    <string name="error_checkout_cep_not_found">Este CEP não pertence aos Sete Reinos (CEP não encontrado)</string>
+    <string name="error_checkout_cep_failed">O corvo falhou ao buscar o endereço. Cheque a rede</string>
+    <string name="dialog_checkout_error_title">Tributo Negado</string>
+    <string name="dialog_checkout_error_button_retry">Tentar Novamente</string>
+    <string name="dialog_checkout_error_button_cancel">Recuar</string>
+
+    <!-- Dialog de Redirecionamento -->
+    <string name="dialog_redirect_title">Embarcando nos Navios</string>
+    <string name="dialog_redirect_message">Estamos redirecionando você para o Banco de Ferro (Mercado Pago) para concluir o tributo. Aguarde...</string>
+    <string name="dialog_redirect_button_cancel">Cancelar Tributo</string>
+
+    <!-- Dialog de Sucesso -->
+    <string name="dialog_success_title">Tributo Aceito</string>
+    <string name="dialog_success_message">O Banco de Ferro confirmou seu pagamento. O banquete está a caminho!</string>
+    <string name="dialog_success_button_ok">Retornar aos Salões</string>
+</resources>

@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -21,11 +24,23 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val secretsFile = rootProject.file("secrets.properties")
+        val secrets = Properties()
+        if (secretsFile.exists()) {
+            secretsFile.inputStream().use { secrets.load(it) }
+        }
+        val mpPublicKey = secrets.getProperty("MERCADO_PAGO_PUBLIC_KEY", "")
+        val mpAccessToken = secrets.getProperty("MERCADO_PAGO_ACCESS_TOKEN", "")
+
+        buildConfigField("String", "MERCADO_PAGO_PUBLIC_KEY", "\"$mpPublicKey\"")
+        buildConfigField("String", "MERCADO_PAGO_ACCESS_TOKEN", "\"$mpAccessToken\"")
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -41,6 +56,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     lint {
@@ -56,11 +72,13 @@ dependencies {
     implementation(project(":feature:catalog"))
     implementation(project(":feature:cart"))
     implementation(project(":feature:chat"))
+    implementation(project(":feature:checkout"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.browser)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
