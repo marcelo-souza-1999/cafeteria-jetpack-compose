@@ -74,6 +74,7 @@ import com.targaryen.cafeteria.feature_checkout.presentation.state.CheckoutState
 import com.targaryen.cafeteria.feature_checkout.presentation.view.components.CheckoutErrorFancyDialog
 import com.targaryen.cafeteria.feature_checkout.presentation.view.components.CheckoutSuccessFancyDialog
 
+@Suppress("CyclomaticComplexMethod", "MagicNumber")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CheckoutScreen(
@@ -84,9 +85,14 @@ fun CheckoutScreen(
 ) {
     val context = LocalContext.current
 
-    LaunchedEffect(state.preferenceId, state.sandboxInitPoint) {
-        if (state.preferenceId != null && state.sandboxInitPoint != null) {
-            launchMercadoPagoCheckout(context, state.sandboxInitPoint)
+    LaunchedEffect(Unit) {
+        onIntent(CheckoutIntent.OnResetState)
+    }
+
+    LaunchedEffect(state.preferenceId, state.sandboxInitPoint, state.initPoint) {
+        val targetUrl = state.sandboxInitPoint ?: state.initPoint
+        if (state.preferenceId != null && targetUrl != null) {
+            launchMercadoPagoCheckout(context, targetUrl)
             onIntent(CheckoutIntent.OnPaymentInitiated)
         }
     }
@@ -386,6 +392,16 @@ fun CheckoutScreen(
             isCancelable = true,
             onRetryClick = {
                 onIntent(CheckoutIntent.OnDismissError)
+                when (errorId) {
+                    R.string.error_checkout_cep_failed -> {
+                        if (state.cep.length == 8) {
+                            onIntent(CheckoutIntent.OnCepChanged(state.cep))
+                        }
+                    }
+                    R.string.error_checkout_payment_failed -> {
+                        onIntent(CheckoutIntent.OnSubmitPayment)
+                    }
+                }
             },
             onDismissRequest = {
                 onIntent(CheckoutIntent.OnDismissError)
@@ -536,10 +552,6 @@ fun CepSearchDialog(
                 val isUfEmpty = uf.isBlank()
                 val isCityEmpty = city.isBlank()
                 val isStreetEmpty = street.isBlank()
-
-                ufError = isUfEmpty
-                cityError = isCityEmpty
-                streetError = isStreetEmpty
 
                 if (!isUfEmpty && !isCityEmpty && !isStreetEmpty) {
                     onSearch(uf, city, street)

@@ -1,6 +1,5 @@
 package com.targaryen.cafeteria.feature_catalog.presentation.view.components
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -56,6 +54,10 @@ import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.feature_catalog.presentation.model.ProductUiModel
 import java.util.Locale
 
+private const val SHIPPING_FREE_THRESHOLD = 50.0
+private const val SHIPPING_COST = 5.90
+
+@Suppress("LongParameterList")
 @Composable
 fun CartScreen(
     products: List<ProductUiModel>,
@@ -66,10 +68,8 @@ fun CartScreen(
     onCheckoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-
     val subtotal = products.sumOf { product -> product.price * product.quantityInCart }
-    val shippingTribute = if (subtotal > 50.0 || subtotal == 0.0) 0.0 else 5.90
+    val shippingTribute = if (subtotal > SHIPPING_FREE_THRESHOLD || subtotal == 0.0) 0.0 else SHIPPING_COST
     val total = subtotal + shippingTribute
 
     if (products.isEmpty()) {
@@ -155,7 +155,11 @@ fun CartScreen(
                         color = SilverHair
                     )
                     Text(
-                        text = if (shippingTribute == 0.0) CatalogConstants.CART_LABEL_SHIPPING_FREE else String.format(Locale.US, "R$ %.2f", shippingTribute),
+                        text = if (shippingTribute == 0.0) {
+                            CatalogConstants.CART_LABEL_SHIPPING_FREE
+                        } else {
+                            String.format(Locale.US, "R$ %.2f", shippingTribute)
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (shippingTribute == 0.0) ValyrianGold else TargaryenWhite
                     )

@@ -4,11 +4,9 @@ import com.targaryen.cafeteria.core_network.model.MpPreferenceRequest
 import com.targaryen.cafeteria.core_network.model.MpPreferenceResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import kotlinx.serialization.SerializationException
 import org.koin.core.annotation.Single
 
 @Single
@@ -16,6 +14,7 @@ class MercadoPagoDataSource(
     private val httpClient: HttpClient,
     private val tokenProvider: MercadoPagoTokenProvider
 ) {
+    @Suppress("TooGenericExceptionCaught")
     suspend fun createPreference(request: MpPreferenceRequest): Result<MpPreferenceResponse> {
         return try {
             val token = tokenProvider.getAccessToken()
@@ -30,11 +29,7 @@ class MercadoPagoDataSource(
             } else {
                 Result.success(response)
             }
-        } catch (e: kotlinx.io.IOException) {
-            Result.failure(e)
-        } catch (e: SerializationException) {
-            Result.failure(e)
-        } catch (e: ResponseException) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }

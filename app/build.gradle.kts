@@ -28,7 +28,7 @@ android {
         val secretsFile = rootProject.file("secrets.properties")
         val secrets = Properties()
         if (secretsFile.exists()) {
-            secrets.load(FileInputStream(secretsFile))
+            secretsFile.inputStream().use { secrets.load(it) }
         }
         val mpPublicKey = secrets.getProperty("MERCADO_PAGO_PUBLIC_KEY", "")
         val mpAccessToken = secrets.getProperty("MERCADO_PAGO_ACCESS_TOKEN", "")

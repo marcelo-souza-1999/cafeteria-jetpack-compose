@@ -23,7 +23,7 @@ class NetworkModule {
     fun provideKtorClient(context: Context): HttpClient {
         return HttpClient(OkHttp) {
             engine {
-                val cacheSize = 10 * 1024 * 1024L // 10 MiB
+                val cacheSize = HTTP_CACHE_SIZE
                 val cacheDir = File(context.cacheDir, "http_cache")
                 config {
                     cache(Cache(cacheDir, cacheSize))
@@ -40,5 +40,12 @@ class NetworkModule {
                 contentType(ContentType.Application.Json)
             }
         }
+    }
+
+    companion object {
+        private const val CACHE_SIZE_MB = 10L
+        private const val KB_TO_BYTES = 1024L
+        private const val MB_TO_KB = 1024L
+        private const val HTTP_CACHE_SIZE = CACHE_SIZE_MB * KB_TO_BYTES * MB_TO_KB
     }
 }

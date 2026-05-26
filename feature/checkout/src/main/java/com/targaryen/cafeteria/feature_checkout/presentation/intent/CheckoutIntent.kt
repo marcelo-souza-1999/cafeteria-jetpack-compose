@@ -16,4 +16,5 @@ sealed interface CheckoutIntent {
     data object OnDismissCancelNotice : CheckoutIntent
     data object OnDismissSuccessNotice : CheckoutIntent
     data object OnDisabledFieldClick : CheckoutIntent
+    data object OnResetState : CheckoutIntent
 }

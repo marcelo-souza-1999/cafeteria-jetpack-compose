@@ -16,6 +16,7 @@ data class CheckoutState(
     val errorResId: Int? = null,
     val preferenceId: String? = null,
     val sandboxInitPoint: String? = null,
+    val initPoint: String? = null,
     val showCepModal: Boolean = false,
     val isRedirecting: Boolean = false,
     val showCancelNotice: Boolean = false,

@@ -14,7 +14,7 @@ enum class PaymentStatus {
 
 @Single
 class PaymentStatusTracker {
-    private val _paymentStatus = MutableSharedFlow<PaymentStatus>(extraBufferCapacity = 1)
+    private val _paymentStatus = MutableSharedFlow<PaymentStatus>(replay = 1, extraBufferCapacity = 1)
     val paymentStatus: SharedFlow<PaymentStatus> = _paymentStatus.asSharedFlow()
 
     fun updateStatus(status: PaymentStatus) {

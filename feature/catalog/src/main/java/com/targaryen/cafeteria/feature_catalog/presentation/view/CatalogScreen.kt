@@ -90,6 +90,7 @@ fun CatalogScreen(
     )
 }
 
+@Suppress("LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogScreenContent(
