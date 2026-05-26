@@ -74,3 +74,11 @@ jobs:
         with:
           name: kover-html-report
           path: app/build/reports/kover/htmlDebug/
+
+      - name: Automated PR Code Review (Claude Review)
+        if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Dispara a suite de reviews concorrentes com scoring de confianca > 80
+          /code-review --comment
