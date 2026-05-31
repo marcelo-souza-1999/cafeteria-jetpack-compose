@@ -24,7 +24,8 @@ fun TargaryenTextField(
     leadingIcon: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: androidx.compose.ui.text.input.VisualTransformation = androidx.compose.ui.text.input.VisualTransformation.None
 ) {
     OutlinedTextField(
         value = value,
@@ -35,6 +36,7 @@ fun TargaryenTextField(
         isError = isError,
         supportingText = supportingText,
         keyboardOptions = keyboardOptions,
+        visualTransformation = visualTransformation,
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = DragonScale,

@@ -1,6 +1,6 @@
 package com.targaryen.cafeteria.feature_checkout.presentation.state
 
-import com.targaryen.cafeteria.feature_catalog.domain.model.Product
+import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 
 data class CheckoutState(
     val cep: String = "",

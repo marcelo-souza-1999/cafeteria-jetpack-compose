@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_dialog_success_proceed">Compreendido</string>
+    <string name="profile_dialog_error_retry">Sim, Queimar Tudo</string>
+    <string name="profile_dialog_error_cancel">Voltar ao Trono</string>
+    <!-- Profile -->
+    <string name="profile_choose_heraldry">Escolha seu avatar:</string>
+    <string name="profile_banquet_chronicles_title">CRÔNICAS DE BANQUETES</string>
+    <string name="profile_empty_history_desc">Nenhuma compra registrada nos pergaminhos reais.</string>
+    <string name="profile_btn_delete_account">🔥 QUEIMAR LINHAGEM (EXCLUIR CONTA)</string>
+    <string name="profile_order_prefix">Ordem Real</string>
+    <string name="profile_label_new_name">Novo Título</string>
+    <string name="profile_label_new_email">Novo E-mail</string>
+    <string name="profile_section_security_title">Configurações de Segurança</string>
+    <string name="profile_btn_reset_password">Redefinir Senha</string>
+    <string name="profile_btn_see_all_records">Ver todos os registros</string>
+    <string name="profile_desc_royal_effigy">Efígie Real</string>
+    <string name="profile_desc_change_photo">Trocar Foto</string>
+    <string name="profile_desc_edit_name">Editar Nome</string>
+    <string name="profile_desc_edit_email">Editar E-mail</string>
+    <string name="profile_desc_save">Salvar</string>
+    <string name="profile_desc_preset">Preset</string>
+
+    <!-- Dialogs & BottomSheets -->
+    <string name="profile_dialog_email_success_title">Aviso Enviado pelo Corvo</string>
+    <string name="profile_dialog_email_success_msg">Um link foi enviado ao novo e-mail para validar sua mudança na linhagem imperial. Verifique seus pergaminhos e confirme para efetivar a alteração.</string>
+    <string name="profile_dialog_delete_title">SENTENÇA DE FOGO E SANGUE</string>
+    <string name="profile_dialog_delete_msg">Esta ação queimará sua linhagem até as cinzas. Os registros de suas conquistas serão perdidos para sempre no fogo do dragão e não poderão ser recuperados. Deseja prosseguir?</string>
+    <string name="profile_dialog_error_title">Aviso do Trono</string>
+    <string name="profile_sheet_security_title">Câmara dos Segredos</string>
+    <string name="profile_sheet_security_desc">Para alterar os segredos do Trono, confirme sua identidade.</string>
+    <string name="profile_label_current_password">Senha Atual</string>
+    <string name="profile_label_new_password">Nova Senha do Trono</string>
+    <string name="profile_error_password_empty">O segredo não pode ser vazio nos pergaminhos reais.</string>
+    <string name="profile_error_password_weak">O novo segredo é fraco. Exige-se ao menos 6 caracteres.</string>
+
+    <!-- Avatar Selection & Crop -->
+    <string name="profile_crop_title">Ajustar Avatar</string>
+    <string name="profile_crop_zoom">Zoom</string>
+    <string name="profile_btn_cancel">Cancelar</string>
+    <string name="profile_btn_confirm">Confirmar</string>
+    <string name="profile_photo_source_title">Escolher Avatar Real</string>
+    <string name="profile_photo_source_desc">Deseja capturar uma nova foto com a câmera ou escolher uma imagem da galeria imperial?</string>
+    <string name="profile_photo_source_gallery">Galeria</string>
+    <string name="profile_photo_source_camera">Câmera</string>
+    <string name="profile_history_collapse">Recolher Registros</string>
+
+    <!-- Logout Confirmation -->
+    <string name="logout_confirm_title">Abandonar o Trono</string>
+    <string name="logout_confirm_msg">Deseja mesmo se afastar do Trono de Ferro? A sua dinastia e as chamas da Cafeteria Targaryen aguardarão seu glorioso retorno.</string>
+    <string name="logout_btn_confirm">Abandonar Trono</string>
+    <string name="logout_btn_dismiss">Permanecer</string>
+</resources>

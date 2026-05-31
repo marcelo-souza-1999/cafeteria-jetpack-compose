@@ -10,13 +10,19 @@ import androidx.navigation3.ui.NavDisplay
 import com.targaryen.cafeteria.feature.auth.presentation.login.LoginScreen
 import com.targaryen.cafeteria.feature.auth.presentation.register.RegisterScreen
 import com.targaryen.cafeteria.feature.auth.presentation.splash.SplashScreen
-import com.targaryen.cafeteria.feature_catalog.presentation.view.CatalogScreen
+import androidx.compose.runtime.rememberCoroutineScope
+import com.targaryen.cafeteria.feature.auth.domain.repository.AuthRepository
+import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.CatalogScreen
 import com.targaryen.cafeteria.feature_checkout.presentation.viewmodel.CheckoutViewModel
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun CafeteriaNavDisplay() {
     val backStack = remember { mutableStateListOf<Any>(SplashRoute) }
+    val scope = rememberCoroutineScope()
+    val authRepository = koinInject<AuthRepository>()
 
     NavDisplay(
         backStack = backStack,
@@ -65,8 +71,11 @@ fun CafeteriaNavDisplay() {
                         onTabSelected = { /* TODO Sprint 6 - Tabs */ },
                         onMenuClick = { /* TODO Sprint 6 - Drawer */ },
                         onLogoutClick = {
-                            backStack.clear()
-                            backStack.add(LoginRoute)
+                            scope.launch {
+                                authRepository.logout()
+                                backStack.clear()
+                                backStack.add(LoginRoute)
+                            }
                         },
                         onCheckoutClick = {
                             backStack.add(CheckoutRoute)

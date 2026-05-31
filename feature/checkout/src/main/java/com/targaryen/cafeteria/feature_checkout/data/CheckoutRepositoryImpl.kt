@@ -1,19 +1,22 @@
 package com.targaryen.cafeteria.feature_checkout.data
 
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 import com.targaryen.cafeteria.core_network.model.MpItemRequest
 import com.targaryen.cafeteria.core_network.model.MpPreferenceRequest
 import com.targaryen.cafeteria.core_network.model.MpPreferenceResponse
 import com.targaryen.cafeteria.core_network.model.ViaCepResponse
 import com.targaryen.cafeteria.core_network.remote.MercadoPagoDataSource
 import com.targaryen.cafeteria.core_network.remote.ViaCepDataSource
-import com.targaryen.cafeteria.feature_catalog.domain.model.Product
+import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 import com.targaryen.cafeteria.feature_checkout.domain.CheckoutRepository
 import org.koin.core.annotation.Single
 
 @Single
 class CheckoutRepositoryImpl(
     private val viaCepDataSource: ViaCepDataSource,
-    private val mercadoPagoDataSource: MercadoPagoDataSource
+    private val mercadoPagoDataSource: MercadoPagoDataSource,
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) : CheckoutRepository {
 
     override suspend fun fetchAddressByCep(cep: String): Result<ViaCepResponse> {
@@ -51,6 +54,29 @@ class CheckoutRepositoryImpl(
             autoReturn = "all"
         )
         return mercadoPagoDataSource.createPreference(request)
+    }
+
+    override suspend fun saveOrder(
+        userId: String,
+        itemsSummary: String,
+        totalPrice: Double,
+        status: String
+    ): Result<Unit> {
+        return try {
+            val orderData = hashMapOf(
+                "userId" to userId,
+                "itemsSummary" to itemsSummary,
+                "totalPrice" to totalPrice,
+                "status" to status,
+                "dateMillis" to System.currentTimeMillis()
+            )
+            firestore.collection("orders").add(orderData).await()
+            Result.success(Unit)
+        } catch (e: com.google.firebase.firestore.FirebaseFirestoreException) {
+            Result.failure(e)
+        } catch (e: com.google.firebase.FirebaseException) {
+            Result.failure(e)
+        }
     }
 
     companion object {

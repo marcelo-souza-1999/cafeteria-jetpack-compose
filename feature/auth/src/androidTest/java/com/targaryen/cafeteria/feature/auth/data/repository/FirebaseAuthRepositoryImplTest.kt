@@ -7,11 +7,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.firestore.FirebaseFirestore
+import com.targaryen.cafeteria.coredatabase.dao.ProductDao
 import com.targaryen.cafeteria.coredatabase.dao.UserDao
 import com.targaryen.cafeteria.core_network.Resource
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -25,6 +28,7 @@ class FirebaseAuthRepositoryImplTest {
     private val firebaseAuth: FirebaseAuth = mockk(relaxed = true)
     private val firestore: FirebaseFirestore = mockk(relaxed = true)
     private val userDao: UserDao = mockk(relaxed = true)
+    private val productDao: ProductDao = mockk(relaxed = true)
     private lateinit var repository: FirebaseAuthRepositoryImpl
 
     @Before
@@ -32,7 +36,8 @@ class FirebaseAuthRepositoryImplTest {
         repository = FirebaseAuthRepositoryImpl(
             firebaseAuth = firebaseAuth,
             firestore = firestore,
-            userDao = userDao
+            userDao = userDao,
+            productDao = productDao
         )
     }
 
@@ -136,5 +141,18 @@ class FirebaseAuthRepositoryImplTest {
 
         assertTrue(result is Resource.Error)
         assertEquals(AuthError.UserNotFound, (result as Resource.Error).error)
+    }
+
+    @Test
+    fun logout_shouldSignOutFromFirebaseAndClearLocalRoomData() = runTest {
+        val userMock = mockk<com.google.firebase.auth.FirebaseUser>()
+        every { userMock.uid } returns "test_uid"
+        every { firebaseAuth.currentUser } returns userMock
+
+        repository.logout()
+
+        verify { firebaseAuth.signOut() }
+        coVerify { userDao.deleteUserByUid("test_uid") }
+        coVerify { productDao.clearCart() }
     }
 }

@@ -20,7 +20,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -39,7 +39,7 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":feature:cart"))
     implementation(project(":feature:catalog"))
-    
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.browser)
@@ -50,11 +50,15 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.bundles.compose.icons)
-    
+
     implementation(libs.bundles.coroutines)
     implementation(libs.bundles.koin)
     ksp(libs.koin.ksp.compiler)
     implementation(libs.compose.alert.dialog)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)

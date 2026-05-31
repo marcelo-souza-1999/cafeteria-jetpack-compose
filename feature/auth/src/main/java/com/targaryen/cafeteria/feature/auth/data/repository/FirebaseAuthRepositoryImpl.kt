@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
+import com.targaryen.cafeteria.coredatabase.dao.ProductDao
 import com.targaryen.cafeteria.coredatabase.dao.UserDao
 import com.targaryen.cafeteria.coredatabase.model.UserEntity
 import com.targaryen.cafeteria.core_network.Resource
@@ -28,11 +29,21 @@ import org.koin.core.annotation.Single
 class FirebaseAuthRepositoryImpl(
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
-    private val userDao: UserDao
+    private val userDao: UserDao,
+    private val productDao: ProductDao
 ) : AuthRepository {
     private val repositoryScope = CoroutineScope(Dispatchers.IO)
 
     override fun isUserLoggedIn(): Boolean = firebaseAuth.currentUser != null
+
+    override suspend fun logout() {
+        val uid = firebaseAuth.currentUser?.uid
+        firebaseAuth.signOut()
+        if (uid != null) {
+            userDao.deleteUserByUid(uid)
+        }
+        productDao.clearCart()
+    }
 
     override fun signUpWithEmail(name: String, email: String, pass: String): Flow<Resource<Unit, AuthError>> =
         callbackFlow {

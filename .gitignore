@@ -23,6 +23,7 @@ app/google-services.json
 *.log
 *.tmp
 *.bak
+.firebase/
 
 .fvm/
 .pub-cache/

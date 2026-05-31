@@ -24,7 +24,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -38,7 +38,7 @@ android {
         compilerOptions {
             freeCompilerArgs.addAll(
                 "-Xexplicit-backing-fields",
-                "-opt-in=kotlin.ExperimentalStdlibApi"
+                "-opt-in=kotlin.ExperimentalStdlibApi",
             )
         }
     }
@@ -72,7 +72,7 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
-    
+
     implementation(libs.compose.alert.dialog)
 
     testImplementation(libs.junit)

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Catalog -->
+    <string name="currency_symbol">R$</string>
+    <string name="add_to_cart_label">Adicionar</string>
+    <string name="search_placeholder">Buscar comidas e bebidas de Westeros...</string>
+    <string name="search_icon_desc">Ícone de Busca</string>
+    <string name="clear_icon_desc">Limpar busca</string>
+    <string name="content_desc_decrease">Diminuir quantidade</string>
+    <string name="content_desc_increase">Aumentar quantidade</string>
+    <string name="button_close">Fechar</string>
+    <string name="top_bar_title">O Menu do Dragão</string>
+    
+    <!-- Drawer -->
+    <string name="drawer_menu_home">O Menu do Dragão</string>
+    <string name="drawer_menu_favorites">Banquetes Favoritos</string>
+    <string name="drawer_menu_cart">Tesouros da Coroa</string>
+    <string name="drawer_menu_profile">Linhagem do Dragão</string>
+    <string name="drawer_menu_logout">Abandonar o Trono</string>
+    <string name="drawer_brand_title">CASA TARGARYEN</string>
+    <string name="drawer_brand_subtitle">Fogo e Sangue</string>
+    
+    <!-- Favorites & Empty States -->
+    <string name="favorites_tab_title">Seus Favoritos</string>
+    <string name="favorites_stub_title">Favoritos do Trono</string>
+    <string name="favorites_stub_desc">Suas iguarias preferidas do reino surgirão aqui sob o selo do dragão.</string>
+    <string name="profile_stub_title">Linhagem de Nobreza</string>
+    <string name="profile_stub_desc">Lorde de Westeros\nNível de Fidelidade: Herdeiro do Trono</string>
+    <string name="empty_state_title">BANQUETE VAZIO</string>
+    <string name="empty_state_desc">Nenhuma iguaria ou elixir imperial atende a esta busca.</string>
+    
+    <!-- Cart -->
+    <string name="cart_title">TESOUROS DA COROA</string>
+    <string name="cart_subtitle">As suas provisões e elixires reais estão ordenados. Sele a partilha antes que a frota de guerra zarpe.</string>
+    <string name="cart_empty_title">BÚSSOLA DE BANQUETES</string>
+    <string name="cart_empty_desc">Seu baú de banquetes está vazio. Visite o catálogo e ordene suas provisões.</string>
+    <string name="cart_label_subtotal">Subtotal das Provisões</string>
+    <string name="cart_label_shipping">Tributo do Corvo (Frete)</string>
+    <string name="cart_label_shipping_free">Grátis (Imperial)</string>
+    <string name="cart_label_total">Tributo Real (Total)</string>
+    <string name="cart_button_checkout">🔥 SELAR E ENVIAR BANQUETE</string>
+</resources>

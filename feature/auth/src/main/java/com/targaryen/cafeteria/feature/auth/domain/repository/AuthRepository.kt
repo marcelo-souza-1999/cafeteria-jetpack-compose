@@ -10,4 +10,5 @@ interface AuthRepository {
     fun signInWithGoogle(idToken: String): Flow<Resource<Unit, AuthError>>
     fun sendPasswordResetEmail(email: String): Flow<Resource<Unit, AuthError>>
     fun isUserLoggedIn(): Boolean
+    suspend fun logout()
 }

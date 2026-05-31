@@ -1,5 +1,4 @@
 import java.util.Properties
-import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.android.application)
@@ -43,7 +42,7 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -135,7 +134,7 @@ kover {
                     "*.BuildConfig",
                     "*ComposableSingletons*",
                     "*_Factory*",
-                    "*MapperImpl*"
+                    "*MapperImpl*",
                 )
                 annotatedBy("androidx.compose.runtime.Composable")
             }

@@ -41,7 +41,13 @@ data class TargaryenDimens(
     val bottomSheetImageHeight: Dp = 180.dp,
     val iconSizeExtraLarge: Dp = 80.dp,
     val quantitySelectorWidth: Dp = 130.dp,
-    val quantitySelectorHeight: Dp = 44.dp
+    val quantitySelectorHeight: Dp = 44.dp,
+
+    // Profile Screen Tokens
+    val avatarLarge: Dp = 130.dp,
+    val avatarPreset: Dp = 45.dp,
+    val borderThick: Dp = 3.dp,
+    val avatarSelectorIcon: Dp = 36.dp
 )
 
 val LocalTargaryenDimens = staticCompositionLocalOf { TargaryenDimens() }

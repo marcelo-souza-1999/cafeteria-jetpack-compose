@@ -15,11 +15,21 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.hotswan.compiler) apply false
+    alias(libs.plugins.ktlint) apply false
 }
 
 allprojects {
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "org.jetbrains.kotlinx.kover")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        android.set(true)
+        verbose.set(true)
+        reporters {
+            reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+        }
+    }
 
     extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
         config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
@@ -40,7 +50,7 @@ allprojects {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
             freeCompilerArgs.addAll(
                 "-Xexplicit-backing-fields",
-                "-opt-in=kotlin.ExperimentalStdlibApi"
+                "-opt-in=kotlin.ExperimentalStdlibApi",
             )
         }
     }
@@ -74,7 +84,7 @@ kover {
                     "org.koin.ksp.generated.*",
                     "com.targaryen.cafeteria.feature.auth.presentation.components.ComposableSingletons*",
                     "com.targaryen.cafeteria.feature.auth.presentation.login.ComposableSingletons*",
-                    "com.targaryen.cafeteria.feature.auth.presentation.splash.ComposableSingletons*"
+                    "com.targaryen.cafeteria.feature.auth.presentation.splash.ComposableSingletons*",
                 )
                 annotatedBy("androidx.compose.runtime.Composable")
             }

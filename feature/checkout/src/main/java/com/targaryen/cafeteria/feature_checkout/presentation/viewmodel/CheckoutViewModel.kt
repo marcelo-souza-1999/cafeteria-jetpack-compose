@@ -2,7 +2,7 @@ package com.targaryen.cafeteria.feature_checkout.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.targaryen.cafeteria.feature_catalog.domain.repository.CatalogRepository
+import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import com.targaryen.cafeteria.feature_checkout.domain.CheckoutRepository
 import com.targaryen.cafeteria.feature_checkout.presentation.intent.CheckoutIntent
 import com.targaryen.cafeteria.feature_checkout.presentation.state.CheckoutState
@@ -18,6 +18,7 @@ import org.koin.android.annotation.KoinViewModel
 
 import com.targaryen.cafeteria.core_network.PaymentStatus
 import com.targaryen.cafeteria.core_network.PaymentStatusTracker
+import com.google.firebase.auth.FirebaseAuth
 
 private const val CEP_LENGTH = 8
 
@@ -43,25 +44,48 @@ class CheckoutViewModel(
         viewModelScope.launch {
             paymentStatusTracker.paymentStatus.collectLatest { status ->
                 when (status) {
-                    PaymentStatus.SUCCESS -> {
+                    PaymentStatus.SUCCESS, PaymentStatus.PENDING -> {
                         isPaymentCompleted = true
+                        
+                        val currentUser = FirebaseAuth.getInstance().currentUser
+                        val userId = currentUser?.uid
+                        val cartItems = _uiState.value.cartItems
+                        if (userId != null && cartItems.isNotEmpty()) {
+                            val itemsSummary = cartItems.joinToString { product -> 
+                                "${product.quantityInCart}x ${product.name}" 
+                            }
+                            val totalPrice = cartItems.sumOf { product -> 
+                                product.price * product.quantityInCart 
+                            }
+                            val orderStatus = if (status == PaymentStatus.SUCCESS) "Aprovado" else "Pendente"
+                            
+                            viewModelScope.launch {
+                                checkoutRepository.saveOrder(
+                                    userId = userId,
+                                    itemsSummary = itemsSummary,
+                                    totalPrice = totalPrice,
+                                    status = orderStatus
+                                )
+                            }
+                        }
+
                         viewModelScope.launch {
                             catalogRepository.clearCart()
                         }
-                        _uiState.update { it.copy(isRedirecting = false, showSuccessNotice = true) }
+                        
+                        _uiState.update { state -> 
+                            state.copy(isRedirecting = false, showSuccessNotice = true) 
+                        }
                     }
                     PaymentStatus.FAILURE -> {
-                        _uiState.update { it.copy(isRedirecting = false, errorResId = R.string.error_checkout_payment_failed) }
-                    }
-                    PaymentStatus.PENDING -> {
-                        isPaymentCompleted = true
-                        viewModelScope.launch {
-                            catalogRepository.clearCart()
+                        _uiState.update { state -> 
+                            state.copy(isRedirecting = false, errorResId = R.string.error_checkout_payment_failed) 
                         }
-                        _uiState.update { it.copy(isRedirecting = false, showSuccessNotice = true) }
                     }
                     PaymentStatus.CANCELLED -> {
-                        _uiState.update { it.copy(isRedirecting = false, showCancelNotice = true) }
+                        _uiState.update { state -> 
+                            state.copy(isRedirecting = false, showCancelNotice = true) 
+                        }
                     }
                 }
             }

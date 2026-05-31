@@ -11,6 +11,7 @@ hotSwanCompiler = "1.3.2"
 google-services = "4.4.4"
 detekt = "1.23.8"
 kover = "0.9.8"
+ktlint = "12.1.2"
 
 # --- AndroidX, Core & Lifecycle ---
 coreKtx = "1.18.0"
@@ -117,6 +118,7 @@ ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serializatio
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
+firebase-storage = { module = "com.google.firebase:firebase-storage" }
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 androidx-credentials-play-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
@@ -139,7 +141,7 @@ coil-test = { group = "io.coil-kt.coil3", name = "coil-test", version.ref = "coi
 
 [bundles]
 coroutines = ["coroutines", "coroutines-core"]
-firebase = ["firebase-firestore", "firebase-auth", "androidx-credentials", "androidx-credentials-play-auth", "googleid"]
+firebase = ["firebase-firestore", "firebase-auth", "firebase-storage", "androidx-credentials", "androidx-credentials-play-auth", "googleid"]
 coil = ["coil-compose", "coil-network"]
 ktor = ["ktor-client-core", "ktor-client-okhttp", "ktor-client-content-negotiation", "ktor-serialization-kotlinx-json"]
 koin = ["koin", "koin-annotation", "koin-compose"]
@@ -166,3 +168,4 @@ google-gms-services = { id = "com.google.gms.google-services", version.ref = "go
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 hotswan-compiler = { id = "com.github.skydoves.compose.hotswan.compiler", version.ref = "hotSwanCompiler" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
