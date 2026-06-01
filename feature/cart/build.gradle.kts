@@ -1,9 +1,9 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.ksp)
     alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.koin.compiler)
 }
 
 android {
@@ -49,7 +49,6 @@ dependencies {
     implementation(libs.androidx.material3)
 
     implementation(libs.bundles.koin)
-    ksp(libs.koin.ksp.compiler)
     implementation(libs.bundles.navigation)
 
     testImplementation(libs.junit)
@@ -57,4 +56,8 @@ dependencies {
     testImplementation(libs.turbine.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+
+koinCompiler {
+    compileSafety = false
 }

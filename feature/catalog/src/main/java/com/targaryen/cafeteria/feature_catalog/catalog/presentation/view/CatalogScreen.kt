@@ -1,7 +1,5 @@
 package com.targaryen.cafeteria.feature_catalog.catalog.presentation.view
 
-import com.targaryen.cafeteria.core_designsystem.model.CatalogCategories
-import com.targaryen.cafeteria.core_designsystem.R as DesignSystemR
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,24 +31,24 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.targaryen.cafeteria.core_designsystem.R
 import com.targaryen.cafeteria.core_designsystem.components.CategoryFilters
 import com.targaryen.cafeteria.core_designsystem.components.TargaryenBottomBar
 import com.targaryen.cafeteria.core_designsystem.components.TargaryenTopBar
+import com.targaryen.cafeteria.core_designsystem.model.CatalogCategories
 import com.targaryen.cafeteria.core_designsystem.model.TargaryenTab
 import com.targaryen.cafeteria.core_designsystem.theme.BloodRed
 import com.targaryen.cafeteria.core_designsystem.theme.DragonScale
@@ -64,13 +62,14 @@ import com.targaryen.cafeteria.feature_catalog.catalog.presentation.model.Produc
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.state.CatalogUiState
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.CartScreen
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.CatalogSearchBar
-import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.ProductDetailBottomSheet
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.LogoutConfirmationDialog
+import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.ProductDetailBottomSheet
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.ProductGrid
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.viewmodel.CatalogViewModel
+import com.targaryen.cafeteria.feature_catalog.profile.presentation.view.ProfileScreen
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import com.targaryen.cafeteria.feature_catalog.profile.presentation.view.ProfileScreen
+import com.targaryen.cafeteria.core_designsystem.R as DesignSystemR
 
 @Composable
 fun CatalogScreen(
@@ -83,27 +82,24 @@ fun CatalogScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    val actions = remember(onTabSelected, onMenuClick, onLogoutClick, onCheckoutClick) {
+        CatalogActions(onTabSelected, onMenuClick, onLogoutClick, onCheckoutClick)
+    }
+
     CatalogScreenContent(
         uiState = uiState,
         onIntent = { intent -> viewModel.onIntent(intent) },
-        onTabSelected = onTabSelected,
-        onMenuClick = onMenuClick,
-        onLogoutClick = onLogoutClick,
-        onCheckoutClick = onCheckoutClick,
+        actions = actions,
         modifier = modifier
     )
 }
 
-@Suppress("LongParameterList")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogScreenContent(
     uiState: CatalogUiState,
     onIntent: (CatalogIntent) -> Unit,
-    onTabSelected: (TargaryenTab) -> Unit,
-    onMenuClick: () -> Unit,
-    onLogoutClick: () -> Unit,
-    onCheckoutClick: () -> Unit,
+    actions: CatalogActions,
     modifier: Modifier = Modifier
 ) {
     val categories = listOf(
@@ -171,7 +167,12 @@ fun CatalogScreenContent(
                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
 
                 NavigationDrawerItem(
-                    label = { Text(stringResource(DesignSystemR.string.drawer_menu_home), color = ValyrianGold) },
+                    label = {
+                        Text(
+                            stringResource(DesignSystemR.string.drawer_menu_home),
+                            color = ValyrianGold
+                        )
+                    },
                     selected = currentTab == TargaryenTab.CATALOG,
                     onClick = {
                         scope.launch {
@@ -194,7 +195,12 @@ fun CatalogScreenContent(
                 )
 
                 NavigationDrawerItem(
-                    label = { Text(stringResource(DesignSystemR.string.drawer_menu_favorites), color = ValyrianGold) },
+                    label = {
+                        Text(
+                            stringResource(DesignSystemR.string.drawer_menu_favorites),
+                            color = ValyrianGold
+                        )
+                    },
                     selected = currentTab == TargaryenTab.FAVORITES,
                     onClick = {
                         scope.launch {
@@ -217,7 +223,12 @@ fun CatalogScreenContent(
                 )
 
                 NavigationDrawerItem(
-                    label = { Text(stringResource(DesignSystemR.string.drawer_menu_cart), color = ValyrianGold) },
+                    label = {
+                        Text(
+                            stringResource(DesignSystemR.string.drawer_menu_cart),
+                            color = ValyrianGold
+                        )
+                    },
                     selected = currentTab == TargaryenTab.CART,
                     onClick = {
                         scope.launch {
@@ -240,7 +251,12 @@ fun CatalogScreenContent(
                 )
 
                 NavigationDrawerItem(
-                    label = { Text(stringResource(DesignSystemR.string.drawer_menu_profile), color = ValyrianGold) },
+                    label = {
+                        Text(
+                            stringResource(DesignSystemR.string.drawer_menu_profile),
+                            color = ValyrianGold
+                        )
+                    },
                     selected = currentTab == TargaryenTab.PROFILE,
                     onClick = {
                         scope.launch {
@@ -265,7 +281,12 @@ fun CatalogScreenContent(
                 Spacer(modifier = Modifier.weight(1f))
 
                 NavigationDrawerItem(
-                    label = { Text(stringResource(DesignSystemR.string.drawer_menu_logout), color = BloodRed) },
+                    label = {
+                        Text(
+                            stringResource(DesignSystemR.string.drawer_menu_logout),
+                            color = BloodRed
+                        )
+                    },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -296,7 +317,7 @@ fun CatalogScreenContent(
                 TargaryenTopBar(
                     title = stringResource(DesignSystemR.string.top_bar_title),
                     onMenuClick = {
-                        onMenuClick()
+                        actions.onMenuClick()
                         scope.launch {
                             if (drawerState.isClosed) drawerState.open() else drawerState.close()
                         }
@@ -311,7 +332,7 @@ fun CatalogScreenContent(
                         scope.launch {
                             pagerState.animateScrollToPage(tab.ordinal)
                         }
-                        onTabSelected(tab)
+                        actions.onTabSelected(tab)
                     },
                     badgeCount = uiState.badgeCount
                 )
@@ -429,7 +450,7 @@ fun CatalogScreenContent(
                             )
                         },
                         onProductClick = { item -> onIntent(CatalogIntent.SelectProduct(item)) },
-                        onCheckoutClick = onCheckoutClick
+                        onCheckoutClick = actions.onCheckoutClick
                     )
 
                     TargaryenTab.PROFILE.ordinal -> ProfileScreen(
@@ -453,7 +474,7 @@ fun CatalogScreenContent(
                 LogoutConfirmationDialog(
                     onConfirm = {
                         showLogoutConfirmation.value = false
-                        onLogoutClick()
+                        actions.onLogoutClick()
                     },
                     onDismiss = { showLogoutConfirmation.value = false }
                 )
@@ -573,10 +594,12 @@ fun CatalogScreenPreview() {
                 badgeCount = 1
             ),
             onIntent = {},
-            onTabSelected = {},
-            onMenuClick = {},
-            onLogoutClick = {},
-            onCheckoutClick = {}
+            actions = CatalogActions(
+                onTabSelected = {},
+                onMenuClick = {},
+                onLogoutClick = {},
+                onCheckoutClick = {}
+            )
         )
     }
 }

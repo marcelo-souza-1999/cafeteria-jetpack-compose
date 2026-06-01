@@ -4,11 +4,11 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.google.ksp)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
     alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.google.gms.services)
+    alias(libs.plugins.koin.compiler)
 }
 
 android {
@@ -87,7 +87,6 @@ dependencies {
     implementation(libs.compose.shimmer)
     implementation(libs.compose.alert.dialog)
 
-    ksp(libs.koin.ksp.compiler)
     implementation(libs.bundles.coroutines)
     implementation(libs.bundles.koin)
     implementation(libs.bundles.compose.icons)
@@ -114,12 +113,6 @@ dependencies {
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-}
-
-ksp {
-    arg("KOIN_DEFAULT_MODULE", "true")
-    arg("KOIN_CONFIG_CHECK", "true")
-    arg("KOIN_ANNOTATIONS_ROOT_PACKAGE", "com.targaryen.cafeteria.app")
 }
 
 tasks.register("detektAll") {

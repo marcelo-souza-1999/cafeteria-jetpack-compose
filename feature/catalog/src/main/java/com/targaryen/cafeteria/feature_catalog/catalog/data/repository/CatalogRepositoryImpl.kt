@@ -1,5 +1,6 @@
 package com.targaryen.cafeteria.feature_catalog.catalog.data.repository
 
+import android.util.Log
 import com.targaryen.cafeteria.coredatabase.dao.ProductDao
 import com.targaryen.cafeteria.feature_catalog.catalog.data.mapper.toDomain
 import com.targaryen.cafeteria.feature_catalog.catalog.data.mapper.toProductEntity
@@ -10,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -43,6 +45,9 @@ class CatalogRepositoryImpl(
                 if (entitiesToInsert.isNotEmpty()) {
                     localDao.insertProducts(entitiesToInsert)
                 }
+            }
+            .catch { error ->
+                Log.e("CatalogRepository", "Erro assíncrono na stream de produtos do Firestore", error)
             }
             .launchIn(coroutineScope)
     }

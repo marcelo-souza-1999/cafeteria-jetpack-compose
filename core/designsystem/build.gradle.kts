@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.ksp)
     alias(libs.plugins.hotswan.compiler)
+    alias(libs.plugins.koin.compiler)
 }
 
 android {
@@ -47,9 +47,12 @@ dependencies {
     implementation(libs.bundles.compose.icons)
 
     implementation(libs.bundles.koin)
-    ksp(libs.koin.ksp.compiler)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)
     testImplementation(libs.turbine.test)
+}
+
+koinCompiler {
+    compileSafety = false
 }

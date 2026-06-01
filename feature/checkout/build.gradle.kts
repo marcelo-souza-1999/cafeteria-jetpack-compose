@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.ksp)
     alias(libs.plugins.hotswan.compiler)
+    alias(libs.plugins.koin.compiler)
 }
 
 android {
@@ -53,7 +53,6 @@ dependencies {
 
     implementation(libs.bundles.coroutines)
     implementation(libs.bundles.koin)
-    ksp(libs.koin.ksp.compiler)
     implementation(libs.compose.alert.dialog)
 
     implementation(platform(libs.firebase.bom))
@@ -63,4 +62,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)
     testImplementation(libs.turbine.test)
+}
+
+koinCompiler {
+    compileSafety = false
 }

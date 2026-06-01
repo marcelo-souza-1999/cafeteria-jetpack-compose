@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.google.ksp)
     alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.koin.compiler)
 }
 
 android {
@@ -36,7 +36,6 @@ dependencies {
 
     implementation(libs.koin)
     implementation(libs.koin.annotation)
-    ksp(libs.koin.ksp.compiler)
 
     implementation(libs.bundles.ktor)
     implementation(libs.kotlinx.serialization.core)
@@ -44,4 +43,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)
     testImplementation(libs.turbine.test)
+}
+
+koinCompiler {
+    compileSafety = false
 }

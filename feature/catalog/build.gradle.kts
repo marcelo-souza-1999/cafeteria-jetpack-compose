@@ -1,9 +1,9 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.ksp)
     alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.koin.compiler)
 }
 
 android {
@@ -52,7 +52,6 @@ dependencies {
     implementation(libs.bundles.compose.icons)
 
     implementation(libs.bundles.koin)
-    ksp(libs.koin.ksp.compiler)
     implementation(libs.bundles.navigation)
     implementation(libs.bundles.coil)
     implementation(platform(libs.firebase.bom))
@@ -68,4 +67,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
+}
+
+koinCompiler {
+    compileSafety = false
 }

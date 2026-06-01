@@ -16,6 +16,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.hotswan.compiler) apply false
     alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.koin.compiler) apply false
 }
 
 allprojects {

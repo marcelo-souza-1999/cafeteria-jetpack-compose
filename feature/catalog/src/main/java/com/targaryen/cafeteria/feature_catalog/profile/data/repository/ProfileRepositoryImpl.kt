@@ -7,9 +7,9 @@ import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.targaryen.cafeteria.core_network.Resource
 import com.targaryen.cafeteria.coredatabase.dao.UserDao
 import com.targaryen.cafeteria.coredatabase.model.UserEntity
-import com.targaryen.cafeteria.core_network.Resource
 import com.targaryen.cafeteria.feature_catalog.profile.domain.model.PurchaseHistoryItem
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileError
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileRepository
@@ -19,9 +19,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import org.koin.core.annotation.Single
 import java.util.UUID
 
@@ -56,7 +54,8 @@ class ProfileRepositoryImpl(
                 }
 
                 if (snapshot != null && snapshot.exists()) {
-                    val name = snapshot.getString("name") ?: currentUser.displayName ?: "Usuário Targaryen"
+                    val name =
+                        snapshot.getString("name") ?: currentUser.displayName ?: "Usuário Targaryen"
                     val email = snapshot.getString("email") ?: currentUser.email ?: ""
                     val photoUrl = snapshot.getString("photoUrl")
 
@@ -86,31 +85,32 @@ class ProfileRepositoryImpl(
         awaitClose { listener.remove() }
     }
 
-    override fun updateProfilePhoto(photoUrl: String): Flow<Resource<Unit, ProfileError>> = callbackFlow {
-        val currentUser = firebaseAuth.currentUser
-        if (currentUser == null) {
-            trySend(Resource.Error(ProfileError.UserNotFound))
-            close()
-            return@callbackFlow
-        }
+    override fun updateProfilePhoto(photoUrl: String): Flow<Resource<Unit, ProfileError>> =
+        callbackFlow {
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser == null) {
+                trySend(Resource.Error(ProfileError.UserNotFound))
+                close()
+                return@callbackFlow
+            }
 
-        firestore.collection("users").document(currentUser.uid)
-            .update("photoUrl", photoUrl)
-            .addOnSuccessListener {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val localUser = userDao.getUserByUid(currentUser.uid).firstOrNull()
-                    if (localUser != null) {
-                        userDao.insertUser(localUser.copy(photoUrl = photoUrl))
+            firestore.collection("users").document(currentUser.uid)
+                .update("photoUrl", photoUrl)
+                .addOnSuccessListener {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val localUser = userDao.getUserByUid(currentUser.uid).firstOrNull()
+                        if (localUser != null) {
+                            userDao.insertUser(localUser.copy(photoUrl = photoUrl))
+                        }
+                        trySend(Resource.Success(Unit))
                     }
-                    trySend(Resource.Success(Unit))
                 }
-            }
-            .addOnFailureListener { exception ->
-                trySend(Resource.Error(ProfileError.Unknown(exception.message)))
-            }
+                .addOnFailureListener { exception ->
+                    trySend(Resource.Error(ProfileError.Unknown(exception.message)))
+                }
 
-        awaitClose { }
-    }
+            awaitClose { }
+        }
 
     override fun uploadProfilePhoto(uri: Uri): Flow<Resource<String, ProfileError>> = callbackFlow {
         val currentUser = firebaseAuth.currentUser
@@ -138,38 +138,39 @@ class ProfileRepositoryImpl(
         awaitClose { }
     }
 
-    override fun updateProfileName(name: String): Flow<Resource<Unit, ProfileError>> = callbackFlow {
-        val currentUser = firebaseAuth.currentUser
-        if (currentUser == null) {
-            trySend(Resource.Error(ProfileError.UserNotFound))
-            close()
-            return@callbackFlow
-        }
-
-        val profileUpdates = UserProfileChangeRequest.Builder()
-            .setDisplayName(name)
-            .build()
-
-        currentUser.updateProfile(profileUpdates).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                firestore.collection("users").document(currentUser.uid)
-                    .update("name", name)
-                    .addOnSuccessListener {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val localUser = userDao.getUserByUid(currentUser.uid).firstOrNull()
-                            if (localUser != null) {
-                                userDao.insertUser(localUser.copy(name = name))
-                            }
-                            trySend(Resource.Success(Unit))
-                        }
-                    }
-                    .addOnFailureListener { trySend(Resource.Error(ProfileError.Unknown(it.message))) }
-            } else {
-                trySend(Resource.Error(ProfileError.Unknown(task.exception?.message)))
+    override fun updateProfileName(name: String): Flow<Resource<Unit, ProfileError>> =
+        callbackFlow {
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser == null) {
+                trySend(Resource.Error(ProfileError.UserNotFound))
+                close()
+                return@callbackFlow
             }
+
+            val profileUpdates = UserProfileChangeRequest.Builder()
+                .setDisplayName(name)
+                .build()
+
+            currentUser.updateProfile(profileUpdates).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    firestore.collection("users").document(currentUser.uid)
+                        .update("name", name)
+                        .addOnSuccessListener {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                val localUser = userDao.getUserByUid(currentUser.uid).firstOrNull()
+                                if (localUser != null) {
+                                    userDao.insertUser(localUser.copy(name = name))
+                                }
+                                trySend(Resource.Success(Unit))
+                            }
+                        }
+                        .addOnFailureListener { trySend(Resource.Error(ProfileError.Unknown(it.message))) }
+                } else {
+                    trySend(Resource.Error(ProfileError.Unknown(task.exception?.message)))
+                }
+            }
+            awaitClose { }
         }
-        awaitClose { }
-    }
 
     override fun updateEmail(email: String): Flow<Resource<Unit, ProfileError>> = callbackFlow {
         val currentUser = firebaseAuth.currentUser
@@ -194,48 +195,52 @@ class ProfileRepositoryImpl(
         awaitClose { }
     }
 
-    override fun getPurchaseHistory(): Flow<Resource<List<PurchaseHistoryItem>, ProfileError>> = callbackFlow {
-        val currentUser = firebaseAuth.currentUser
-        if (currentUser == null) {
-            trySend(Resource.Error(ProfileError.UserNotFound))
-            close()
-            return@callbackFlow
-        }
-
-        val listener = firestore.collection("orders")
-            .whereEqualTo("userId", currentUser.uid)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    trySend(Resource.Error(ProfileError.NetworkError))
-                    return@addSnapshotListener
-                }
-
-                if (snapshot != null) {
-                    val orders = snapshot.documents.mapNotNull { doc ->
-                        val id = doc.id
-                        val dateMillis = doc.getLong("dateMillis") ?: 0L
-                        val totalPrice = doc.getDouble("totalPrice") ?: 0.0
-                        val itemsSummary = doc.getString("itemsSummary") ?: ""
-                        val status = doc.getString("status") ?: "Aprovado"
-                        
-                        PurchaseHistoryItem(
-                            id = id,
-                            dateMillis = dateMillis,
-                            totalPrice = totalPrice,
-                            itemsSummary = itemsSummary,
-                            status = status
-                        )
-                    }.sortedByDescending { order -> order.dateMillis }
-                    trySend(Resource.Success(orders))
-                } else {
-                    trySend(Resource.Success(emptyList()))
-                }
+    override fun getPurchaseHistory(): Flow<Resource<List<PurchaseHistoryItem>, ProfileError>> =
+        callbackFlow {
+            val currentUser = firebaseAuth.currentUser
+            if (currentUser == null) {
+                trySend(Resource.Error(ProfileError.UserNotFound))
+                close()
+                return@callbackFlow
             }
 
-        awaitClose { listener.remove() }
-    }
+            val listener = firestore.collection("orders")
+                .whereEqualTo("userId", currentUser.uid)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        trySend(Resource.Error(ProfileError.NetworkError))
+                        return@addSnapshotListener
+                    }
 
-    override fun updatePassword(currentPass: String, newPass: String): Flow<Resource<Unit, ProfileError>> = callbackFlow {
+                    if (snapshot != null) {
+                        val orders = snapshot.documents.mapNotNull { doc ->
+                            val id = doc.id
+                            val dateMillis = doc.getLong("dateMillis") ?: 0L
+                            val totalPrice = doc.getDouble("totalPrice") ?: 0.0
+                            val itemsSummary = doc.getString("itemsSummary") ?: ""
+                            val status = doc.getString("status") ?: "Aprovado"
+
+                            PurchaseHistoryItem(
+                                id = id,
+                                dateMillis = dateMillis,
+                                totalPrice = totalPrice,
+                                itemsSummary = itemsSummary,
+                                status = status
+                            )
+                        }.sortedByDescending { order -> order.dateMillis }
+                        trySend(Resource.Success(orders))
+                    } else {
+                        trySend(Resource.Success(emptyList()))
+                    }
+                }
+
+            awaitClose { listener.remove() }
+        }
+
+    override fun updatePassword(
+        currentPass: String,
+        newPass: String
+    ): Flow<Resource<Unit, ProfileError>> = callbackFlow {
         val currentUser = firebaseAuth.currentUser
         if (currentUser == null) {
             trySend(Resource.Error(ProfileError.UserNotFound))
