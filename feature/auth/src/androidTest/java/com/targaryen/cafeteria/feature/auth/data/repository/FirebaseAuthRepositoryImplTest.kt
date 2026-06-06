@@ -6,6 +6,7 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.targaryen.cafeteria.coredatabase.dao.ProductDao
 import com.targaryen.cafeteria.coredatabase.dao.UserDao
@@ -56,6 +57,9 @@ class FirebaseAuthRepositoryImplTest {
     @Test
     fun signInWithEmail_shouldEmitSuccess_whenFirebaseSucceeds() = runTest {
         val authResult = mockk<AuthResult>()
+        val mockUser = mockk<FirebaseUser>(relaxed = true)
+        every { authResult.user } returns mockUser
+        
         every { firebaseAuth.signInWithEmailAndPassword(any(), any()) } returns Tasks.forResult(
             authResult
         )
@@ -145,7 +149,7 @@ class FirebaseAuthRepositoryImplTest {
 
     @Test
     fun logout_shouldSignOutFromFirebaseAndClearLocalRoomData() = runTest {
-        val userMock = mockk<com.google.firebase.auth.FirebaseUser>()
+        val userMock = mockk<FirebaseUser>()
         every { userMock.uid } returns "test_uid"
         every { firebaseAuth.currentUser } returns userMock
 

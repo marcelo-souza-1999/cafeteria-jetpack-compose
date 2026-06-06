@@ -92,3 +92,41 @@ dependencies {
 koinCompiler {
     compileSafety = false
 }
+
+kover {
+    reports {
+        filters {
+            excludes {
+                classes(
+                    "*.BuildConfig",
+                    "*ComposableSingletons*",
+                    "*_Factory*",
+                    "*MapperImpl*",
+                    "*Screen*",
+                    "*ScreenKt*",
+                    "*Section*",
+                    "*SectionKt*",
+                    "*Dialog*",
+                    "*DialogKt*",
+                    "*BottomSheet*",
+                    "*BottomSheetKt*",
+                    "*Activity*",
+                    "*ActivityKt*",
+                    "*Application*",
+                    "*ApplicationKt*",
+                    "*Preview*",
+                    "*PreviewKt*",
+                    "*Theme*",
+                    "*ThemeKt*",
+                    "*Color*",
+                    "*TypeKt*",
+                    "*Dimens*",
+                    "*Dao_Impl*",
+                    "*Database_Impl*",
+                    "*ModuleKt*"
+                )
+                annotatedBy("androidx.compose.runtime.Composable")
+            }
+        }
+    }
+}

@@ -62,8 +62,54 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)
     testImplementation(libs.turbine.test)
+    testImplementation(libs.bundles.test.core)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.bundles.koin.test)
+    androidTestImplementation(libs.bundles.test.core)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }
 
 koinCompiler {
     compileSafety = false
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                classes(
+                    "*.BuildConfig",
+                    "*ComposableSingletons*",
+                    "*_Factory*",
+                    "*MapperImpl*",
+                    "*Screen*",
+                    "*ScreenKt*",
+                    "*Section*",
+                    "*SectionKt*",
+                    "*Dialog*",
+                    "*DialogKt*",
+                    "*BottomSheet*",
+                    "*BottomSheetKt*",
+                    "*Activity*",
+                    "*ActivityKt*",
+                    "*Application*",
+                    "*ApplicationKt*",
+                    "*Preview*",
+                    "*PreviewKt*",
+                    "*Theme*",
+                    "*ThemeKt*",
+                    "*Color*",
+                    "*TypeKt*",
+                    "*Dimens*",
+                    "*Dao_Impl*",
+                    "*Database_Impl*",
+                    "*ModuleKt*"
+                )
+                annotatedBy("androidx.compose.runtime.Composable")
+            }
+        }
+    }
 }

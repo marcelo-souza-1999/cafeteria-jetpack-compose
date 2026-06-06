@@ -3,6 +3,7 @@ package com.targaryen.cafeteria.feature.auth.domain.usecase
 import com.targaryen.cafeteria.core_network.Resource
 import com.targaryen.cafeteria.feature.auth.domain.repository.AuthRepository
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -15,6 +16,15 @@ import org.junit.Test
 class UseCasesTest {
 
     private val repository: AuthRepository = mockk()
+
+    @Test
+    fun `LogoutUseCase should delegate to repository`() = runTest {
+        coEvery { repository.logout() } returns Unit
+
+        LogoutUseCase(repository)()
+
+        coVerify { repository.logout() }
+    }
 
     @Test
     fun `SignInWithEmailUseCase should delegate to repository`() = runTest {

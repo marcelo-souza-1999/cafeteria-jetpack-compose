@@ -86,6 +86,28 @@ kover {
                     "com.targaryen.cafeteria.feature.auth.presentation.components.ComposableSingletons*",
                     "com.targaryen.cafeteria.feature.auth.presentation.login.ComposableSingletons*",
                     "com.targaryen.cafeteria.feature.auth.presentation.splash.ComposableSingletons*",
+                    "*Screen*",
+                    "*ScreenKt*",
+                    "*Section*",
+                    "*SectionKt*",
+                    "*Dialog*",
+                    "*DialogKt*",
+                    "*BottomSheet*",
+                    "*BottomSheetKt*",
+                    "*Activity*",
+                    "*ActivityKt*",
+                    "*Application*",
+                    "*ApplicationKt*",
+                    "*Preview*",
+                    "*PreviewKt*",
+                    "*Theme*",
+                    "*ThemeKt*",
+                    "*Color*",
+                    "*TypeKt*",
+                    "*Dimens*",
+                    "*Dao_Impl*",
+                    "*Database_Impl*",
+                    "*ModuleKt*"
                 )
                 annotatedBy("androidx.compose.runtime.Composable")
             }
