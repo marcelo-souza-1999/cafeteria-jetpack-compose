@@ -2,10 +2,10 @@ package com.targaryen.cafeteria.feature_checkout.presentation.viewmodel
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.targaryen.cafeteria.core_network.PaymentStatus
-import com.targaryen.cafeteria.core_network.PaymentStatusTracker
 import com.targaryen.cafeteria.core_network.model.MpPreferenceResponse
 import com.targaryen.cafeteria.core_network.model.ViaCepResponse
+import com.targaryen.cafeteria.core_network.tracker.PaymentStatus
+import com.targaryen.cafeteria.core_network.tracker.PaymentStatusTracker
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import com.targaryen.cafeteria.feature_checkout.R

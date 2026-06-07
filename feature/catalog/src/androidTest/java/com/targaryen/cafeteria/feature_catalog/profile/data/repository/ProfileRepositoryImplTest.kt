@@ -8,8 +8,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
-import com.targaryen.cafeteria.core_network.Resource
 import com.targaryen.cafeteria.core_network.remote.BackBlazeB2DataSource
+import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.coredatabase.dao.UserDao
 import com.targaryen.cafeteria.coredatabase.model.UserEntity
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileError
@@ -108,6 +108,8 @@ class ProfileRepositoryImplTest {
             val result = repository.uploadProfilePhoto(mockUri).first()
 
             assertTrue(result is Resource.Success)
-            assertEquals(expectedUrl, (result as Resource.Success).data)
+            val actualUrl = (result as Resource.Success).data
+            assertTrue(actualUrl.startsWith(expectedUrl))
+            assertTrue(actualUrl.contains("?t="))
         }
 }

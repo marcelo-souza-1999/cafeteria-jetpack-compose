@@ -8,8 +8,8 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
-import com.targaryen.cafeteria.core_network.Resource
 import com.targaryen.cafeteria.core_network.remote.BackBlazeB2DataSource
+import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.coredatabase.dao.UserDao
 import com.targaryen.cafeteria.coredatabase.model.UserEntity
 import com.targaryen.cafeteria.feature_catalog.profile.domain.model.PurchaseHistoryItem
@@ -145,7 +145,7 @@ class ProfileRepositoryImpl(
                         contentType = "image/jpeg",
                     )
 
-                emit(Resource.Success(downloadUrl))
+                emit(Resource.Success("$downloadUrl?t=${System.currentTimeMillis()}"))
             } catch (e: IOException) {
                 emit(Resource.Error(ProfileError.Unknown(e.message)))
             } catch (e: FirebaseAuthException) {

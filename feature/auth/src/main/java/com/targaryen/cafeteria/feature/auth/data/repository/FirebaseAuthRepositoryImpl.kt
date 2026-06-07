@@ -11,7 +11,7 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
-import com.targaryen.cafeteria.core_network.Resource
+import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.coredatabase.dao.ProductDao
 import com.targaryen.cafeteria.coredatabase.dao.UserDao
 import com.targaryen.cafeteria.coredatabase.model.UserEntity

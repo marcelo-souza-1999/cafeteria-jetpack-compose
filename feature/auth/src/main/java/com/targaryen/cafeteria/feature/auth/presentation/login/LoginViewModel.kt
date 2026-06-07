@@ -2,7 +2,7 @@ package com.targaryen.cafeteria.feature.auth.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.targaryen.cafeteria.core_network.Resource
+import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SendPasswordResetEmailUseCase
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithEmailUseCase

@@ -1,7 +1,7 @@
 package com.targaryen.cafeteria.feature_catalog.profile.domain.usecase
 
 import android.net.Uri
-import com.targaryen.cafeteria.core_network.Resource
+import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileError
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileRepository
 import kotlinx.coroutines.flow.Flow

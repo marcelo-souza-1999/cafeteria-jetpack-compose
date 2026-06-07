@@ -1,6 +1,6 @@
 package com.targaryen.cafeteria.feature.auth.domain.usecase
 
-import com.targaryen.cafeteria.core_network.Resource
+import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature.auth.domain.repository.AuthRepository
 import io.mockk.coEvery
 import io.mockk.coVerify

@@ -1,6 +1,10 @@
 package com.targaryen.cafeteria.core_network.remote
 
 import com.targaryen.cafeteria.core_network.BuildConfig
+import com.targaryen.cafeteria.core_network.model.B2AuthorizeResponse
+import com.targaryen.cafeteria.core_network.model.B2GetUploadUrlRequest
+import com.targaryen.cafeteria.core_network.model.B2GetUploadUrlResponse
+import com.targaryen.cafeteria.core_network.model.B2UploadFileResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
@@ -10,35 +14,8 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import kotlinx.serialization.Serializable
 import org.koin.core.annotation.Single
 import java.util.Base64
-
-@Serializable
-data class B2AuthorizeResponse(
-    val apiUrl: String,
-    val authorizationToken: String,
-    val downloadUrl: String,
-)
-
-@Serializable
-data class B2GetUploadUrlRequest(
-    val bucketId: String,
-)
-
-@Serializable
-data class B2GetUploadUrlResponse(
-    val bucketId: String,
-    val uploadUrl: String,
-    val authorizationToken: String,
-)
-
-@Serializable
-data class B2UploadFileResponse(
-    val fileId: String,
-    val fileName: String,
-    val contentLength: Long,
-)
 
 @Single
 class BackBlazeB2DataSource(
@@ -55,23 +32,23 @@ class BackBlazeB2DataSource(
 
             val authorizeResponse =
                 httpClient
-                    .get("https://api.backblazeb2.com/b2api/v3/b2_authorize_account") {
-                        header("Authorization", "Basic $authCredentials")
+                    .get(BuildConfig.B2_AUTHORIZE_URL) {
+                        header(HEADER_AUTHORIZATION, "Basic $authCredentials")
                     }.body<B2AuthorizeResponse>()
 
             val getUploadUrlResponse =
                 httpClient
-                    .post("${authorizeResponse.apiUrl}/b2api/v3/b2_get_upload_url") {
-                        header("Authorization", authorizeResponse.authorizationToken)
+                    .post("${authorizeResponse.apiInfo.storageApi.apiUrl}/b2api/v3/b2_get_upload_url") {
+                        header(HEADER_AUTHORIZATION, authorizeResponse.authorizationToken)
                         contentType(ContentType.Application.Json)
                         setBody(B2GetUploadUrlRequest(bucketId = BuildConfig.B2_BUCKET_ID))
                     }.body<B2GetUploadUrlResponse>()
 
             httpClient
                 .post(getUploadUrlResponse.uploadUrl) {
-                    header("Authorization", getUploadUrlResponse.authorizationToken)
-                    header("X-Bz-File-Name", fileName)
-                    header("X-Bz-Content-Sha1", "do_not_verify")
+                    header(HEADER_AUTHORIZATION, getUploadUrlResponse.authorizationToken)
+                    header(HEADER_BZ_FILE_NAME, fileName)
+                    header(HEADER_BZ_CONTENT_SHA1, VALUE_BZ_SHA1_DO_NOT_VERIFY)
                     contentType(ContentType.parse(contentType))
                     setBody(fileBytes)
                 }.body<B2UploadFileResponse>()
@@ -82,3 +59,8 @@ class BackBlazeB2DataSource(
         }
     }
 }
+
+private const val HEADER_AUTHORIZATION = "Authorization"
+private const val HEADER_BZ_FILE_NAME = "X-Bz-File-Name"
+private const val HEADER_BZ_CONTENT_SHA1 = "X-Bz-Content-Sha1"
+private const val VALUE_BZ_SHA1_DO_NOT_VERIFY = "do_not_verify"

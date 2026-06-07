@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.core_network
+package com.targaryen.cafeteria.core_network.util
 
 sealed interface Resource<out T, out E> {
     data class Success<out T>(

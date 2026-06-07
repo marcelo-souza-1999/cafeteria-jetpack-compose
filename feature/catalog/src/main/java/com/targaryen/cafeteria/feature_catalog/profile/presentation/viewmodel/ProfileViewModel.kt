@@ -2,7 +2,7 @@ package com.targaryen.cafeteria.feature_catalog.profile.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.targaryen.cafeteria.core_network.Resource
+import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileError
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileRepository
 import com.targaryen.cafeteria.feature_catalog.profile.presentation.intent.ProfileIntent

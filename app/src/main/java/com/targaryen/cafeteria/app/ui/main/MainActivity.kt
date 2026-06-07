@@ -11,8 +11,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.targaryen.cafeteria.app.navigation.CafeteriaNavDisplay
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
-import com.targaryen.cafeteria.core_network.PaymentStatus
-import com.targaryen.cafeteria.core_network.PaymentStatusTracker
+import com.targaryen.cafeteria.core_network.tracker.PaymentStatus
+import com.targaryen.cafeteria.core_network.tracker.PaymentStatusTracker
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {

@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.core_network
+package com.targaryen.cafeteria.core_network.tracker
 
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow

@@ -2,7 +2,7 @@ package com.targaryen.cafeteria.feature.auth.presentation.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.targaryen.cafeteria.core_network.Resource
+import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithGoogleUseCase
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignUpWithEmailUseCase
 import kotlinx.coroutines.channels.Channel

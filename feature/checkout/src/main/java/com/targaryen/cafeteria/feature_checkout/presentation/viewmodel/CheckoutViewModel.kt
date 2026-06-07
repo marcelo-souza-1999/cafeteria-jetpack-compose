@@ -3,8 +3,8 @@ package com.targaryen.cafeteria.feature_checkout.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
-import com.targaryen.cafeteria.core_network.PaymentStatus
-import com.targaryen.cafeteria.core_network.PaymentStatusTracker
+import com.targaryen.cafeteria.core_network.tracker.PaymentStatus
+import com.targaryen.cafeteria.core_network.tracker.PaymentStatusTracker
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import com.targaryen.cafeteria.feature_checkout.R
 import com.targaryen.cafeteria.feature_checkout.domain.CheckoutRepository

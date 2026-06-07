@@ -48,6 +48,11 @@ android {
             "B2_DOWNLOAD_URL_BASE",
             "\"${localProperties.getProperty("B2_DOWNLOAD_URL_BASE") ?: ""}\"",
         )
+        buildConfigField(
+            "String",
+            "B2_AUTHORIZE_URL",
+            "\"https://api.backblazeb2.com/b2api/v3/b2_authorize_account\"",
+        )
     }
 
     buildTypes {
