@@ -1,5 +1,6 @@
 package com.targaryen.cafeteria.feature_catalog.catalog.presentation.view
 
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -53,7 +54,7 @@ class CatalogScreenTest {
         composeTestRule.setContent {
             TargaryenTheme {
                 CatalogScreenContent(
-                    uiState = uiStateFlow.value,
+                    uiState = uiStateFlow.collectAsState().value,
                     onIntent = { intent -> mockViewModel.onIntent(intent) },
                     actions =
                         CatalogActions(

@@ -20,9 +20,9 @@ plugins {
 }
 
 allprojects {
-    apply(plugin = "io.gitlab.arturbosch.detekt")
-    apply(plugin = "org.jetbrains.kotlinx.kover")
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    plugins.apply("io.gitlab.arturbosch.detekt")
+    plugins.apply("org.jetbrains.kotlinx.kover")
+    plugins.apply("org.jlleitschuh.gradle.ktlint")
 
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         android.set(true)

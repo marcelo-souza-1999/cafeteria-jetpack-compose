@@ -72,8 +72,8 @@ fun CafeteriaNavDisplay() {
                 is CatalogRoute ->
                     NavEntry(route) {
                         CatalogScreen(
-                            onTabSelected = { /* TODO Sprint 6 - Tabs */ },
-                            onMenuClick = { /* TODO Sprint 6 - Drawer */ },
+                            onTabSelected = {},
+                            onMenuClick = {},
                             onLogoutClick = {
                                 scope.launch {
                                     authRepository.logout()
