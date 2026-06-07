@@ -43,7 +43,6 @@ android {
 dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:network"))
-    implementation(project(":feature:cart"))
     implementation(project(":feature:catalog"))
 
     implementation(libs.androidx.core.ktx)

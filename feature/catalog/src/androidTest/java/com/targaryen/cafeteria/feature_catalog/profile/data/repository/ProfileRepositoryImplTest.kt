@@ -1,13 +1,15 @@
 package com.targaryen.cafeteria.feature_catalog.profile.data.repository
 
+import android.content.Context
+import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.targaryen.cafeteria.core_network.Resource
+import com.targaryen.cafeteria.core_network.remote.BackBlazeB2DataSource
 import com.targaryen.cafeteria.coredatabase.dao.UserDao
 import com.targaryen.cafeteria.coredatabase.model.UserEntity
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileError
@@ -23,13 +25,15 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.ByteArrayInputStream
 
 @RunWith(AndroidJUnit4::class)
 class ProfileRepositoryImplTest {
+    private val context: Context = mockk(relaxed = true)
     private val userDao: UserDao = mockk(relaxed = true)
     private val firebaseAuth: FirebaseAuth = mockk()
     private val firestore: FirebaseFirestore = mockk(relaxed = true)
-    private val firebaseStorage: FirebaseStorage = mockk()
+    private val backBlazeB2DataSource: BackBlazeB2DataSource = mockk()
 
     private val mockUser: FirebaseUser = mockk()
 
@@ -43,10 +47,11 @@ class ProfileRepositoryImplTest {
 
         repository =
             ProfileRepositoryImpl(
+                context = context,
                 userDao = userDao,
+                backblazeB2DataSource = backBlazeB2DataSource,
                 firebaseAuth = firebaseAuth,
                 firestore = firestore,
-                firebaseStorage = firebaseStorage,
             )
     }
 
@@ -79,5 +84,30 @@ class ProfileRepositoryImplTest {
 
             assertTrue(result is Resource.Success)
             coVerify { userDao.insertUser(localUser.copy(name = "New Name")) }
+        }
+
+    @Test
+    fun uploadProfilePhoto_shouldReturnDownloadUrl_whenUploadIsSuccessful() =
+        runTest {
+            every { firebaseAuth.currentUser } returns mockUser
+            val mockUri: Uri = mockk()
+            val mockInputStream = ByteArrayInputStream("test bytes".toByteArray())
+            every { context.contentResolver.openInputStream(mockUri) } returns mockInputStream
+
+            val expectedUrl =
+                "https://f005.backblazeb2.com/file/" +
+                    "cafeteria-targaryen-assets/profiles/123/profile_photo.jpg"
+            coEvery {
+                backBlazeB2DataSource.uploadFile(
+                    fileName = "profiles/123/profile_photo.jpg",
+                    fileBytes = any(),
+                    contentType = "image/jpeg",
+                )
+            } returns expectedUrl
+
+            val result = repository.uploadProfilePhoto(mockUri).first()
+
+            assertTrue(result is Resource.Success)
+            assertEquals(expectedUrl, (result as Resource.Success).data)
         }
 }

@@ -1,9 +1,20 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.koin.compiler)
 }
+
+val localProperties =
+    Properties().apply {
+        val localPropertiesFile = rootProject.file("local.properties")
+        if (localPropertiesFile.exists()) {
+            load(FileInputStream(localPropertiesFile))
+        }
+    }
 
 android {
     namespace = "com.targaryen.cafeteria.core_network"
@@ -12,6 +23,10 @@ android {
             .get()
             .toInt()
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         minSdk =
             libs.versions.minSdk
@@ -19,6 +34,20 @@ android {
                 .toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        buildConfigField("String", "B2_KEY_ID", "\"${localProperties.getProperty("B2_KEY_ID") ?: ""}\"")
+        buildConfigField(
+            "String",
+            "B2_APPLICATION_KEY",
+            "\"${localProperties.getProperty("B2_APPLICATION_KEY") ?: ""}\"",
+        )
+        buildConfigField("String", "B2_BUCKET_ID", "\"${localProperties.getProperty("B2_BUCKET_ID") ?: ""}\"")
+        buildConfigField("String", "B2_BUCKET_NAME", "\"${localProperties.getProperty("B2_BUCKET_NAME") ?: ""}\"")
+        buildConfigField(
+            "String",
+            "B2_DOWNLOAD_URL_BASE",
+            "\"${localProperties.getProperty("B2_DOWNLOAD_URL_BASE") ?: ""}\"",
+        )
     }
 
     buildTypes {

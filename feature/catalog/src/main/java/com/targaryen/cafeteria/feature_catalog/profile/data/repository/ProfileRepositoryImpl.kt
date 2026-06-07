@@ -1,13 +1,15 @@
 package com.targaryen.cafeteria.feature_catalog.profile.data.repository
 
+import android.content.Context
 import android.net.Uri
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthRecentLoginRequiredException
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
 import com.targaryen.cafeteria.core_network.Resource
+import com.targaryen.cafeteria.core_network.remote.BackBlazeB2DataSource
 import com.targaryen.cafeteria.coredatabase.dao.UserDao
 import com.targaryen.cafeteria.coredatabase.model.UserEntity
 import com.targaryen.cafeteria.feature_catalog.profile.domain.model.PurchaseHistoryItem
@@ -19,16 +21,18 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
-import java.util.UUID
+import java.io.IOException
 
 @Single
 class ProfileRepositoryImpl(
+    private val context: Context,
     private val userDao: UserDao,
+    private val backblazeB2DataSource: BackBlazeB2DataSource,
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
-    private val firebaseStorage: FirebaseStorage = FirebaseStorage.getInstance(),
 ) : ProfileRepository {
     override fun getProfile(): Flow<Resource<UserEntity, ProfileError>> =
         callbackFlow {
@@ -118,31 +122,35 @@ class ProfileRepositoryImpl(
         }
 
     override fun uploadProfilePhoto(uri: Uri): Flow<Resource<String, ProfileError>> =
-        callbackFlow {
+        flow {
             val currentUser = firebaseAuth.currentUser
             if (currentUser == null) {
-                trySend(Resource.Error(ProfileError.UserNotFound))
-                close()
-                return@callbackFlow
+                emit(Resource.Error(ProfileError.UserNotFound))
+                return@flow
             }
 
-            val fileName = UUID.randomUUID().toString() + ".jpg"
-            val storageRef = firebaseStorage.reference.child("users/${currentUser.uid}/$fileName")
-
-            storageRef
-                .putFile(uri)
-                .addOnSuccessListener {
-                    storageRef.downloadUrl
-                        .addOnSuccessListener { downloadUri ->
-                            trySend(Resource.Success(downloadUri.toString()))
-                        }.addOnFailureListener {
-                            trySend(Resource.Error(ProfileError.Unknown(it.message)))
-                        }
-                }.addOnFailureListener {
-                    trySend(Resource.Error(ProfileError.Unknown(it.message)))
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                if (inputStream == null) {
+                    emit(Resource.Error(ProfileError.Unknown("Não foi possível ler a imagem")))
+                    return@flow
                 }
+                val fileBytes = inputStream.use { stream -> stream.readBytes() }
+                val fileName = "profiles/${currentUser.uid}/profile_photo.jpg"
 
-            awaitClose { }
+                val downloadUrl =
+                    backblazeB2DataSource.uploadFile(
+                        fileName = fileName,
+                        fileBytes = fileBytes,
+                        contentType = "image/jpeg",
+                    )
+
+                emit(Resource.Success(downloadUrl))
+            } catch (e: IOException) {
+                emit(Resource.Error(ProfileError.Unknown(e.message)))
+            } catch (e: FirebaseAuthException) {
+                emit(Resource.Error(ProfileError.Unknown(e.message)))
+            }
         }
 
     override fun updateProfileName(name: String): Flow<Resource<Unit, ProfileError>> =

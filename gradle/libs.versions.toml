@@ -118,7 +118,6 @@ ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serializatio
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
-firebase-storage = { module = "com.google.firebase:firebase-storage" }
 androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 androidx-credentials-play-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
@@ -141,7 +140,7 @@ coil-test = { group = "io.coil-kt.coil3", name = "coil-test", version.ref = "coi
 
 [bundles]
 coroutines = ["coroutines", "coroutines-core"]
-firebase = ["firebase-firestore", "firebase-auth", "firebase-storage", "androidx-credentials", "androidx-credentials-play-auth", "googleid"]
+firebase = ["firebase-firestore", "firebase-auth", "androidx-credentials", "androidx-credentials-play-auth", "googleid"]
 coil = ["coil-compose", "coil-network"]
 ktor = ["ktor-client-core", "ktor-client-okhttp", "ktor-client-content-negotiation", "ktor-serialization-kotlinx-json"]
 koin = ["koin", "koin-annotation", "koin-compose"]

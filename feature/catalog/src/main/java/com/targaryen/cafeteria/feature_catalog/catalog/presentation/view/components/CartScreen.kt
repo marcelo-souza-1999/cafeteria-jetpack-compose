@@ -58,15 +58,18 @@ import com.targaryen.cafeteria.core_designsystem.R as DesignSystemR
 private const val SHIPPING_FREE_THRESHOLD = 50.0
 private const val SHIPPING_COST = 5.90
 
-@Suppress("LongParameterList")
+data class CartScreenActions(
+    val onIncreaseQuantity: (ProductUiModel) -> Unit,
+    val onDecreaseQuantity: (ProductUiModel) -> Unit,
+    val onRemoveProduct: (ProductUiModel) -> Unit,
+    val onProductClick: (ProductUiModel) -> Unit,
+    val onCheckoutClick: () -> Unit,
+)
+
 @Composable
 fun CartScreen(
     products: List<ProductUiModel>,
-    onIncreaseQuantity: (ProductUiModel) -> Unit,
-    onDecreaseQuantity: (ProductUiModel) -> Unit,
-    onRemoveProduct: (ProductUiModel) -> Unit,
-    onProductClick: (ProductUiModel) -> Unit,
-    onCheckoutClick: () -> Unit,
+    actions: CartScreenActions,
     modifier: Modifier = Modifier,
 ) {
     val subtotal = products.sumOf { product -> product.price * product.quantityInCart }
@@ -111,10 +114,10 @@ fun CartScreen(
                 ) { product ->
                     CartItemCard(
                         product = product,
-                        onIncrease = { onIncreaseQuantity(product) },
-                        onDecrease = { onDecreaseQuantity(product) },
-                        onRemove = { onRemoveProduct(product) },
-                        onProductClick = { onProductClick(product) },
+                        onIncrease = { actions.onIncreaseQuantity(product) },
+                        onDecrease = { actions.onDecreaseQuantity(product) },
+                        onRemove = { actions.onRemoveProduct(product) },
+                        onProductClick = { actions.onProductClick(product) },
                     )
                 }
             }
@@ -189,7 +192,7 @@ fun CartScreen(
             }
 
             Button(
-                onClick = onCheckoutClick,
+                onClick = actions.onCheckoutClick,
                 modifier =
                     Modifier
                         .fillMaxWidth()
@@ -385,11 +388,14 @@ fun CartScreenEmptyPreview() {
         Surface(modifier = Modifier.fillMaxSize(), color = Obsidian) {
             CartScreen(
                 products = emptyList(),
-                onIncreaseQuantity = {},
-                onDecreaseQuantity = {},
-                onRemoveProduct = {},
-                onProductClick = {},
-                onCheckoutClick = {},
+                actions =
+                    CartScreenActions(
+                        onIncreaseQuantity = {},
+                        onDecreaseQuantity = {},
+                        onRemoveProduct = {},
+                        onProductClick = {},
+                        onCheckoutClick = {},
+                    ),
             )
         }
     }
@@ -405,9 +411,7 @@ fun CartScreenItemsPreview() {
                 name = "Café Expresso Valíria",
                 description = "Café expresso ultra forte, escuro e denso como obsidian.",
                 price = 8.50,
-                imageUrl =
-                    "https://raw.githubusercontent.com/marcelo-souza-1999/" +
-                        "cafeteria-assets/master/images/img_cafe_valiria.png",
+                imageUrl = "${B2_PRODUCTS_BASE}img_cafe_valiria.png",
                 category = "bebidas",
                 quantityInCart = 2,
             ),
@@ -416,9 +420,7 @@ fun CartScreenItemsPreview() {
                 name = "Mocha Fogo de Dragão",
                 description = "Café mocha premium com um toque picante de pimenta caiena e canela.",
                 price = 14.90,
-                imageUrl =
-                    "https://raw.githubusercontent.com/marcelo-souza-1999/" +
-                        "cafeteria-assets/master/images/img_mocha_dragao.png",
+                imageUrl = "${B2_PRODUCTS_BASE}img_mocha_dragao.png",
                 category = "bebidas",
                 quantityInCart = 1,
             ),
@@ -427,9 +429,7 @@ fun CartScreenItemsPreview() {
                 name = "Croissant de Obsidiana",
                 description = "Croissant folhado feito com carvão ativado e recheio de chocolate belga.",
                 price = 10.50,
-                imageUrl =
-                    "https://raw.githubusercontent.com/marcelo-souza-1999/" +
-                        "cafeteria-assets/master/images/img_croissant_obsidiana.png",
+                imageUrl = "${B2_PRODUCTS_BASE}img_croissant_obsidiana.png",
                 category = "comidas",
                 quantityInCart = 3,
             ),
@@ -439,12 +439,18 @@ fun CartScreenItemsPreview() {
         Surface(modifier = Modifier.fillMaxSize(), color = Obsidian) {
             CartScreen(
                 products = mockProducts,
-                onIncreaseQuantity = {},
-                onDecreaseQuantity = {},
-                onRemoveProduct = {},
-                onProductClick = {},
-                onCheckoutClick = {},
+                actions =
+                    CartScreenActions(
+                        onIncreaseQuantity = {},
+                        onDecreaseQuantity = {},
+                        onRemoveProduct = {},
+                        onProductClick = {},
+                        onCheckoutClick = {},
+                    ),
             )
         }
     }
 }
+
+private const val B2_PRODUCTS_BASE =
+    "https://f005.backblazeb2.com/file/cafeteria-targaryen-assets/products/"

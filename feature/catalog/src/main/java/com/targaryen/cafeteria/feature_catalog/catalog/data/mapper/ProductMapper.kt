@@ -12,7 +12,12 @@ fun DocumentSnapshot.toProductEntity(
     val rawCategory = this.getString("category") ?: ""
     val name = this.getString("name") ?: ""
     val desc = this.getString("description") ?: ""
-    val tags = this.get("tags") as? List<String> ?: emptyList()
+    val dbTags = (this.get("tags") as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+
+    val tags =
+        dbTags.map { tag -> tag.lowercase() } +
+            name.lowercase().split(" ", ",", ".", ";", ":", "-").map { part -> part.trim() } +
+            desc.lowercase().split(" ", ",", ".", ";", ":", "-").map { part -> part.trim() }
 
     val mappedCategory = mapCategory(rawCategory, tags)
 
@@ -37,19 +42,48 @@ private fun mapCategory(
         "elixires" -> CatalogCategories.CROWN_ELIXIRS
         "frio" -> CatalogCategories.ICE_BREATH
         "quente" -> CatalogCategories.DRAGON_FIRE
-        else -> {
-            val isIce = tags.contains("frio") || tags.contains("gelado") || tags.contains("ice")
-            val isFire = tags.contains("quente") || tags.contains("hot") || tags.contains("fire")
-
-            if (isIce) {
-                CatalogCategories.ICE_BREATH
-            } else if (isFire) {
-                CatalogCategories.DRAGON_FIRE
-            } else {
-                CatalogCategories.ALL
-            }
-        }
+        else -> determineDynamicCategory(tags)
     }
+
+private fun determineDynamicCategory(tags: List<String>): String {
+    val iceKeywords =
+        setOf(
+            "frio",
+            "gelado",
+            "ice",
+            "cold",
+            "glacial",
+            "suco",
+            "smoothie",
+            "limonada",
+            "néctar",
+            "nectar",
+        )
+    val fireKeywords =
+        setOf(
+            "quente",
+            "hot",
+            "fire",
+            "fogo",
+            "expresso",
+            "espresso",
+            "mocha",
+            "capuccino",
+            "macchiato",
+            "latte",
+            "chocolate",
+            "fervente",
+        )
+
+    val isIce = tags.any { tag -> iceKeywords.contains(tag) }
+    val isFire = tags.any { tag -> fireKeywords.contains(tag) }
+
+    return when {
+        isIce -> CatalogCategories.ICE_BREATH
+        isFire -> CatalogCategories.DRAGON_FIRE
+        else -> CatalogCategories.ALL
+    }
+}
 
 fun ProductEntity.toDomain(): Product =
     Product(

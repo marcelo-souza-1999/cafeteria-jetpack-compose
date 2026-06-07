@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -74,7 +75,6 @@ import com.targaryen.cafeteria.feature_checkout.presentation.state.CheckoutState
 import com.targaryen.cafeteria.feature_checkout.presentation.view.components.CheckoutErrorFancyDialog
 import com.targaryen.cafeteria.feature_checkout.presentation.view.components.CheckoutSuccessFancyDialog
 
-@Suppress("CyclomaticComplexMethod", "MagicNumber")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CheckoutScreen(
@@ -144,266 +144,300 @@ fun CheckoutScreen(
                     .padding(padding)
                     .imePadding()
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp)
+                    .padding(TargaryenTheme.dimens.spaceNormal)
                     .navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(TargaryenTheme.dimens.spaceNormal),
         ) {
-            Text(
-                text = stringResource(R.string.checkout_address_section),
-                style =
-                    MaterialTheme.typography.titleLarge.copy(
-                        color = ValyrianGold,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                    ),
-            )
-
-            OutlinedTextField(
-                value = state.cep,
-                onValueChange = { onIntent(CheckoutIntent.OnCepChanged(it)) },
-                label = { Text(stringResource(R.string.checkout_label_cep), color = Color.Gray) },
-                keyboardOptions =
-                    KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next,
-                    ),
-                singleLine = true,
-                maxLines = 1,
-                colors =
-                    TextFieldDefaults.colors(
-                        focusedContainerColor = Obsidian,
-                        unfocusedContainerColor = Obsidian,
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedIndicatorColor = BloodRed,
-                        unfocusedIndicatorColor = Color.Gray,
-                    ),
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            TextButton(
-                onClick = { onIntent(CheckoutIntent.OnSearchAddressClicked) },
-                modifier = Modifier.align(Alignment.End),
-            ) {
-                Text(stringResource(R.string.checkout_action_no_cep), color = ValyrianGold)
-            }
-
-            if (state.isLoadingAddress) {
-                LinearProgressIndicator(
-                    color = BloodRed,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-            val streetInteraction = remember { MutableInteractionSource() }
-            if (streetInteraction.collectIsPressedAsState().value) {
-                onIntent(CheckoutIntent.OnDisabledFieldClick)
-            }
-            OutlinedTextField(
-                value = state.street,
-                onValueChange = { },
-                readOnly = true,
-                interactionSource = streetInteraction,
-                label = {
-                    Text(
-                        stringResource(R.string.checkout_label_street),
-                        color = Color.Gray,
-                    )
-                },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                maxLines = 1,
-                isError = state.showAddressFieldsError,
-                supportingText =
-                    if (state.showAddressFieldsError) {
-                        {
-                            Text(
-                                stringResource(R.string.checkout_message_disabled_fields),
-                                color = MaterialTheme.colorScheme.error,
-                            )
-                        }
-                    } else {
-                        null
-                    },
-                colors =
-                    TextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedContainerColor = Obsidian,
-                        unfocusedContainerColor = Obsidian,
-                        disabledTextColor = Color.Gray,
-                    ),
-            )
-
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                val cityInteraction = remember { MutableInteractionSource() }
-                if (cityInteraction.collectIsPressedAsState().value) {
-                    onIntent(CheckoutIntent.OnDisabledFieldClick)
-                }
-                OutlinedTextField(
-                    value = state.city,
-                    onValueChange = { },
-                    readOnly = true,
-                    interactionSource = cityInteraction,
-                    label = {
-                        Text(
-                            stringResource(R.string.checkout_label_city),
-                            color = Color.Gray,
-                        )
-                    },
-                    modifier = Modifier.weight(1f),
-                    singleLine = true,
-                    maxLines = 1,
-                    isError = state.showAddressFieldsError,
-                    colors =
-                        TextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedContainerColor = Obsidian,
-                            unfocusedContainerColor = Obsidian,
-                        ),
-                )
-                val stateInteraction = remember { MutableInteractionSource() }
-                if (stateInteraction.collectIsPressedAsState().value) {
-                    onIntent(CheckoutIntent.OnDisabledFieldClick)
-                }
-                OutlinedTextField(
-                    value = state.state,
-                    onValueChange = { },
-                    readOnly = true,
-                    interactionSource = stateInteraction,
-                    label = {
-                        Text(
-                            stringResource(R.string.checkout_label_state),
-                            color = Color.Gray,
-                        )
-                    },
-                    modifier = Modifier.width(80.dp),
-                    singleLine = true,
-                    maxLines = 1,
-                    isError = state.showAddressFieldsError,
-                    colors =
-                        TextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedContainerColor = Obsidian,
-                            unfocusedContainerColor = Obsidian,
-                        ),
-                )
-            }
-
-            OutlinedTextField(
-                value = state.number,
-                onValueChange = { onIntent(CheckoutIntent.OnNumberChanged(it)) },
-                label = {
-                    Text(
-                        stringResource(R.string.checkout_label_number),
-                        color = Color.Gray,
-                    )
-                },
-                keyboardOptions =
-                    KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next,
-                    ),
-                singleLine = true,
-                maxLines = 1,
-                modifier = Modifier.fillMaxWidth(),
-                colors =
-                    TextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedContainerColor = Obsidian,
-                        unfocusedContainerColor = Obsidian,
-                        focusedIndicatorColor = BloodRed,
-                    ),
-            )
-
-            OutlinedTextField(
-                value = state.referencePoint,
-                onValueChange = { onIntent(CheckoutIntent.OnReferencePointChanged(it)) },
-                label = {
-                    Text(
-                        stringResource(R.string.checkout_label_reference),
-                        color = Color.Gray,
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.LocationOn,
-                        contentDescription = null,
-                        tint = ValyrianGold,
-                    )
-                },
-                singleLine = true,
-                maxLines = 1,
-                modifier = Modifier.fillMaxWidth(),
-                colors =
-                    TextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedContainerColor = Obsidian,
-                        unfocusedContainerColor = Obsidian,
-                        focusedIndicatorColor = BloodRed,
-                    ),
-            )
-
-            OutlinedTextField(
-                value = state.recipientName,
-                onValueChange = { onIntent(CheckoutIntent.OnRecipientNameChanged(it)) },
-                label = {
-                    Text(
-                        stringResource(R.string.checkout_label_recipient),
-                        color = Color.Gray,
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = null,
-                        tint = ValyrianGold,
-                    )
-                },
-                singleLine = true,
-                maxLines = 1,
-                modifier = Modifier.fillMaxWidth(),
-                colors =
-                    TextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedContainerColor = Obsidian,
-                        unfocusedContainerColor = Obsidian,
-                        focusedIndicatorColor = BloodRed,
-                    ),
-            )
-
-            Button(
-                onClick = { onIntent(CheckoutIntent.OnSubmitPayment) },
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp)
-                        .height(56.dp),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = BloodRed,
-                        contentColor = Color.White,
-                    ),
-                enabled = !state.isCreatingPreference,
-                shape = RoundedCornerShape(8.dp),
-            ) {
-                if (state.isCreatingPreference) {
-                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                } else {
-                    Text(
-                        text = stringResource(R.string.checkout_action_submit),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
+            AddressSection(state, onIntent)
+            DeliveryFieldsSection(state, onIntent)
+            SubmitButtonSection(state, onIntent)
         }
     }
 
+    CheckoutStateDialogs(state, onIntent, onPaymentSuccess)
+}
+
+@Composable
+private fun ColumnScope.AddressSection(
+    state: CheckoutState,
+    onIntent: (CheckoutIntent) -> Unit,
+) {
+    Text(
+        text = stringResource(R.string.checkout_address_section),
+        style =
+            MaterialTheme.typography.titleLarge.copy(
+                color = ValyrianGold,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+            ),
+    )
+
+    OutlinedTextField(
+        value = state.cep,
+        onValueChange = { onIntent(CheckoutIntent.OnCepChanged(it)) },
+        label = { Text(stringResource(R.string.checkout_label_cep), color = Color.Gray) },
+        keyboardOptions =
+            KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next,
+            ),
+        singleLine = true,
+        maxLines = 1,
+        colors =
+            TextFieldDefaults.colors(
+                focusedContainerColor = Obsidian,
+                unfocusedContainerColor = Obsidian,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedIndicatorColor = BloodRed,
+                unfocusedIndicatorColor = Color.Gray,
+            ),
+        modifier = Modifier.fillMaxWidth(),
+    )
+
+    TextButton(
+        onClick = { onIntent(CheckoutIntent.OnSearchAddressClicked) },
+        modifier = Modifier.align(Alignment.End),
+    ) {
+        Text(stringResource(R.string.checkout_action_no_cep), color = ValyrianGold)
+    }
+
+    if (state.isLoadingAddress) {
+        LinearProgressIndicator(
+            color = BloodRed,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+    val streetInteraction = remember { MutableInteractionSource() }
+    if (streetInteraction.collectIsPressedAsState().value) {
+        onIntent(CheckoutIntent.OnDisabledFieldClick)
+    }
+    OutlinedTextField(
+        value = state.street,
+        onValueChange = { },
+        readOnly = true,
+        interactionSource = streetInteraction,
+        label = {
+            Text(
+                stringResource(R.string.checkout_label_street),
+                color = Color.Gray,
+            )
+        },
+        modifier = Modifier.fillMaxWidth(),
+        singleLine = true,
+        maxLines = 1,
+        isError = state.showAddressFieldsError,
+        supportingText =
+            if (state.showAddressFieldsError) {
+                {
+                    Text(
+                        stringResource(R.string.checkout_message_disabled_fields),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            } else {
+                null
+            },
+        colors =
+            TextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedContainerColor = Obsidian,
+                unfocusedContainerColor = Obsidian,
+                disabledTextColor = Color.Gray,
+            ),
+    )
+
+    Row(horizontalArrangement = Arrangement.spacedBy(TargaryenTheme.dimens.spaceNormal)) {
+        val cityInteraction = remember { MutableInteractionSource() }
+        if (cityInteraction.collectIsPressedAsState().value) {
+            onIntent(CheckoutIntent.OnDisabledFieldClick)
+        }
+        OutlinedTextField(
+            value = state.city,
+            onValueChange = { },
+            readOnly = true,
+            interactionSource = cityInteraction,
+            label = {
+                Text(
+                    stringResource(R.string.checkout_label_city),
+                    color = Color.Gray,
+                )
+            },
+            modifier = Modifier.weight(1f),
+            singleLine = true,
+            maxLines = 1,
+            isError = state.showAddressFieldsError,
+            colors =
+                TextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedContainerColor = Obsidian,
+                    unfocusedContainerColor = Obsidian,
+                ),
+        )
+        val stateInteraction = remember { MutableInteractionSource() }
+        if (stateInteraction.collectIsPressedAsState().value) {
+            onIntent(CheckoutIntent.OnDisabledFieldClick)
+        }
+        OutlinedTextField(
+            value = state.state,
+            onValueChange = { },
+            readOnly = true,
+            interactionSource = stateInteraction,
+            label = {
+                Text(
+                    stringResource(R.string.checkout_label_state),
+                    color = Color.Gray,
+                )
+            },
+            modifier = Modifier.width(TargaryenTheme.dimens.stateFieldWidth),
+            singleLine = true,
+            maxLines = 1,
+            isError = state.showAddressFieldsError,
+            colors =
+                TextFieldDefaults.colors(
+                    focusedTextColor = Color.White,
+                    unfocusedTextColor = Color.White,
+                    focusedContainerColor = Obsidian,
+                    unfocusedContainerColor = Obsidian,
+                ),
+        )
+    }
+}
+
+@Composable
+private fun DeliveryFieldsSection(
+    state: CheckoutState,
+    onIntent: (CheckoutIntent) -> Unit,
+) {
+    OutlinedTextField(
+        value = state.number,
+        onValueChange = { onIntent(CheckoutIntent.OnNumberChanged(it)) },
+        label = {
+            Text(
+                stringResource(R.string.checkout_label_number),
+                color = Color.Gray,
+            )
+        },
+        keyboardOptions =
+            KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next,
+            ),
+        singleLine = true,
+        maxLines = 1,
+        modifier = Modifier.fillMaxWidth(),
+        colors =
+            TextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedContainerColor = Obsidian,
+                unfocusedContainerColor = Obsidian,
+                focusedIndicatorColor = BloodRed,
+            ),
+    )
+
+    OutlinedTextField(
+        value = state.referencePoint,
+        onValueChange = { onIntent(CheckoutIntent.OnReferencePointChanged(it)) },
+        label = {
+            Text(
+                stringResource(R.string.checkout_label_reference),
+                color = Color.Gray,
+            )
+        },
+        leadingIcon = {
+            Icon(
+                Icons.Default.LocationOn,
+                contentDescription = null,
+                tint = ValyrianGold,
+            )
+        },
+        singleLine = true,
+        maxLines = 1,
+        modifier = Modifier.fillMaxWidth(),
+        colors =
+            TextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedContainerColor = Obsidian,
+                unfocusedContainerColor = Obsidian,
+                focusedIndicatorColor = BloodRed,
+            ),
+    )
+
+    OutlinedTextField(
+        value = state.recipientName,
+        onValueChange = { onIntent(CheckoutIntent.OnRecipientNameChanged(it)) },
+        label = {
+            Text(
+                stringResource(R.string.checkout_label_recipient),
+                color = Color.Gray,
+            )
+        },
+        leadingIcon = {
+            Icon(
+                Icons.Default.Person,
+                contentDescription = null,
+                tint = ValyrianGold,
+            )
+        },
+        singleLine = true,
+        maxLines = 1,
+        modifier = Modifier.fillMaxWidth(),
+        colors =
+            TextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedContainerColor = Obsidian,
+                unfocusedContainerColor = Obsidian,
+                focusedIndicatorColor = BloodRed,
+            ),
+    )
+}
+
+@Composable
+private fun SubmitButtonSection(
+    state: CheckoutState,
+    onIntent: (CheckoutIntent) -> Unit,
+) {
+    Button(
+        onClick = { onIntent(CheckoutIntent.OnSubmitPayment) },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(top = TargaryenTheme.dimens.spaceNormal)
+                .height(TargaryenTheme.dimens.buttonHeightLarge),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = BloodRed,
+                contentColor = Color.White,
+            ),
+        enabled = !state.isCreatingPreference,
+        shape = RoundedCornerShape(TargaryenTheme.dimens.radiusMedium),
+    ) {
+        if (state.isCreatingPreference) {
+            CircularProgressIndicator(
+                color = Color.White,
+                modifier = Modifier.size(TargaryenTheme.dimens.iconSizeMedium),
+            )
+        } else {
+            Text(
+                text = stringResource(R.string.checkout_action_submit),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CheckoutStateDialogs(
+    state: CheckoutState,
+    onIntent: (CheckoutIntent) -> Unit,
+    onPaymentSuccess: () -> Unit,
+) {
     if (state.showCepModal) {
         CepSearchDialog(
             onDismiss = { onIntent(CheckoutIntent.OnDismissCepModal) },
@@ -445,7 +479,7 @@ fun CheckoutScreen(
             text = {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(TargaryenTheme.dimens.spaceNormal),
                 ) {
                     Text(stringResource(R.string.dialog_redirect_message), color = Color.White)
                     CircularProgressIndicator(color = BloodRed)

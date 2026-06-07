@@ -78,7 +78,6 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":feature:auth"))
     implementation(project(":feature:catalog"))
-    implementation(project(":feature:cart"))
     implementation(project(":feature:chat"))
     implementation(project(":feature:checkout"))
 

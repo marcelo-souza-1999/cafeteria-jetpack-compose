@@ -92,31 +92,64 @@ class CheckoutViewModel(
         }
     }
 
-    @Suppress("CyclomaticComplexMethod")
     fun onIntent(intent: CheckoutIntent) {
+        if (handleSimpleIntent(intent)) return
+        handleComplexIntent(intent)
+    }
+
+    private fun handleSimpleIntent(intent: CheckoutIntent): Boolean =
+        when (intent) {
+            is CheckoutIntent.OnNumberChanged -> {
+                _uiState.update { state -> state.copy(number = intent.number) }
+                true
+            }
+            is CheckoutIntent.OnReferencePointChanged -> {
+                _uiState.update { state -> state.copy(referencePoint = intent.reference) }
+                true
+            }
+            is CheckoutIntent.OnRecipientNameChanged -> {
+                _uiState.update { state -> state.copy(recipientName = intent.name) }
+                true
+            }
+            is CheckoutIntent.OnSearchAddressClicked -> {
+                _uiState.update { state -> state.copy(showCepModal = true) }
+                true
+            }
+            is CheckoutIntent.OnDismissCepModal -> {
+                _uiState.update { state -> state.copy(showCepModal = false) }
+                true
+            }
+            is CheckoutIntent.OnDismissError -> {
+                _uiState.update { state -> state.copy(errorResId = null) }
+                true
+            }
+            is CheckoutIntent.OnDismissCancelNotice -> {
+                _uiState.update { state -> state.copy(showCancelNotice = false) }
+                true
+            }
+            is CheckoutIntent.OnDismissSuccessNotice -> {
+                _uiState.update { state -> state.copy(showSuccessNotice = false) }
+                true
+            }
+            is CheckoutIntent.OnDisabledFieldClick -> {
+                _uiState.update { state -> state.copy(showAddressFieldsError = true) }
+                true
+            }
+            else -> false
+        }
+
+    private fun handleComplexIntent(intent: CheckoutIntent) {
         when (intent) {
             is CheckoutIntent.OnLoadCartItems -> loadCartItems()
             is CheckoutIntent.OnResetState -> resetState()
             is CheckoutIntent.OnCepChanged -> handleCepChange(intent.cep)
-            is CheckoutIntent.OnNumberChanged -> _uiState.update { state -> state.copy(number = intent.number) }
-            is CheckoutIntent.OnReferencePointChanged ->
-                _uiState.update { state ->
-                    state.copy(referencePoint = intent.reference)
-                }
-            is CheckoutIntent.OnRecipientNameChanged ->
-                _uiState.update { state ->
-                    state.copy(recipientName = intent.name)
-                }
             is CheckoutIntent.OnSubmitPayment -> submitPayment()
-            is CheckoutIntent.OnSearchAddressClicked -> _uiState.update { state -> state.copy(showCepModal = true) }
-            is CheckoutIntent.OnDismissCepModal -> _uiState.update { state -> state.copy(showCepModal = false) }
             is CheckoutIntent.OnSearchReverseCep -> searchReverseCep(intent.state, intent.city, intent.street)
             is CheckoutIntent.OnPaymentInitiated -> {
                 _uiState.update { state ->
                     state.copy(preferenceId = null, sandboxInitPoint = null, initPoint = null, isRedirecting = true)
                 }
             }
-            is CheckoutIntent.OnDismissError -> _uiState.update { state -> state.copy(errorResId = null) }
             is CheckoutIntent.OnCancelCheckout -> {
                 if (!isPaymentCompleted) {
                     _uiState.update { state -> state.copy(isRedirecting = false, showCancelNotice = true) }
@@ -124,14 +157,7 @@ class CheckoutViewModel(
                     _uiState.update { state -> state.copy(isRedirecting = false) }
                 }
             }
-            is CheckoutIntent.OnDismissCancelNotice -> _uiState.update { state -> state.copy(showCancelNotice = false) }
-            is CheckoutIntent.OnDismissSuccessNotice ->
-                _uiState.update { state ->
-                    state.copy(showSuccessNotice = false)
-                }
-            is CheckoutIntent.OnDisabledFieldClick -> {
-                _uiState.update { state -> state.copy(showAddressFieldsError = true) }
-            }
+            else -> Unit
         }
     }
 

@@ -61,6 +61,7 @@ import com.targaryen.cafeteria.feature_catalog.catalog.presentation.intent.Catal
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.model.ProductUiModel
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.state.CatalogUiState
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.CartScreen
+import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.CartScreenActions
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.CatalogSearchBar
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.LogoutConfirmationDialog
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.ProductDetailBottomSheet
@@ -452,18 +453,21 @@ fun CatalogScreenContent(
                     TargaryenTab.CART.ordinal ->
                         CartScreen(
                             products = uiState.products.filter { product -> product.quantityInCart > 0 },
-                            onIncreaseQuantity = { item -> onIntent(CatalogIntent.AddToCart(item)) },
-                            onDecreaseQuantity = { item -> onIntent(CatalogIntent.RemoveFromCart(item)) },
-                            onRemoveProduct = { item ->
-                                onIntent(
-                                    CatalogIntent.UpdateProductQuantity(
-                                        item.id,
-                                        0,
-                                    ),
-                                )
-                            },
-                            onProductClick = { item -> onIntent(CatalogIntent.SelectProduct(item)) },
-                            onCheckoutClick = actions.onCheckoutClick,
+                            actions =
+                                CartScreenActions(
+                                    onIncreaseQuantity = { item -> onIntent(CatalogIntent.AddToCart(item)) },
+                                    onDecreaseQuantity = { item -> onIntent(CatalogIntent.RemoveFromCart(item)) },
+                                    onRemoveProduct = { item ->
+                                        onIntent(
+                                            CatalogIntent.UpdateProductQuantity(
+                                                item.id,
+                                                0,
+                                            ),
+                                        )
+                                    },
+                                    onProductClick = { item -> onIntent(CatalogIntent.SelectProduct(item)) },
+                                    onCheckoutClick = actions.onCheckoutClick,
+                                ),
                         )
 
                     TargaryenTab.PROFILE.ordinal ->

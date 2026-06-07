@@ -63,7 +63,6 @@ dependencies {
     add("kover", project(":core:designsystem"))
     add("kover", project(":core:network"))
     add("kover", project(":feature:auth"))
-    add("kover", project(":feature:cart"))
     add("kover", project(":feature:catalog"))
     add("kover", project(":feature:chat"))
 }
