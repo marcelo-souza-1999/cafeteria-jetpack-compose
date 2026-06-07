@@ -33,4 +33,4 @@ app/google-services.json
 # Arsenal de Agentes (Antigravity CLI)
 .agents/
 .antigravitycli/
-scripts/
+/scripts/

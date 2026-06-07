@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "develop" ]
 
+permissions:
+  pull-requests: write
+  contents: read
+
 jobs:
   build_and_test:
     name: Inquisition & Skirmish
@@ -14,6 +18,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -74,3 +80,14 @@ jobs:
         with:
           name: kover-html-report
           path: app/build/reports/kover/htmlDebug/
+
+      - name: Sentinel AI Code Review (Gemini)
+        if: github.event_name == 'pull_request'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git fetch origin develop
+          git diff origin/develop...HEAD > pr.diff
+          chmod +x .github/scripts/gemini_review.sh
+          ./.github/scripts/gemini_review.sh pr.diff "${{ github.event.pull_request.number }}"

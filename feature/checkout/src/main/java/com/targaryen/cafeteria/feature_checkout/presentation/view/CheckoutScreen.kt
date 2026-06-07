@@ -162,6 +162,32 @@ private fun ColumnScope.AddressSection(
     state: CheckoutState,
     onIntent: (CheckoutIntent) -> Unit,
 ) {
+    val streetInteraction = remember { MutableInteractionSource() }
+    val cityInteraction = remember { MutableInteractionSource() }
+    val stateInteraction = remember { MutableInteractionSource() }
+
+    val isStreetPressed by streetInteraction.collectIsPressedAsState()
+    val isCityPressed by cityInteraction.collectIsPressedAsState()
+    val isStatePressed by stateInteraction.collectIsPressedAsState()
+
+    LaunchedEffect(isStreetPressed) {
+        if (isStreetPressed && state.street.isBlank()) {
+            onIntent(CheckoutIntent.OnDisabledFieldClick)
+        }
+    }
+
+    LaunchedEffect(isCityPressed) {
+        if (isCityPressed && state.city.isBlank()) {
+            onIntent(CheckoutIntent.OnDisabledFieldClick)
+        }
+    }
+
+    LaunchedEffect(isStatePressed) {
+        if (isStatePressed && state.state.isBlank()) {
+            onIntent(CheckoutIntent.OnDisabledFieldClick)
+        }
+    }
+
     Text(
         text = stringResource(R.string.checkout_address_section),
         style =
@@ -208,10 +234,7 @@ private fun ColumnScope.AddressSection(
             modifier = Modifier.fillMaxWidth(),
         )
     }
-    val streetInteraction = remember { MutableInteractionSource() }
-    if (streetInteraction.collectIsPressedAsState().value) {
-        onIntent(CheckoutIntent.OnDisabledFieldClick)
-    }
+
     OutlinedTextField(
         value = state.street,
         onValueChange = { },
@@ -249,10 +272,6 @@ private fun ColumnScope.AddressSection(
     )
 
     Row(horizontalArrangement = Arrangement.spacedBy(TargaryenTheme.dimens.spaceNormal)) {
-        val cityInteraction = remember { MutableInteractionSource() }
-        if (cityInteraction.collectIsPressedAsState().value) {
-            onIntent(CheckoutIntent.OnDisabledFieldClick)
-        }
         OutlinedTextField(
             value = state.city,
             onValueChange = { },
@@ -276,10 +295,7 @@ private fun ColumnScope.AddressSection(
                     unfocusedContainerColor = Obsidian,
                 ),
         )
-        val stateInteraction = remember { MutableInteractionSource() }
-        if (stateInteraction.collectIsPressedAsState().value) {
-            onIntent(CheckoutIntent.OnDisabledFieldClick)
-        }
+
         OutlinedTextField(
             value = state.state,
             onValueChange = { },
@@ -460,6 +476,7 @@ private fun CheckoutStateDialogs(
                             onIntent(CheckoutIntent.OnCepChanged(state.cep))
                         }
                     }
+
                     R.string.error_checkout_payment_failed -> {
                         onIntent(CheckoutIntent.OnSubmitPayment)
                     }
@@ -497,7 +514,7 @@ private fun CheckoutStateDialogs(
     if (state.showCancelNotice) {
         CheckoutErrorFancyDialog(
             title = stringResource(R.string.dialog_checkout_error_title),
-            message = "Tributo cancelado pelo usuário.",
+            message = stringResource(R.string.dialog_checkout_error_message),
             isCancelable = true,
             onRetryClick = {
                 onIntent(CheckoutIntent.OnDismissCancelNotice)
@@ -557,7 +574,12 @@ fun CepSearchDialog(
                     isError = ufError,
                     supportingText =
                         if (ufError) {
-                            { Text("Campo obrigatório", color = MaterialTheme.colorScheme.error) }
+                            {
+                                Text(
+                                    text = stringResource(R.string.error_required_field),
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
                         } else {
                             null
                         },
@@ -581,7 +603,12 @@ fun CepSearchDialog(
                     isError = cityError,
                     supportingText =
                         if (cityError) {
-                            { Text("Campo obrigatório", color = MaterialTheme.colorScheme.error) }
+                            {
+                                Text(
+                                    text = stringResource(R.string.error_required_field),
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
                         } else {
                             null
                         },
@@ -605,7 +632,12 @@ fun CepSearchDialog(
                     isError = streetError,
                     supportingText =
                         if (streetError) {
-                            { Text("Campo obrigatório", color = MaterialTheme.colorScheme.error) }
+                            {
+                                Text(
+                                    text = stringResource(R.string.error_required_field),
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
                         } else {
                             null
                         },
@@ -626,6 +658,10 @@ fun CepSearchDialog(
                 val isUfEmpty = uf.isBlank()
                 val isCityEmpty = city.isBlank()
                 val isStreetEmpty = street.isBlank()
+
+                ufError = isUfEmpty
+                cityError = isCityEmpty
+                streetError = isStreetEmpty
 
                 if (!isUfEmpty && !isCityEmpty && !isStreetEmpty) {
                     onSearch(uf, city, street)
