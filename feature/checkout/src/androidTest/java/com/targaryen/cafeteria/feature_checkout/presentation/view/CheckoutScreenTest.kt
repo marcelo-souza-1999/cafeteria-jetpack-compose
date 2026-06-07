@@ -1,5 +1,6 @@
 package com.targaryen.cafeteria.feature_checkout.presentation.view
 
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -39,7 +40,7 @@ class CheckoutScreenTest {
         composeTestRule.setContent {
             TargaryenTheme {
                 CheckoutScreen(
-                    state = uiStateFlow.value,
+                    state = uiStateFlow.collectAsState().value,
                     onIntent = { intent -> mockViewModel.onIntent(intent) },
                     onNavigateBack = onNavigateBack,
                     onPaymentSuccess = {},
