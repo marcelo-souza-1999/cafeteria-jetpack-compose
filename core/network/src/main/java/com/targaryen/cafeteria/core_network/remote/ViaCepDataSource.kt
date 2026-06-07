@@ -2,6 +2,7 @@ package com.targaryen.cafeteria.core_network.remote
 
 import com.targaryen.cafeteria.core_network.model.ViaCepResponse
 import io.ktor.client.HttpClient
+import io.ktor.client.call.NoTransformationFoundException
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.get
@@ -29,6 +30,8 @@ class ViaCepDataSource(
             Result.failure(e)
         } catch (e: ResponseException) {
             Result.failure(e)
+        } catch (e: NoTransformationFoundException) {
+            Result.failure(e)
         }
 
     suspend fun searchCepByAddress(
@@ -53,6 +56,8 @@ class ViaCepDataSource(
         } catch (e: SerializationException) {
             Result.failure(e)
         } catch (e: ResponseException) {
+            Result.failure(e)
+        } catch (e: NoTransformationFoundException) {
             Result.failure(e)
         }
 }

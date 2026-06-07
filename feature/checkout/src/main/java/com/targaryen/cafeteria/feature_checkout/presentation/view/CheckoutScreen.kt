@@ -209,7 +209,7 @@ private fun ColumnScope.AddressSection(
         )
     }
     val streetInteraction = remember { MutableInteractionSource() }
-    if (streetInteraction.collectIsPressedAsState().value) {
+    if (streetInteraction.collectIsPressedAsState().value && state.street.isBlank()) {
         onIntent(CheckoutIntent.OnDisabledFieldClick)
     }
     OutlinedTextField(
@@ -250,7 +250,7 @@ private fun ColumnScope.AddressSection(
 
     Row(horizontalArrangement = Arrangement.spacedBy(TargaryenTheme.dimens.spaceNormal)) {
         val cityInteraction = remember { MutableInteractionSource() }
-        if (cityInteraction.collectIsPressedAsState().value) {
+        if (cityInteraction.collectIsPressedAsState().value && state.city.isBlank()) {
             onIntent(CheckoutIntent.OnDisabledFieldClick)
         }
         OutlinedTextField(
@@ -277,7 +277,7 @@ private fun ColumnScope.AddressSection(
                 ),
         )
         val stateInteraction = remember { MutableInteractionSource() }
-        if (stateInteraction.collectIsPressedAsState().value) {
+        if (stateInteraction.collectIsPressedAsState().value && state.state.isBlank()) {
             onIntent(CheckoutIntent.OnDisabledFieldClick)
         }
         OutlinedTextField(
@@ -460,6 +460,7 @@ private fun CheckoutStateDialogs(
                             onIntent(CheckoutIntent.OnCepChanged(state.cep))
                         }
                     }
+
                     R.string.error_checkout_payment_failed -> {
                         onIntent(CheckoutIntent.OnSubmitPayment)
                     }
@@ -497,7 +498,7 @@ private fun CheckoutStateDialogs(
     if (state.showCancelNotice) {
         CheckoutErrorFancyDialog(
             title = stringResource(R.string.dialog_checkout_error_title),
-            message = "Tributo cancelado pelo usuário.",
+            message = stringResource(R.string.dialog_checkout_error_message),
             isCancelable = true,
             onRetryClick = {
                 onIntent(CheckoutIntent.OnDismissCancelNotice)
@@ -557,7 +558,12 @@ fun CepSearchDialog(
                     isError = ufError,
                     supportingText =
                         if (ufError) {
-                            { Text("Campo obrigatório", color = MaterialTheme.colorScheme.error) }
+                            {
+                                Text(
+                                    text = stringResource(R.string.error_required_field),
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
                         } else {
                             null
                         },
@@ -581,7 +587,12 @@ fun CepSearchDialog(
                     isError = cityError,
                     supportingText =
                         if (cityError) {
-                            { Text("Campo obrigatório", color = MaterialTheme.colorScheme.error) }
+                            {
+                                Text(
+                                    text = stringResource(R.string.error_required_field),
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
                         } else {
                             null
                         },
@@ -605,7 +616,12 @@ fun CepSearchDialog(
                     isError = streetError,
                     supportingText =
                         if (streetError) {
-                            { Text("Campo obrigatório", color = MaterialTheme.colorScheme.error) }
+                            {
+                                Text(
+                                    text = stringResource(R.string.error_required_field),
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
                         } else {
                             null
                         },
@@ -626,6 +642,10 @@ fun CepSearchDialog(
                 val isUfEmpty = uf.isBlank()
                 val isCityEmpty = city.isBlank()
                 val isStreetEmpty = street.isBlank()
+
+                ufError = isUfEmpty
+                cityError = isCityEmpty
+                streetError = isStreetEmpty
 
                 if (!isUfEmpty && !isCityEmpty && !isStreetEmpty) {
                     onSearch(uf, city, street)
