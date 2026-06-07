@@ -2,14 +2,21 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.hotswan.compiler)
+    alias(libs.plugins.koin.compiler)
 }
 
 android {
     namespace = "com.targaryen.cafeteria.coredatabase"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -19,7 +26,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -38,7 +45,6 @@ dependencies {
 
     implementation(libs.koin)
     implementation(libs.koin.annotation)
-    ksp(libs.koin.ksp.compiler)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)
@@ -47,4 +53,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.coroutines.test)
+}
+
+koinCompiler {
+    compileSafety = false
 }

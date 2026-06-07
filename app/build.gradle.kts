@@ -1,34 +1,57 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.google.ksp)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
     alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.google.gms.services)
+    alias(libs.plugins.koin.compiler)
 }
 
 android {
     namespace = "com.targaryen.cafeteria.app"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
         applicationId = "com.targaryen.cafeteria.app"
-        minSdk = libs.versions.minSdk.get().toInt()
-        targetSdk = libs.versions.targetSdk.get().toInt()
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
+        targetSdk =
+            libs.versions.targetSdk
+                .get()
+                .toInt()
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        val secretsFile = rootProject.file("secrets.properties")
+        val secrets = Properties()
+        if (secretsFile.exists()) {
+            secretsFile.inputStream().use { secrets.load(it) }
+        }
+        val mpPublicKey = secrets.getProperty("MERCADO_PAGO_PUBLIC_KEY", "")
+        val mpAccessToken = secrets.getProperty("MERCADO_PAGO_ACCESS_TOKEN", "")
+
+        buildConfigField("String", "MERCADO_PAGO_PUBLIC_KEY", "\"$mpPublicKey\"")
+        buildConfigField("String", "MERCADO_PAGO_ACCESS_TOKEN", "\"$mpAccessToken\"")
     }
 
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -41,6 +64,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     lint {
@@ -54,13 +78,14 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":feature:auth"))
     implementation(project(":feature:catalog"))
-    implementation(project(":feature:cart"))
     implementation(project(":feature:chat"))
+    implementation(project(":feature:checkout"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.browser)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
@@ -70,7 +95,6 @@ dependencies {
     implementation(libs.compose.shimmer)
     implementation(libs.compose.alert.dialog)
 
-    ksp(libs.koin.ksp.compiler)
     implementation(libs.bundles.coroutines)
     implementation(libs.bundles.koin)
     implementation(libs.bundles.compose.icons)
@@ -99,12 +123,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 }
 
-ksp {
-    arg("KOIN_DEFAULT_MODULE", "true")
-    arg("KOIN_CONFIG_CHECK", "true")
-    arg("KOIN_ANNOTATIONS_ROOT_PACKAGE", "com.targaryen.cafeteria.app")
-}
-
 tasks.register("detektAll") {
     dependsOn(tasks.withType<io.gitlab.arturbosch.detekt.Detekt>())
 }
@@ -117,7 +135,29 @@ kover {
                     "*.BuildConfig",
                     "*ComposableSingletons*",
                     "*_Factory*",
-                    "*MapperImpl*"
+                    "*MapperImpl*",
+                    "*Screen*",
+                    "*ScreenKt*",
+                    "*Section*",
+                    "*SectionKt*",
+                    "*Dialog*",
+                    "*DialogKt*",
+                    "*BottomSheet*",
+                    "*BottomSheetKt*",
+                    "*Activity*",
+                    "*ActivityKt*",
+                    "*Application*",
+                    "*ApplicationKt*",
+                    "*Preview*",
+                    "*PreviewKt*",
+                    "*Theme*",
+                    "*ThemeKt*",
+                    "*Color*",
+                    "*TypeKt*",
+                    "*Dimens*",
+                    "*Dao_Impl*",
+                    "*Database_Impl*",
+                    "*ModuleKt*",
                 )
                 annotatedBy("androidx.compose.runtime.Composable")
             }

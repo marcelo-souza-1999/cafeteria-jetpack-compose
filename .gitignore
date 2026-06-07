@@ -11,6 +11,7 @@ out/
 *.iws
 *.ipr
 /local.properties
+/secrets.properties
 .externalNativeBuild/
 .cxx/
 captures/
@@ -22,8 +23,14 @@ app/google-services.json
 *.log
 *.tmp
 *.bak
+.firebase/
 
 .fvm/
 .pub-cache/
 .dart_tool/
 .hotswan/
+
+# Arsenal de Agentes (Antigravity CLI)
+.agents/
+.antigravitycli/
+scripts/

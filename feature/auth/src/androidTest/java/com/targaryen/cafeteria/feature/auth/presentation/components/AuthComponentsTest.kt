@@ -22,7 +22,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AuthComponentsTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -30,7 +29,7 @@ class AuthComponentsTest {
     fun targaryenButton_shouldDisplayCorrectTextAndBeEnabled() {
         val text = "Click Me"
         val onClick: () -> Unit = mockk(relaxed = true)
-        
+
         composeTestRule.setContent {
             TargaryenTheme {
                 TargaryenButton(text = text, onClick = onClick)
@@ -39,7 +38,7 @@ class AuthComponentsTest {
 
         composeTestRule.onNodeWithText(text).assertIsDisplayed().assertIsEnabled()
         composeTestRule.onNodeWithText(text).performClick()
-        
+
         verify { onClick() }
     }
 
@@ -71,20 +70,20 @@ class AuthComponentsTest {
     fun targaryenTextField_shouldDisplayLabelAndAcceptInput() {
         val label = "Email"
         val onValueChange: (String) -> Unit = mockk(relaxed = true)
-        
+
         composeTestRule.setContent {
             TargaryenTheme {
                 TargaryenTextField(
                     value = "",
                     onValueChange = onValueChange,
-                    label = label
+                    label = label,
                 )
             }
         }
 
         composeTestRule.onNodeWithText(label).assertIsDisplayed()
         composeTestRule.onNodeWithText(label).performTextInput("test@test.com")
-        
+
         verify { onValueChange("test@test.com") }
     }
 
@@ -92,7 +91,7 @@ class AuthComponentsTest {
     fun targaryenTextField_whenError_shouldDisplaySupportingText() {
         val label = "Email"
         val errorText = "Invalid Email"
-        
+
         composeTestRule.setContent {
             TargaryenTheme {
                 TargaryenTextField(
@@ -100,7 +99,7 @@ class AuthComponentsTest {
                     onValueChange = {},
                     label = label,
                     isError = true,
-                    supportingText = { Text(text = errorText) }
+                    supportingText = { Text(text = errorText) },
                 )
             }
         }
@@ -112,19 +111,19 @@ class AuthComponentsTest {
     fun targaryenPasswordField_shouldDisplayLabelAndAcceptInput() {
         val label = "Password"
         val onValueChange: (String) -> Unit = mockk(relaxed = true)
-        
+
         composeTestRule.setContent {
             TargaryenTheme {
                 TargaryenPasswordField(
                     value = "",
                     onValueChange = onValueChange,
-                    label = label
+                    label = label,
                 )
             }
         }
 
         composeTestRule.onNodeWithText(label).assertIsDisplayed()
-        
+
         composeTestRule.onNodeWithText(label).performTextInput("newpass")
         verify { onValueChange("newpass") }
 

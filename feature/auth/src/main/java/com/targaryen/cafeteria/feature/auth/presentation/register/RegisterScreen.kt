@@ -59,6 +59,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.qualifier.named
+import com.targaryen.cafeteria.core_designsystem.R as DesignSystemR
 
 private const val QUALIFIER_WEB_CLIENT_ID = "WebClientId"
 
@@ -67,7 +68,7 @@ fun RegisterScreen(
     onNavigateBack: () -> Unit,
     onRegisterSuccess: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: RegisterViewModel = koinViewModel()
+    viewModel: RegisterViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val (authError, setAuthError) = remember { mutableStateOf<AuthError?>(null) }
@@ -91,37 +92,38 @@ fun RegisterScreen(
             message = getErrorMessage(authError),
             isCancelable = false,
             onRetryClick = { setAuthError(null) },
-            onDismissRequest = { setAuthError(null) }
+            onDismissRequest = { setAuthError(null) },
         )
     }
 
-    val actions = remember {
-        RegisterActions(
-            onNameChange = viewModel::onNameChanged,
-            onEmailChange = viewModel::onEmailChanged,
-            onPasswordChange = viewModel::onPasswordChanged,
-            onConfirmPasswordChange = viewModel::onConfirmPasswordChanged,
-            onRegisterClick = viewModel::onRegisterClick,
-            onGoogleSignInClick = {
-                coroutineScope.launch {
-                    try {
-                        val idToken = googleAuthUiClient.signIn()
-                        if (idToken != null) viewModel.onGoogleSignIn(idToken)
-                    } catch (e: GetCredentialException) {
-                        viewModel.onGoogleSignInError(e.message)
+    val actions =
+        remember {
+            RegisterActions(
+                onNameChange = viewModel::onNameChanged,
+                onEmailChange = viewModel::onEmailChanged,
+                onPasswordChange = viewModel::onPasswordChanged,
+                onConfirmPasswordChange = viewModel::onConfirmPasswordChanged,
+                onRegisterClick = viewModel::onRegisterClick,
+                onGoogleSignInClick = {
+                    coroutineScope.launch {
+                        try {
+                            val idToken = googleAuthUiClient.signIn()
+                            if (idToken != null) viewModel.onGoogleSignIn(idToken)
+                        } catch (e: GetCredentialException) {
+                            viewModel.onGoogleSignInError(e.message)
+                        }
                     }
-                }
-            },
-            onBackClick = onNavigateBack
-        )
-    }
+                },
+                onBackClick = onNavigateBack,
+            )
+        }
 
     RegisterContent(uiState, actions, modifier.fillMaxSize())
 }
 
 @Composable
-private fun getErrorMessage(error: AuthError): String {
-    return when (error) {
+private fun getErrorMessage(error: AuthError): String =
+    when (error) {
         is AuthError.EmailAlreadyInUse -> stringResource(id = R.string.error_auth_email_already_in_use)
         is AuthError.InvalidCredentials -> stringResource(id = R.string.error_auth_invalid_credentials)
         is AuthError.UserNotFound -> stringResource(id = R.string.error_auth_user_not_found)
@@ -129,41 +131,42 @@ private fun getErrorMessage(error: AuthError): String {
         is AuthError.TooManyRequests -> stringResource(id = R.string.error_auth_too_many_requests)
         is AuthError.Unknown -> stringResource(id = R.string.error_auth_unknown, error.message ?: "")
     }
-}
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 @Composable
 internal fun RegisterContent(
     uiState: RegisterUiState,
     actions: RegisterActions,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Scaffold(
         topBar = {
             TargaryenTopBar(
                 title = stringResource(id = R.string.title_register),
-                onBackClick = actions.onBackClick
+                onBackClick = actions.onBackClick,
             )
         },
         containerColor = Obsidian,
-        modifier = modifier
+        modifier = modifier,
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
+            modifier =
+                Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .imePadding()
-                    .verticalScroll(rememberScrollState())
-                    .padding(
-                        horizontal = TargaryenTheme.dimens.spaceLarge,
-                        vertical = TargaryenTheme.dimens.spaceNormal
-                    ),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .imePadding()
+                        .verticalScroll(rememberScrollState())
+                        .padding(
+                            horizontal = TargaryenTheme.dimens.spaceLarge,
+                            vertical = TargaryenTheme.dimens.spaceNormal,
+                        ),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 RegisterHeader()
                 RegisterForm(uiState, actions)
@@ -178,22 +181,26 @@ internal fun RegisterContent(
 @Composable
 private fun RegisterHeader() {
     Image(
-        painter = painterResource(id = R.drawable.ic_logo_login_screen),
+        painter = painterResource(id = DesignSystemR.drawable.ic_logo_login_screen),
         contentDescription = null,
-        modifier = Modifier
-            .size(TargaryenTheme.dimens.logoAuth)
-            .padding(bottom = TargaryenTheme.dimens.spaceNormal)
+        modifier =
+            Modifier
+                .size(TargaryenTheme.dimens.logoAuth)
+                .padding(bottom = TargaryenTheme.dimens.spaceNormal),
     )
     Text(
         text = stringResource(id = R.string.subtitle_register),
         color = com.targaryen.cafeteria.core_designsystem.theme.DimmedGold,
         style = MaterialTheme.typography.titleSmall,
-        modifier = Modifier.padding(bottom = TargaryenTheme.dimens.spaceExtraLarge)
+        modifier = Modifier.padding(bottom = TargaryenTheme.dimens.spaceExtraLarge),
     )
 }
 
 @Composable
-private fun RegisterForm(uiState: RegisterUiState, actions: RegisterActions) {
+private fun RegisterForm(
+    uiState: RegisterUiState,
+    actions: RegisterActions,
+) {
     TargaryenTextField(
         value = uiState.name,
         onValueChange = actions.onNameChange,
@@ -202,21 +209,28 @@ private fun RegisterForm(uiState: RegisterUiState, actions: RegisterActions) {
             Icon(imageVector = Icons.Filled.Person, contentDescription = null, tint = ValyrianGold)
         },
         isError = uiState.nameError,
-        supportingText = if (uiState.nameError) {
-            { Text(text = stringResource(id = R.string.error_name_empty)) }
-        } else null,
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Text,
-            capitalization = KeyboardCapitalization.Words,
-            imeAction = ImeAction.Next
-        )
+        supportingText =
+            if (uiState.nameError) {
+                { Text(text = stringResource(id = R.string.error_name_empty)) }
+            } else {
+                null
+            },
+        keyboardOptions =
+            KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                capitalization = KeyboardCapitalization.Words,
+                imeAction = ImeAction.Next,
+            ),
     )
     Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
     RegisterEmailAndPasswordFields(uiState, actions)
 }
 
 @Composable
-private fun RegisterEmailAndPasswordFields(uiState: RegisterUiState, actions: RegisterActions) {
+private fun RegisterEmailAndPasswordFields(
+    uiState: RegisterUiState,
+    actions: RegisterActions,
+) {
     TargaryenTextField(
         value = uiState.email,
         onValueChange = actions.onEmailChange,
@@ -225,10 +239,13 @@ private fun RegisterEmailAndPasswordFields(uiState: RegisterUiState, actions: Re
             Icon(imageVector = Icons.Filled.Email, contentDescription = null, tint = ValyrianGold)
         },
         isError = uiState.emailError,
-        supportingText = if (uiState.emailError) {
-            { Text(text = stringResource(id = R.string.error_invalid_email)) }
-        } else null,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next)
+        supportingText =
+            if (uiState.emailError) {
+                { Text(text = stringResource(id = R.string.error_invalid_email)) }
+            } else {
+                null
+            },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
     )
     Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
     TargaryenPasswordField(
@@ -239,10 +256,13 @@ private fun RegisterEmailAndPasswordFields(uiState: RegisterUiState, actions: Re
             Icon(imageVector = Icons.Filled.Lock, contentDescription = null, tint = ValyrianGold)
         },
         isError = uiState.passwordError,
-        supportingText = if (uiState.passwordError) {
-            { Text(text = stringResource(id = R.string.error_weak_password)) }
-        } else null,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next)
+        supportingText =
+            if (uiState.passwordError) {
+                { Text(text = stringResource(id = R.string.error_weak_password)) }
+            } else {
+                null
+            },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
     )
     Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
     TargaryenPasswordField(
@@ -253,44 +273,51 @@ private fun RegisterEmailAndPasswordFields(uiState: RegisterUiState, actions: Re
             Icon(imageVector = Icons.Filled.Lock, contentDescription = null, tint = ValyrianGold)
         },
         isError = uiState.confirmPasswordError,
-        supportingText = if (uiState.confirmPasswordError) {
-            { Text(text = stringResource(id = R.string.error_passwords_not_match)) }
-        } else null,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done)
+        supportingText =
+            if (uiState.confirmPasswordError) {
+                { Text(text = stringResource(id = R.string.error_passwords_not_match)) }
+            } else {
+                null
+            },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
     )
 }
 
 @Composable
-private fun RegisterFooter(uiState: RegisterUiState, actions: RegisterActions) {
+private fun RegisterFooter(
+    uiState: RegisterUiState,
+    actions: RegisterActions,
+) {
     TargaryenButton(
         text = stringResource(id = R.string.action_do_register),
         onClick = actions.onRegisterClick,
         enabled = uiState.canRegister,
-        isLoading = uiState.isEmailLoading
+        isLoading = uiState.isEmailLoading,
     )
     Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
     TargaryenGoogleSignInButton(
         text = stringResource(id = R.string.action_register_google),
         onClick = actions.onGoogleSignInClick,
-        enabled = !uiState.isEmailLoading
+        enabled = !uiState.isEmailLoading,
     )
     Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
     Text(
         text = stringResource(id = R.string.action_already_have_account),
         color = com.targaryen.cafeteria.core_designsystem.theme.SilverHair,
         style = MaterialTheme.typography.bodySmall,
-        modifier = Modifier.clickable { actions.onBackClick() }
+        modifier = Modifier.clickable { actions.onBackClick() },
     )
 }
 
 @Composable
 private fun RegisterLoadingOverlay() {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Obsidian.copy(alpha = TargaryenTheme.dimens.alphaOverlay))
-            .zIndex(TargaryenTheme.dimens.zIndexOverlay),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Obsidian.copy(alpha = TargaryenTheme.dimens.alphaOverlay))
+                .zIndex(TargaryenTheme.dimens.zIndexOverlay),
+        contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(color = ValyrianGold)
     }

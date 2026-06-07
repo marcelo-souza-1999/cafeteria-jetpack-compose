@@ -27,7 +27,7 @@ fun TargaryenGoogleSignInButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     val containerColor = GoogleDarkButtonContainer
     val borderColor = GoogleDarkButtonBorder
@@ -38,28 +38,30 @@ fun TargaryenGoogleSignInButton(
         modifier = modifier.fillMaxWidth(),
         enabled = enabled,
         border = BorderStroke(TargaryenTheme.dimens.borderSmall, borderColor),
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            disabledContainerColor = containerColor.copy(alpha = 0.5f),
-            disabledContentColor = contentColor.copy(alpha = 0.5f)
-        ),
+        colors =
+            ButtonDefaults.outlinedButtonColors(
+                containerColor = containerColor,
+                contentColor = contentColor,
+                disabledContainerColor = containerColor.copy(alpha = 0.5f),
+                disabledContentColor = contentColor.copy(alpha = 0.5f),
+            ),
         shape = RoundedCornerShape(TargaryenTheme.dimens.radiusMedium),
-        contentPadding = PaddingValues(
-            horizontal = TargaryenTheme.dimens.buttonContentHorizontal,
-            vertical = TargaryenTheme.dimens.buttonContentVertical
-        )
+        contentPadding =
+            PaddingValues(
+                horizontal = TargaryenTheme.dimens.buttonContentHorizontal,
+                vertical = TargaryenTheme.dimens.buttonContentVertical,
+            ),
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_google_logo),
             contentDescription = null,
             modifier = Modifier,
-            tint = Color.Unspecified
+            tint = Color.Unspecified,
         )
         Spacer(modifier = Modifier.width(TargaryenTheme.dimens.spaceMedium))
         Text(
             text = text,
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelLarge,
         )
     }
 }
@@ -68,14 +70,14 @@ fun TargaryenGoogleSignInButton(
 private fun GoogleSignInButtonPreviewContent() {
     TargaryenGoogleSignInButton(
         text = "Fazer login com o Google",
-        onClick = {}
+        onClick = {},
     )
 }
 
 @Preview(showBackground = false)
 @Composable
 private fun GoogleSignInButtonPreviewLight() {
-    TargaryenTheme() {
+    TargaryenTheme {
         GoogleSignInButtonPreviewContent()
     }
 }
@@ -83,7 +85,7 @@ private fun GoogleSignInButtonPreviewLight() {
 @Preview(showBackground = true)
 @Composable
 private fun GoogleSignInButtonPreviewDark() {
-    TargaryenTheme() {
+    TargaryenTheme {
         GoogleSignInButtonPreviewContent()
     }
 }

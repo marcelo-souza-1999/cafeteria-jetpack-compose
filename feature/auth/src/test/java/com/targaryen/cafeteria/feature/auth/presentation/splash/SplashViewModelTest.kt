@@ -14,33 +14,34 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SplashViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
     private val checkAuthSessionUseCase: CheckAuthSessionUseCase = mockk()
 
     @Test
-    fun `when user is logged in, it should emit NavigateToMain event after delay`() = runTest {
-        coEvery { checkAuthSessionUseCase() } returns true
-        
-        val viewModel = SplashViewModel(checkAuthSessionUseCase)
-        
-        viewModel.events.test {
-            advanceTimeBy(1501) // SPLASH_DURATION_MS + 1
-            assertEquals(SplashEvent.NavigateToMain, awaitItem())
+    fun `when user is logged in, it should emit NavigateToMain event after delay`() =
+        runTest {
+            coEvery { checkAuthSessionUseCase() } returns true
+
+            val viewModel = SplashViewModel(checkAuthSessionUseCase)
+
+            viewModel.events.test {
+                advanceTimeBy(1501) // SPLASH_DURATION_MS + 1
+                assertEquals(SplashEvent.NavigateToMain, awaitItem())
+            }
         }
-    }
 
     @Test
-    fun `when user is not logged in, it should emit NavigateToLogin event after delay`() = runTest {
-        coEvery { checkAuthSessionUseCase() } returns false
-        
-        val viewModel = SplashViewModel(checkAuthSessionUseCase)
-        
-        viewModel.events.test {
-            advanceTimeBy(1501)
-            assertEquals(SplashEvent.NavigateToLogin, awaitItem())
+    fun `when user is not logged in, it should emit NavigateToLogin event after delay`() =
+        runTest {
+            coEvery { checkAuthSessionUseCase() } returns false
+
+            val viewModel = SplashViewModel(checkAuthSessionUseCase)
+
+            viewModel.events.test {
+                advanceTimeBy(1501)
+                assertEquals(SplashEvent.NavigateToLogin, awaitItem())
+            }
         }
-    }
 }

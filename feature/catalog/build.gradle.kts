@@ -1,17 +1,23 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.google.ksp)
     alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.koin.compiler)
 }
 
 android {
     namespace = "com.targaryen.cafeteria.feature_catalog"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -21,7 +27,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -37,6 +43,8 @@ android {
 
 dependencies {
     implementation(project(":core:designsystem"))
+    implementation(project(":core:database"))
+    implementation(project(":core:network"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -47,15 +55,70 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.bundles.compose.icons)
 
     implementation(libs.bundles.koin)
-    ksp(libs.koin.ksp.compiler)
     implementation(libs.bundles.navigation)
     implementation(libs.bundles.coil)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.bundles.firebase)
+    implementation(libs.compose.alert.dialog)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)
     testImplementation(libs.turbine.test)
+    testImplementation(libs.bundles.test.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.bundles.koin.test)
+    androidTestImplementation(libs.bundles.test.core)
+    debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth)
+}
+
+koinCompiler {
+    compileSafety = false
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                classes(
+                    "*.BuildConfig",
+                    "*ComposableSingletons*",
+                    "*_Factory*",
+                    "*MapperImpl*",
+                    "*Screen*",
+                    "*ScreenKt*",
+                    "*Section*",
+                    "*SectionKt*",
+                    "*Dialog*",
+                    "*DialogKt*",
+                    "*BottomSheet*",
+                    "*BottomSheetKt*",
+                    "*Activity*",
+                    "*ActivityKt*",
+                    "*Application*",
+                    "*ApplicationKt*",
+                    "*Preview*",
+                    "*PreviewKt*",
+                    "*Theme*",
+                    "*ThemeKt*",
+                    "*Color*",
+                    "*TypeKt*",
+                    "*Dimens*",
+                    "*Dao_Impl*",
+                    "*Database_Impl*",
+                    "*ModuleKt*",
+                )
+                annotatedBy("androidx.compose.runtime.Composable")
+            }
+        }
+    }
 }

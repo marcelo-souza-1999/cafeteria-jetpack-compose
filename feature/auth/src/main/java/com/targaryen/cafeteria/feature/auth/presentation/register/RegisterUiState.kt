@@ -10,14 +10,20 @@ data class RegisterUiState(
     val confirmPassword: String = "",
     val confirmPasswordError: Boolean = false,
     val isEmailLoading: Boolean = false,
-    val isGoogleLoading: Boolean = false
+    val isGoogleLoading: Boolean = false,
 ) {
     val canRegister: Boolean
-        get() = name.isNotBlank() && !nameError &&
-                email.isNotBlank() && !emailError &&
-                password.isNotBlank() && !passwordError &&
-                confirmPassword.isNotBlank() && !confirmPasswordError &&
-                !isEmailLoading && !isGoogleLoading
+        get() =
+            name.isNotBlank() &&
+                !nameError &&
+                email.isNotBlank() &&
+                !emailError &&
+                password.isNotBlank() &&
+                !passwordError &&
+                confirmPassword.isNotBlank() &&
+                !confirmPasswordError &&
+                !isEmailLoading &&
+                !isGoogleLoading
 }
 
 data class RegisterActions(
@@ -27,5 +33,5 @@ data class RegisterActions(
     val onConfirmPasswordChange: (String) -> Unit,
     val onRegisterClick: () -> Unit,
     val onGoogleSignInClick: () -> Unit,
-    val onBackClick: () -> Unit
+    val onBackClick: () -> Unit,
 )

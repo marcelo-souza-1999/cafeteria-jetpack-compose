@@ -2,18 +2,19 @@ package com.targaryen.cafeteria.core_designsystem.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import com.targaryen.cafeteria.core_designsystem.theme.BloodRed
 import com.targaryen.cafeteria.core_designsystem.theme.DragonScale
 import com.targaryen.cafeteria.core_designsystem.theme.SilverHair
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenWhite
-import androidx.compose.foundation.text.KeyboardOptions
 
 @Composable
 fun TargaryenTextField(
@@ -24,7 +25,8 @@ fun TargaryenTextField(
     leadingIcon: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     OutlinedTextField(
         value = value,
@@ -35,34 +37,36 @@ fun TargaryenTextField(
         isError = isError,
         supportingText = supportingText,
         keyboardOptions = keyboardOptions,
+        visualTransformation = visualTransformation,
         singleLine = true,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = DragonScale,
-            unfocusedContainerColor = DragonScale,
-            errorContainerColor = DragonScale,
-            focusedTextColor = TargaryenWhite,
-            unfocusedTextColor = TargaryenWhite,
-            errorTextColor = TargaryenWhite,
-            focusedBorderColor = BloodRed,
-            unfocusedBorderColor = SilverHair,
-            errorBorderColor = BloodRed,
-            focusedLabelColor = BloodRed,
-            unfocusedLabelColor = SilverHair,
-            errorLabelColor = BloodRed,
-            cursorColor = BloodRed
-        ),
-        shape = RoundedCornerShape(TargaryenTheme.dimens.radiusMedium)
+        colors =
+            OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = DragonScale,
+                unfocusedContainerColor = DragonScale,
+                errorContainerColor = DragonScale,
+                focusedTextColor = TargaryenWhite,
+                unfocusedTextColor = TargaryenWhite,
+                errorTextColor = TargaryenWhite,
+                focusedBorderColor = BloodRed,
+                unfocusedBorderColor = SilverHair,
+                errorBorderColor = BloodRed,
+                focusedLabelColor = BloodRed,
+                unfocusedLabelColor = SilverHair,
+                errorLabelColor = BloodRed,
+                cursorColor = BloodRed,
+            ),
+        shape = RoundedCornerShape(TargaryenTheme.dimens.radiusMedium),
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun TargaryenTextFieldPreviewLight() {
-    TargaryenTheme() {
+    TargaryenTheme {
         TargaryenTextField(
             value = "",
             onValueChange = {},
-            label = "E-mail"
+            label = "E-mail",
         )
     }
 }
@@ -70,11 +74,11 @@ private fun TargaryenTextFieldPreviewLight() {
 @Preview(showBackground = true)
 @Composable
 private fun TargaryenTextFieldPreviewDark() {
-    TargaryenTheme() {
+    TargaryenTheme {
         TargaryenTextField(
             value = "",
             onValueChange = {},
-            label = "E-mail"
+            label = "E-mail",
         )
     }
 }

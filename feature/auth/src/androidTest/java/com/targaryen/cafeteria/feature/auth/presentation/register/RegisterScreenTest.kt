@@ -28,7 +28,6 @@ import org.koin.dsl.module
 
 @RunWith(AndroidJUnit4::class)
 class RegisterScreenTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -44,9 +43,11 @@ class RegisterScreenTest {
         every { mockViewModel.events } returns eventFlow
 
         startKoin {
-            modules(module {
-                single(named("WebClientId")) { "dummy_client_id" }
-            })
+            modules(
+                module {
+                    single(named("WebClientId")) { "dummy_client_id" }
+                },
+            )
         }
     }
 
@@ -57,14 +58,14 @@ class RegisterScreenTest {
 
     private fun setContent(
         onNavigateBack: () -> Unit = {},
-        onRegisterSuccess: () -> Unit = {}
+        onRegisterSuccess: () -> Unit = {},
     ) {
         composeTestRule.setContent {
             TargaryenTheme {
                 RegisterScreen(
                     onNavigateBack = onNavigateBack,
                     onRegisterSuccess = onRegisterSuccess,
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -119,7 +120,10 @@ class RegisterScreenTest {
         setContent()
 
         val confirmPassword = "password123"
-        composeTestRule.onNodeWithText(context.getString(R.string.label_confirm_password)).performTextInput(confirmPassword)
+        composeTestRule
+            .onNodeWithText(
+                context.getString(R.string.label_confirm_password),
+            ).performTextInput(confirmPassword)
 
         verify { mockViewModel.onConfirmPasswordChanged(confirmPassword) }
     }
@@ -131,24 +135,26 @@ class RegisterScreenTest {
         composeTestRule.onNodeWithText(context.getString(R.string.action_do_register)).assertIsNotEnabled()
 
         // Valid state
-        uiStateFlow.value = RegisterUiState(
-            name = "Aegon",
-            email = "valid@test.com",
-            password = "password123",
-            confirmPassword = "password123"
-        )
+        uiStateFlow.value =
+            RegisterUiState(
+                name = "Aegon",
+                email = "valid@test.com",
+                password = "password123",
+                confirmPassword = "password123",
+            )
         // Re-composition happens
         composeTestRule.onNodeWithText(context.getString(R.string.action_do_register)).assertIsEnabled()
     }
 
     @Test
     fun registerScreen_whenRegisterClicked_shouldCallViewModel() {
-        uiStateFlow.value = RegisterUiState(
-            name = "Aegon",
-            email = "valid@test.com",
-            password = "password123",
-            confirmPassword = "password123"
-        )
+        uiStateFlow.value =
+            RegisterUiState(
+                name = "Aegon",
+                email = "valid@test.com",
+                password = "password123",
+                confirmPassword = "password123",
+            )
         setContent()
 
         composeTestRule.onNodeWithText(context.getString(R.string.action_do_register)).performClick()

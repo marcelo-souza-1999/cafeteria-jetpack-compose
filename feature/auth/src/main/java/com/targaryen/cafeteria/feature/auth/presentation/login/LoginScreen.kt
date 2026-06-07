@@ -63,6 +63,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import org.koin.core.qualifier.named
+import com.targaryen.cafeteria.core_designsystem.R as DesignSystemR
 
 private const val QUALIFIER_WEB_CLIENT_ID = "WebClientId"
 
@@ -72,7 +73,7 @@ fun LoginScreen(
     onLoginClick: () -> Unit,
     onRegisterClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel = koinViewModel()
+    viewModel: LoginViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val (authError, setAuthError) = remember { mutableStateOf<AuthError?>(null) }
@@ -106,31 +107,32 @@ fun LoginScreen(
             onDismissRequest = viewModel::onForgotPasswordDismiss,
             sheetState = bottomSheetState,
             containerColor = Obsidian,
-            contentColor = SilverHair
+            contentColor = SilverHair,
         ) {
             ForgotPasswordContent(uiState, viewModel::onForgotPasswordEmailChanged, viewModel::onSendPasswordResetClick)
         }
     }
 
-    val actions = remember {
-        LoginActions(
-            onEmailChange = viewModel::onEmailChanged,
-            onPasswordChange = viewModel::onPasswordChanged,
-            onForgotPasswordClick = viewModel::onForgotPasswordClick,
-            onLoginClick = viewModel::onLoginClick,
-            onRegisterClick = onRegisterClick,
-            onGoogleSignInClick = {
-                coroutineScope.launch {
-                    try {
-                        val idToken = googleAuthUiClient.signIn()
-                        if (idToken != null) viewModel.onGoogleSignIn(idToken)
-                    } catch (e: GetCredentialException) {
-                        viewModel.onGoogleSignInError(e.message)
+    val actions =
+        remember {
+            LoginActions(
+                onEmailChange = viewModel::onEmailChanged,
+                onPasswordChange = viewModel::onPasswordChanged,
+                onForgotPasswordClick = viewModel::onForgotPasswordClick,
+                onLoginClick = viewModel::onLoginClick,
+                onRegisterClick = onRegisterClick,
+                onGoogleSignInClick = {
+                    coroutineScope.launch {
+                        try {
+                            val idToken = googleAuthUiClient.signIn()
+                            if (idToken != null) viewModel.onGoogleSignIn(idToken)
+                        } catch (e: GetCredentialException) {
+                            viewModel.onGoogleSignInError(e.message)
+                        }
                     }
-                }
-            }
-        )
-    }
+                },
+            )
+        }
 
     Box(modifier = modifier.fillMaxSize()) {
         LoginContent(uiState, actions, Modifier.matchParentSize())
@@ -143,7 +145,7 @@ private fun LoginDialogs(
     authError: AuthError?,
     showSuccessDialog: Boolean,
     onAuthErrorDismiss: () -> Unit,
-    onSuccessDialogDismiss: () -> Unit
+    onSuccessDialogDismiss: () -> Unit,
 ) {
     if (showSuccessDialog) {
         AuthSuccessFancyDialog(
@@ -151,7 +153,7 @@ private fun LoginDialogs(
             message = stringResource(id = R.string.msg_reset_email_sent),
             isCancelable = false,
             onConfirmClick = onSuccessDialogDismiss,
-            onDismissRequest = onSuccessDialogDismiss
+            onDismissRequest = onSuccessDialogDismiss,
         )
     }
 
@@ -161,14 +163,14 @@ private fun LoginDialogs(
             message = getErrorMessage(authError),
             isCancelable = false,
             onRetryClick = onAuthErrorDismiss,
-            onDismissRequest = onAuthErrorDismiss
+            onDismissRequest = onAuthErrorDismiss,
         )
     }
 }
 
 @Composable
-private fun getErrorMessage(error: AuthError): String {
-    return when (error) {
+private fun getErrorMessage(error: AuthError): String =
+    when (error) {
         is AuthError.InvalidCredentials -> stringResource(id = R.string.error_auth_invalid_credentials)
         is AuthError.UserNotFound -> stringResource(id = R.string.error_auth_user_not_found)
         is AuthError.EmailAlreadyInUse -> stringResource(id = R.string.error_auth_email_already_in_use)
@@ -176,7 +178,6 @@ private fun getErrorMessage(error: AuthError): String {
         is AuthError.TooManyRequests -> stringResource(id = R.string.error_auth_too_many_requests)
         is AuthError.Unknown -> stringResource(id = R.string.error_auth_unknown, error.message ?: "")
     }
-}
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 @Composable
@@ -184,27 +185,28 @@ internal fun ForgotPasswordContent(
     uiState: LoginUiState,
     onEmailChange: (String) -> Unit,
     onSendClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(TargaryenTheme.dimens.spaceLarge)
-            .padding(bottom = TargaryenTheme.dimens.spaceExtraLarge),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(TargaryenTheme.dimens.spaceLarge)
+                .padding(bottom = TargaryenTheme.dimens.spaceExtraLarge),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = stringResource(id = R.string.title_forgot_password),
             color = DimmedGold,
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = TargaryenTheme.dimens.spaceNormal)
+            modifier = Modifier.padding(bottom = TargaryenTheme.dimens.spaceNormal),
         )
         Text(
             text = stringResource(id = R.string.msg_forgot_password),
             color = SilverHair,
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = TargaryenTheme.dimens.spaceLarge)
+            modifier = Modifier.padding(bottom = TargaryenTheme.dimens.spaceLarge),
         )
         TargaryenTextField(
             value = uiState.forgotPasswordEmail,
@@ -214,17 +216,20 @@ internal fun ForgotPasswordContent(
                 Icon(imageVector = Icons.Filled.Email, contentDescription = null, tint = ValyrianGold)
             },
             isError = uiState.forgotPasswordEmailError,
-            supportingText = if (uiState.forgotPasswordEmailError) {
-                { Text(text = stringResource(id = R.string.error_invalid_email)) }
-            } else null,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+            supportingText =
+                if (uiState.forgotPasswordEmailError) {
+                    { Text(text = stringResource(id = R.string.error_invalid_email)) }
+                } else {
+                    null
+                },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         )
         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
         TargaryenButton(
             text = stringResource(id = R.string.action_send_reset_email),
             onClick = onSendClick,
             enabled = uiState.canSendPasswordReset,
-            isLoading = uiState.isForgotPasswordLoading
+            isLoading = uiState.isForgotPasswordLoading,
         )
     }
 }
@@ -234,17 +239,18 @@ internal fun ForgotPasswordContent(
 internal fun LoginContent(
     uiState: LoginUiState,
     actions: LoginActions,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Obsidian)
-            .imePadding()
-            .verticalScroll(rememberScrollState())
-            .padding(TargaryenTheme.dimens.spaceLarge),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(Obsidian)
+                .imePadding()
+                .verticalScroll(rememberScrollState())
+                .padding(TargaryenTheme.dimens.spaceLarge),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         LoginHeader()
         LoginForm(uiState, actions)
@@ -256,22 +262,26 @@ internal fun LoginContent(
 @Composable
 private fun LoginHeader() {
     Image(
-        painter = painterResource(id = R.drawable.ic_logo_login_screen),
+        painter = painterResource(id = DesignSystemR.drawable.ic_logo_login_screen),
         contentDescription = null,
-        modifier = Modifier
-            .size(TargaryenTheme.dimens.logoSplash)
-            .padding(bottom = TargaryenTheme.dimens.spaceNormal)
+        modifier =
+            Modifier
+                .size(TargaryenTheme.dimens.logoSplash)
+                .padding(bottom = TargaryenTheme.dimens.spaceNormal),
     )
     Text(
         text = stringResource(id = R.string.title_login),
         color = DimmedGold,
         style = MaterialTheme.typography.titleLarge,
-        modifier = Modifier.padding(bottom = TargaryenTheme.dimens.spaceExtraLarge)
+        modifier = Modifier.padding(bottom = TargaryenTheme.dimens.spaceExtraLarge),
     )
 }
 
 @Composable
-private fun ColumnScope.LoginForm(uiState: LoginUiState, actions: LoginActions) {
+private fun ColumnScope.LoginForm(
+    uiState: LoginUiState,
+    actions: LoginActions,
+) {
     TargaryenTextField(
         value = uiState.email,
         onValueChange = actions.onEmailChange,
@@ -280,10 +290,13 @@ private fun ColumnScope.LoginForm(uiState: LoginUiState, actions: LoginActions) 
             Icon(imageVector = Icons.Filled.Email, contentDescription = null, tint = ValyrianGold)
         },
         isError = uiState.emailError,
-        supportingText = if (uiState.emailError) {
-            { Text(text = stringResource(id = R.string.error_invalid_email)) }
-        } else null,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+        supportingText =
+            if (uiState.emailError) {
+                { Text(text = stringResource(id = R.string.error_invalid_email)) }
+            } else {
+                null
+            },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
     )
     Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
     TargaryenPasswordField(
@@ -294,53 +307,61 @@ private fun ColumnScope.LoginForm(uiState: LoginUiState, actions: LoginActions) 
             Icon(imageVector = Icons.Filled.Lock, contentDescription = null, tint = ValyrianGold)
         },
         isError = uiState.passwordError,
-        supportingText = if (uiState.passwordError) {
-            { Text(text = stringResource(id = R.string.error_weak_password)) }
-        } else null,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+        supportingText =
+            if (uiState.passwordError) {
+                { Text(text = stringResource(id = R.string.error_weak_password)) }
+            } else {
+                null
+            },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
     )
     Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
     Text(
         text = stringResource(id = R.string.action_forgot_password),
         color = SilverHair,
         style = MaterialTheme.typography.bodySmall,
-        modifier = Modifier
-            .align(Alignment.End)
-            .clickable { actions.onForgotPasswordClick() }
+        modifier =
+            Modifier
+                .align(Alignment.End)
+                .clickable { actions.onForgotPasswordClick() },
     )
 }
 
 @Composable
-private fun LoginFooter(uiState: LoginUiState, actions: LoginActions) {
+private fun LoginFooter(
+    uiState: LoginUiState,
+    actions: LoginActions,
+) {
     TargaryenButton(
         text = stringResource(id = R.string.action_login),
         onClick = actions.onLoginClick,
         enabled = uiState.canLogin && !uiState.isGoogleLoading,
-        isLoading = uiState.isEmailLoading
+        isLoading = uiState.isEmailLoading,
     )
     Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
     TargaryenGoogleSignInButton(
         text = stringResource(id = R.string.action_login_google),
         onClick = actions.onGoogleSignInClick,
-        enabled = !uiState.isEmailLoading
+        enabled = !uiState.isEmailLoading,
     )
     Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
     Text(
         text = stringResource(id = R.string.action_register),
         color = SilverHair,
         style = MaterialTheme.typography.bodySmall,
-        modifier = Modifier.clickable { actions.onRegisterClick() }
+        modifier = Modifier.clickable { actions.onRegisterClick() },
     )
 }
 
 @Composable
 private fun LoginLoadingOverlay() {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Obsidian.copy(alpha = TargaryenTheme.dimens.alphaOverlay))
-            .zIndex(TargaryenTheme.dimens.zIndexOverlay),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Obsidian.copy(alpha = TargaryenTheme.dimens.alphaOverlay))
+                .zIndex(TargaryenTheme.dimens.zIndexOverlay),
+        contentAlignment = Alignment.Center,
     ) {
         CircularProgressIndicator(color = ValyrianGold)
     }

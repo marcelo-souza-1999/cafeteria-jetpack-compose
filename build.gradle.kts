@@ -15,11 +15,22 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.hotswan.compiler) apply false
+    alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.koin.compiler) apply false
 }
 
 allprojects {
-    apply(plugin = "io.gitlab.arturbosch.detekt")
-    apply(plugin = "org.jetbrains.kotlinx.kover")
+    plugins.apply("io.gitlab.arturbosch.detekt")
+    plugins.apply("org.jetbrains.kotlinx.kover")
+    plugins.apply("org.jlleitschuh.gradle.ktlint")
+
+    configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        android.set(true)
+        verbose.set(true)
+        reporters {
+            reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+        }
+    }
 
     extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
         config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
@@ -40,7 +51,7 @@ allprojects {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
             freeCompilerArgs.addAll(
                 "-Xexplicit-backing-fields",
-                "-opt-in=kotlin.ExperimentalStdlibApi"
+                "-opt-in=kotlin.ExperimentalStdlibApi",
             )
         }
     }
@@ -52,7 +63,6 @@ dependencies {
     add("kover", project(":core:designsystem"))
     add("kover", project(":core:network"))
     add("kover", project(":feature:auth"))
-    add("kover", project(":feature:cart"))
     add("kover", project(":feature:catalog"))
     add("kover", project(":feature:chat"))
 }
@@ -74,7 +84,29 @@ kover {
                     "org.koin.ksp.generated.*",
                     "com.targaryen.cafeteria.feature.auth.presentation.components.ComposableSingletons*",
                     "com.targaryen.cafeteria.feature.auth.presentation.login.ComposableSingletons*",
-                    "com.targaryen.cafeteria.feature.auth.presentation.splash.ComposableSingletons*"
+                    "com.targaryen.cafeteria.feature.auth.presentation.splash.ComposableSingletons*",
+                    "*Screen*",
+                    "*ScreenKt*",
+                    "*Section*",
+                    "*SectionKt*",
+                    "*Dialog*",
+                    "*DialogKt*",
+                    "*BottomSheet*",
+                    "*BottomSheetKt*",
+                    "*Activity*",
+                    "*ActivityKt*",
+                    "*Application*",
+                    "*ApplicationKt*",
+                    "*Preview*",
+                    "*PreviewKt*",
+                    "*Theme*",
+                    "*ThemeKt*",
+                    "*Color*",
+                    "*TypeKt*",
+                    "*Dimens*",
+                    "*Dao_Impl*",
+                    "*Database_Impl*",
+                    "*ModuleKt*",
                 )
                 annotatedBy("androidx.compose.runtime.Composable")
             }

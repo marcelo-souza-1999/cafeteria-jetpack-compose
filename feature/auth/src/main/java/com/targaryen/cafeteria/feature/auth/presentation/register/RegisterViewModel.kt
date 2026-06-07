@@ -2,24 +2,23 @@ package com.targaryen.cafeteria.feature.auth.presentation.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.targaryen.cafeteria.core_network.Resource
-import com.targaryen.cafeteria.feature.auth.domain.usecase.SignUpWithEmailUseCase
+import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithGoogleUseCase
+import com.targaryen.cafeteria.feature.auth.domain.usecase.SignUpWithEmailUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
+import org.koin.core.annotation.KoinViewModel
 
 @OptIn(ExperimentalStdlibApi::class)
 @KoinViewModel
 class RegisterViewModel(
     private val signUpWithEmailUseCase: SignUpWithEmailUseCase,
-    private val signInWithGoogleUseCase: SignInWithGoogleUseCase
+    private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
 ) : ViewModel() {
-
     val uiState: StateFlow<RegisterUiState>
         field: MutableStateFlow<RegisterUiState> = MutableStateFlow(RegisterUiState())
 
@@ -32,7 +31,7 @@ class RegisterViewModel(
         uiState.update {
             it.copy(
                 name = name,
-                nameError = name.isBlank()
+                nameError = name.isBlank(),
             )
         }
     }
@@ -41,7 +40,7 @@ class RegisterViewModel(
         uiState.update {
             it.copy(
                 email = email,
-                emailError = !emailRegex.matches(email)
+                emailError = !emailRegex.matches(email),
             )
         }
     }
@@ -51,7 +50,7 @@ class RegisterViewModel(
             it.copy(
                 password = password,
                 passwordError = password.length < PASSWORD_MIN_LENGTH,
-                confirmPasswordError = it.confirmPassword.isNotEmpty() && password != it.confirmPassword
+                confirmPasswordError = it.confirmPassword.isNotEmpty() && password != it.confirmPassword,
             )
         }
     }
@@ -60,7 +59,7 @@ class RegisterViewModel(
         uiState.update {
             it.copy(
                 confirmPassword = confirmPassword,
-                confirmPasswordError = confirmPassword != it.password
+                confirmPasswordError = confirmPassword != it.password,
             )
         }
     }
@@ -71,11 +70,11 @@ class RegisterViewModel(
 
         viewModelScope.launch {
             uiState.update { it.copy(isEmailLoading = true) }
-            
+
             signUpWithEmailUseCase(
                 name = currentState.name,
                 email = currentState.email,
-                pass = currentState.password
+                pass = currentState.password,
             ).collect { resource ->
                 uiState.update { it.copy(isEmailLoading = false) }
                 when (resource) {
@@ -93,7 +92,7 @@ class RegisterViewModel(
     fun onGoogleSignIn(idToken: String) {
         viewModelScope.launch {
             uiState.update { it.copy(isGoogleLoading = true) }
-            
+
             signInWithGoogleUseCase(idToken).collect { resource ->
                 uiState.update { it.copy(isGoogleLoading = false) }
                 when (resource) {
@@ -112,8 +111,9 @@ class RegisterViewModel(
         viewModelScope.launch {
             eventChannel.send(
                 RegisterEvent.ShowErrorDialog(
-                    com.targaryen.cafeteria.feature.auth.domain.model.AuthError.Unknown(message)
-                )
+                    com.targaryen.cafeteria.feature.auth.domain.model.AuthError
+                        .Unknown(message),
+                ),
             )
         }
     }

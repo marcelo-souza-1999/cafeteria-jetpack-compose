@@ -37,7 +37,7 @@ fun TargaryenPasswordField(
     leadingIcon: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
     supportingText: @Composable (() -> Unit)? = null,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -53,49 +53,51 @@ fun TargaryenPasswordField(
         keyboardOptions = keyboardOptions,
         singleLine = true,
         trailingIcon = {
-            val icon = if (passwordVisible) {
-                Icons.Outlined.Visibility
-            } else {
-                Icons.Outlined.VisibilityOff
-            }
+            val icon =
+                if (passwordVisible) {
+                    Icons.Outlined.Visibility
+                } else {
+                    Icons.Outlined.VisibilityOff
+                }
             IconButton(
                 onClick = { passwordVisible = !passwordVisible },
-                modifier = Modifier.testTag("password_visibility_toggle")
+                modifier = Modifier.testTag("password_visibility_toggle"),
             ) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = DimmedGold
+                    tint = DimmedGold,
                 )
             }
         },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = DragonScale,
-            unfocusedContainerColor = DragonScale,
-            errorContainerColor = DragonScale,
-            focusedTextColor = TargaryenWhite,
-            unfocusedTextColor = TargaryenWhite,
-            errorTextColor = TargaryenWhite,
-            focusedBorderColor = BloodRed,
-            unfocusedBorderColor = SilverHair,
-            errorBorderColor = BloodRed,
-            focusedLabelColor = BloodRed,
-            unfocusedLabelColor = SilverHair,
-            errorLabelColor = BloodRed,
-            cursorColor = BloodRed
-        ),
-        shape = RoundedCornerShape(TargaryenTheme.dimens.radiusMedium)
+        colors =
+            OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = DragonScale,
+                unfocusedContainerColor = DragonScale,
+                errorContainerColor = DragonScale,
+                focusedTextColor = TargaryenWhite,
+                unfocusedTextColor = TargaryenWhite,
+                errorTextColor = TargaryenWhite,
+                focusedBorderColor = BloodRed,
+                unfocusedBorderColor = SilverHair,
+                errorBorderColor = BloodRed,
+                focusedLabelColor = BloodRed,
+                unfocusedLabelColor = SilverHair,
+                errorLabelColor = BloodRed,
+                cursorColor = BloodRed,
+            ),
+        shape = RoundedCornerShape(TargaryenTheme.dimens.radiusMedium),
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun TargaryenPasswordFieldPreviewLight() {
-    TargaryenTheme() {
+    TargaryenTheme {
         TargaryenPasswordField(
             value = "senha123",
             onValueChange = {},
-            label = "Senha"
+            label = "Senha",
         )
     }
 }
@@ -103,11 +105,11 @@ private fun TargaryenPasswordFieldPreviewLight() {
 @Preview(showBackground = true)
 @Composable
 private fun TargaryenPasswordFieldPreviewDark() {
-    TargaryenTheme() {
+    TargaryenTheme {
         TargaryenPasswordField(
             value = "senha123",
             onValueChange = {},
-            label = "Senha"
+            label = "Senha",
         )
     }
 }
