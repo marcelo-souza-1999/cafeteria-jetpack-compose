@@ -47,7 +47,7 @@ RESPONSE=$(curl -s -X POST \
   -H "Content-Type: application/json" \
   -d @gemini_request.json)
 
-if echo "$RESPONSE" | grep -q "error"; then
+if echo "$RESPONSE" | jq -e '.error' >/dev/null; then
   echo "Erro retornado pela API do Gemini:"
   echo "$RESPONSE"
   exit 1
