@@ -12,6 +12,7 @@ if [ -z "$GITHUB_TOKEN" ]; then
 fi
 
 DIFF_FILE=$1
+PR_NUMBER_ARG=$2
 if [ -z "$DIFF_FILE" ] || [ ! -f "$DIFF_FILE" ]; then
   echo "Erro: Arquivo diff nao especificado ou nao encontrado."
   exit 1
@@ -40,9 +41,9 @@ jq -n \
     }]
   }' > gemini_request.json
 
-echo "Disparando chamada para a API do Gemini (gemini-3.5-flash)..."
+echo "Disparando chamada para a API do Gemini (gemini-1.5-flash)..."
 RESPONSE=$(curl -s -X POST \
-  "https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}" \
+  "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}" \
   -H "Content-Type: application/json" \
   -d @gemini_request.json)
 
@@ -61,7 +62,10 @@ if [ -z "$REVIEW_TEXT" ] || [ "$REVIEW_TEXT" = "null" ]; then
   exit 1
 fi
 
-PR_NUMBER=$(gh pr view --json number -q '.number' || echo "")
+PR_NUMBER=$PR_NUMBER_ARG
+if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
+  PR_NUMBER=$(gh pr view --json number -q '.number' || echo "")
+fi
 
 if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
   echo "Postando revisao tecnica no Pull Request #${PR_NUMBER}..."

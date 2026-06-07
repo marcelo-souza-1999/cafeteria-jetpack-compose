@@ -86,4 +86,4 @@ jobs:
           git fetch origin develop
           git diff origin/develop...HEAD > pr.diff
           chmod +x .github/scripts/gemini_review.sh
-          ./.github/scripts/gemini_review.sh pr.diff
+          ./.github/scripts/gemini_review.sh pr.diff "${{ github.event.pull_request.number }}"

@@ -170,6 +170,24 @@ private fun ColumnScope.AddressSection(
     val isCityPressed by cityInteraction.collectIsPressedAsState()
     val isStatePressed by stateInteraction.collectIsPressedAsState()
 
+    LaunchedEffect(isStreetPressed) {
+        if (isStreetPressed && state.street.isBlank()) {
+            onIntent(CheckoutIntent.OnDisabledFieldClick)
+        }
+    }
+
+    LaunchedEffect(isCityPressed) {
+        if (isCityPressed && state.city.isBlank()) {
+            onIntent(CheckoutIntent.OnDisabledFieldClick)
+        }
+    }
+
+    LaunchedEffect(isStatePressed) {
+        if (isStatePressed && state.state.isBlank()) {
+            onIntent(CheckoutIntent.OnDisabledFieldClick)
+        }
+    }
+
     Text(
         text = stringResource(R.string.checkout_address_section),
         style =
@@ -216,9 +234,7 @@ private fun ColumnScope.AddressSection(
             modifier = Modifier.fillMaxWidth(),
         )
     }
-    if (isStreetPressed && state.street.isBlank()) {
-        onIntent(CheckoutIntent.OnDisabledFieldClick)
-    }
+
     OutlinedTextField(
         value = state.street,
         onValueChange = { },
@@ -256,9 +272,6 @@ private fun ColumnScope.AddressSection(
     )
 
     Row(horizontalArrangement = Arrangement.spacedBy(TargaryenTheme.dimens.spaceNormal)) {
-        if (isCityPressed && state.city.isBlank()) {
-            onIntent(CheckoutIntent.OnDisabledFieldClick)
-        }
         OutlinedTextField(
             value = state.city,
             onValueChange = { },
@@ -282,9 +295,7 @@ private fun ColumnScope.AddressSection(
                     unfocusedContainerColor = Obsidian,
                 ),
         )
-        if (isStatePressed && state.state.isBlank()) {
-            onIntent(CheckoutIntent.OnDisabledFieldClick)
-        }
+
         OutlinedTextField(
             value = state.state,
             onValueChange = { },
