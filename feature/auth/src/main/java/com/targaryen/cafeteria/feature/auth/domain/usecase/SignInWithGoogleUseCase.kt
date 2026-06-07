@@ -8,9 +8,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class SignInWithGoogleUseCase(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
 ) {
-    operator fun invoke(idToken: String): Flow<Resource<Unit, AuthError>> {
-        return repository.signInWithGoogle(idToken)
-    }
+    operator fun invoke(idToken: String): Flow<Resource<Unit, AuthError>> = repository.signInWithGoogle(idToken)
 }

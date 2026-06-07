@@ -5,5 +5,5 @@ data class PurchaseHistoryItem(
     val dateMillis: Long,
     val totalPrice: Double,
     val itemsSummary: String,
-    val status: String
+    val status: String,
 )

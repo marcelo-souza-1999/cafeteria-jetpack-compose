@@ -10,14 +10,11 @@ data class ProfileState(
     val email: String = "",
     val photoUrl: String? = null,
     val purchaseHistory: List<PurchaseHistoryItem> = emptyList(),
-    
     val error: String? = null,
     val successMessage: String? = null,
-    
     val showDeleteConfirmation: Boolean = false,
     val showSecurityModal: Boolean = false,
     val showEmailSuccessDialog: Boolean = false,
     val isAccountDeleted: Boolean = false,
-    
-    val selectedPurchase: PurchaseHistoryItem? = null
+    val selectedPurchase: PurchaseHistoryItem? = null,
 )

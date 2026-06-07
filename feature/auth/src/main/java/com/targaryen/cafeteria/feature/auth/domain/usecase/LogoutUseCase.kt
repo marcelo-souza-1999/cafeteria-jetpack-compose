@@ -5,7 +5,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class LogoutUseCase(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
 ) {
     suspend operator fun invoke() {
         repository.logout()

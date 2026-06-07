@@ -12,9 +12,7 @@ import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.feature_catalog.R
 
 @Composable
-fun ProfileEmailSuccessFancyDialog(
-    onDismiss: () -> Unit
-) {
+fun ProfileEmailSuccessFancyDialog(onDismiss: () -> Unit) {
     SuccessFancyDialog(
         title = stringResource(R.string.profile_dialog_email_success_title),
         showTitle = true,
@@ -22,14 +20,15 @@ fun ProfileEmailSuccessFancyDialog(
         message = stringResource(R.string.profile_dialog_email_success_msg),
         isCancelable = true,
         dialogActionType = DialogActionType.INFORMATIVE,
-        dialogProperties = DialogButtonProperties(
-            neutralButtonText = R.string.profile_dialog_success_proceed,
-            buttonColor = MaterialTheme.colorScheme.primary,
-            buttonTextColor = MaterialTheme.colorScheme.onPrimary
-        ),
+        dialogProperties =
+            DialogButtonProperties(
+                neutralButtonText = R.string.profile_dialog_success_proceed,
+                buttonColor = MaterialTheme.colorScheme.primary,
+                buttonTextColor = MaterialTheme.colorScheme.onPrimary,
+            ),
         dialogStyle = DialogStyle.UPPER_CUTTING,
         neutralButtonClick = onDismiss,
-        dismissTouchOutside = onDismiss
+        dismissTouchOutside = onDismiss,
     )
 }
 

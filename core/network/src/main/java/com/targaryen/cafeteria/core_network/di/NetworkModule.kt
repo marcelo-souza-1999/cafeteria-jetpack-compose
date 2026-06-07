@@ -18,10 +18,9 @@ import java.io.File
 @Module
 @ComponentScan("com.targaryen.cafeteria.core_network")
 class NetworkModule {
-
     @Single
-    fun provideKtorClient(context: Context): HttpClient {
-        return HttpClient(OkHttp) {
+    fun provideKtorClient(context: Context): HttpClient =
+        HttpClient(OkHttp) {
             engine {
                 val cacheSize = HTTP_CACHE_SIZE
                 val cacheDir = File(context.cacheDir, "http_cache")
@@ -30,17 +29,18 @@ class NetworkModule {
                 }
             }
             install(ContentNegotiation) {
-                json(Json {
-                    prettyPrint = true
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                })
+                json(
+                    Json {
+                        prettyPrint = true
+                        isLenient = true
+                        ignoreUnknownKeys = true
+                    },
+                )
             }
             defaultRequest {
                 contentType(ContentType.Application.Json)
             }
         }
-    }
 
     companion object {
         private const val CACHE_SIZE_MB = 10L

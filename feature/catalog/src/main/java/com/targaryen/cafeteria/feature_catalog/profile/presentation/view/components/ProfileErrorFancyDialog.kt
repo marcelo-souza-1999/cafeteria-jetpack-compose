@@ -14,7 +14,7 @@ import com.targaryen.cafeteria.feature_catalog.R
 @Composable
 fun ProfileErrorFancyDialog(
     message: String,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     ErrorFancyDialog(
         title = stringResource(R.string.profile_dialog_error_title),
@@ -23,14 +23,15 @@ fun ProfileErrorFancyDialog(
         message = message,
         isCancelable = true,
         dialogActionType = DialogActionType.INFORMATIVE,
-        dialogProperties = DialogButtonProperties(
-            neutralButtonText = R.string.profile_dialog_error_cancel,
-            buttonColor = MaterialTheme.colorScheme.primary,
-            buttonTextColor = MaterialTheme.colorScheme.onPrimary
-        ),
+        dialogProperties =
+            DialogButtonProperties(
+                neutralButtonText = R.string.profile_dialog_error_cancel,
+                buttonColor = MaterialTheme.colorScheme.primary,
+                buttonTextColor = MaterialTheme.colorScheme.onPrimary,
+            ),
         dialogStyle = DialogStyle.UPPER_CUTTING,
         neutralButtonClick = onDismiss,
-        dismissTouchOutside = onDismiss
+        dismissTouchOutside = onDismiss,
     )
 }
 

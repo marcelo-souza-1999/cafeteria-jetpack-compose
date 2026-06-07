@@ -9,7 +9,7 @@ enum class PaymentStatus {
     SUCCESS,
     FAILURE,
     PENDING,
-    CANCELLED
+    CANCELLED,
 }
 
 @Single

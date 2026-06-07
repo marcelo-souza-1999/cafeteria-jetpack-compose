@@ -11,10 +11,10 @@ import org.koin.core.annotation.Single
 
 @Single
 class ViaCepDataSource(
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
 ) {
-    suspend fun fetchAddressByCep(cep: String): Result<ViaCepResponse> {
-        return try {
+    suspend fun fetchAddressByCep(cep: String): Result<ViaCepResponse> =
+        try {
             val sanitizedCep = cep.replace("-", "").replace(".", "")
             val response: ViaCepResponse =
                 httpClient.get("https://viacep.com.br/ws/$sanitizedCep/json/").body()
@@ -30,22 +30,23 @@ class ViaCepDataSource(
         } catch (e: ResponseException) {
             Result.failure(e)
         }
-    }
 
     suspend fun searchCepByAddress(
         uf: String,
         city: String,
-        street: String
-    ): Result<List<ViaCepResponse>> {
-        return try {
+        street: String,
+    ): Result<List<ViaCepResponse>> =
+        try {
             val sanitizedUf = uf.trim()
             val sanitizedCity = city.trim()
             val sanitizedStreet = street.trim()
-            val response: List<ViaCepResponse> = httpClient.get("https://viacep.com.br/ws") {
-                url {
-                    appendPathSegments(sanitizedUf, sanitizedCity, sanitizedStreet, "json")
-                }
-            }.body()
+            val response: List<ViaCepResponse> =
+                httpClient
+                    .get("https://viacep.com.br/ws") {
+                        url {
+                            appendPathSegments(sanitizedUf, sanitizedCity, sanitizedStreet, "json")
+                        }
+                    }.body()
             Result.success(response)
         } catch (e: kotlinx.io.IOException) {
             Result.failure(e)
@@ -54,5 +55,4 @@ class ViaCepDataSource(
         } catch (e: ResponseException) {
             Result.failure(e)
         }
-    }
 }

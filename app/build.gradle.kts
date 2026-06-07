@@ -13,12 +13,21 @@ plugins {
 
 android {
     namespace = "com.targaryen.cafeteria.app"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
         applicationId = "com.targaryen.cafeteria.app"
-        minSdk = libs.versions.minSdk.get().toInt()
-        targetSdk = libs.versions.targetSdk.get().toInt()
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
+        targetSdk =
+            libs.versions.targetSdk
+                .get()
+                .toInt()
         versionCode = 1
         versionName = "1.0"
 
@@ -149,7 +158,7 @@ kover {
                     "*Dimens*",
                     "*Dao_Impl*",
                     "*Database_Impl*",
-                    "*ModuleKt*"
+                    "*ModuleKt*",
                 )
                 annotatedBy("androidx.compose.runtime.Composable")
             }

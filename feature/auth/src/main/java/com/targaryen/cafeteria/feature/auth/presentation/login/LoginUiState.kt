@@ -8,7 +8,7 @@ data class LoginUiState(
     val isForgotPasswordSheetOpen: Boolean = false,
     val forgotPasswordEmail: String = "",
     val isForgotPasswordLoading: Boolean = false,
-    val isForgotPasswordSuccess: Boolean = false
+    val isForgotPasswordSuccess: Boolean = false,
 ) {
     private val isEmailFormatValid: Boolean
         get() = email.contains("@") && email.contains(".")
@@ -29,13 +29,19 @@ data class LoginUiState(
         get() = password.isNotBlank() && !isPasswordFormatValid
 
     val canLogin: Boolean
-        get() = email.isNotBlank() && password.isNotBlank() && 
-                isEmailFormatValid && isPasswordFormatValid && 
-                !isEmailLoading && !isGoogleLoading
+        get() =
+            email.isNotBlank() &&
+                password.isNotBlank() &&
+                isEmailFormatValid &&
+                isPasswordFormatValid &&
+                !isEmailLoading &&
+                !isGoogleLoading
 
     val canSendPasswordReset: Boolean
-        get() = forgotPasswordEmail.isNotBlank() && 
-                isForgotPasswordEmailFormatValid && !isForgotPasswordLoading
+        get() =
+            forgotPasswordEmail.isNotBlank() &&
+                isForgotPasswordEmailFormatValid &&
+                !isForgotPasswordLoading
 }
 
 data class LoginActions(
@@ -44,5 +50,5 @@ data class LoginActions(
     val onForgotPasswordClick: () -> Unit,
     val onLoginClick: () -> Unit,
     val onRegisterClick: () -> Unit,
-    val onGoogleSignInClick: () -> Unit
+    val onGoogleSignInClick: () -> Unit,
 )

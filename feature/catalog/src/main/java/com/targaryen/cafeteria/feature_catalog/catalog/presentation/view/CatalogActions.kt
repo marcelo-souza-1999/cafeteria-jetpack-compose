@@ -6,5 +6,5 @@ data class CatalogActions(
     val onTabSelected: (TargaryenTab) -> Unit,
     val onMenuClick: () -> Unit,
     val onLogoutClick: () -> Unit,
-    val onCheckoutClick: () -> Unit
+    val onCheckoutClick: () -> Unit,
 )

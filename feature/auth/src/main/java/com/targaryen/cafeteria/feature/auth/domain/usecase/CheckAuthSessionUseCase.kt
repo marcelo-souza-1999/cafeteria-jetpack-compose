@@ -5,9 +5,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class CheckAuthSessionUseCase(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
 ) {
-    operator fun invoke(): Boolean {
-        return repository.isUserLoggedIn()
-    }
+    operator fun invoke(): Boolean = repository.isUserLoggedIn()
 }

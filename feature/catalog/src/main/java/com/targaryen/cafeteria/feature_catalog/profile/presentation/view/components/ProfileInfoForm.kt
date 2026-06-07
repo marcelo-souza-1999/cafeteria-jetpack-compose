@@ -1,6 +1,5 @@
 package com.targaryen.cafeteria.feature_catalog.profile.presentation.view.components
 
-import com.targaryen.cafeteria.feature_catalog.R
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,19 +15,20 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.targaryen.cafeteria.core_designsystem.components.TargaryenTextField
 import com.targaryen.cafeteria.core_designsystem.theme.SilverHair
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
+import com.targaryen.cafeteria.feature_catalog.R
 
 @Composable
 fun ProfileInfoForm(
@@ -36,7 +36,7 @@ fun ProfileInfoForm(
     email: String,
     onChangeName: (String) -> Unit,
     onChangeEmail: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var isEditingName by remember { mutableStateOf(false) }
     var editNameValue by remember { mutableStateOf("") }
@@ -51,7 +51,7 @@ fun ProfileInfoForm(
                     value = editNameValue,
                     onValueChange = { editNameValue = it },
                     label = stringResource(R.string.profile_label_new_name),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 IconButton(onClick = {
                     if (editNameValue.isNotBlank() && editNameValue != name) {
@@ -62,7 +62,7 @@ fun ProfileInfoForm(
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = stringResource(R.string.profile_desc_save),
-                        tint = ValyrianGold
+                        tint = ValyrianGold,
                     )
                 }
             }
@@ -71,7 +71,7 @@ fun ProfileInfoForm(
                 Text(
                     text = name,
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                    color = ValyrianGold
+                    color = ValyrianGold,
                 )
                 IconButton(onClick = {
                     editNameValue = name
@@ -81,7 +81,7 @@ fun ProfileInfoForm(
                         imageVector = Icons.Default.Edit,
                         contentDescription = stringResource(R.string.profile_desc_edit_name),
                         tint = SilverHair,
-                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeMedium)
+                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeMedium),
                     )
                 }
             }
@@ -93,7 +93,7 @@ fun ProfileInfoForm(
                     value = editEmailValue,
                     onValueChange = { editEmailValue = it },
                     label = stringResource(R.string.profile_label_new_email),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 IconButton(onClick = {
                     if (editEmailValue.isNotBlank() && editEmailValue != email) {
@@ -104,7 +104,7 @@ fun ProfileInfoForm(
                     Icon(
                         imageVector = Icons.Default.CheckCircle,
                         contentDescription = stringResource(R.string.profile_desc_save),
-                        tint = ValyrianGold
+                        tint = ValyrianGold,
                     )
                 }
             }
@@ -113,7 +113,7 @@ fun ProfileInfoForm(
                 Text(
                     text = email,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = SilverHair
+                    color = SilverHair,
                 )
                 IconButton(onClick = {
                     editEmailValue = email
@@ -123,7 +123,7 @@ fun ProfileInfoForm(
                         imageVector = Icons.Default.Edit,
                         contentDescription = stringResource(R.string.profile_desc_edit_email),
                         tint = SilverHair,
-                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeSmall)
+                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeSmall),
                     )
                 }
             }
@@ -144,7 +144,7 @@ fun ProfileInfoFormPreview() {
             email = "aegon@dragons.com",
             onChangeName = {},
             onChangeEmail = {},
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

@@ -7,7 +7,7 @@ import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 
 fun DocumentSnapshot.toProductEntity(
     currentIsFavorite: Boolean = false,
-    currentQuantity: Int = 0
+    currentQuantity: Int = 0,
 ): ProductEntity {
     val rawCategory = this.getString("category") ?: ""
     val name = this.getString("name") ?: ""
@@ -24,12 +24,15 @@ fun DocumentSnapshot.toProductEntity(
         imageUrl = this.getString("imageUrl") ?: "",
         category = mappedCategory,
         isFavorite = currentIsFavorite,
-        quantityInCart = currentQuantity
+        quantityInCart = currentQuantity,
     )
 }
 
-private fun mapCategory(rawCategory: String, tags: List<String>): String {
-    return when (rawCategory.lowercase()) {
+private fun mapCategory(
+    rawCategory: String,
+    tags: List<String>,
+): String =
+    when (rawCategory.lowercase()) {
         "comidas" -> CatalogCategories.ROYAL_FEAST
         "elixires" -> CatalogCategories.CROWN_ELIXIRS
         "frio" -> CatalogCategories.ICE_BREATH
@@ -37,16 +40,19 @@ private fun mapCategory(rawCategory: String, tags: List<String>): String {
         else -> {
             val isIce = tags.contains("frio") || tags.contains("gelado") || tags.contains("ice")
             val isFire = tags.contains("quente") || tags.contains("hot") || tags.contains("fire")
-            
-            if (isIce) CatalogCategories.ICE_BREATH
-            else if (isFire) CatalogCategories.DRAGON_FIRE
-            else CatalogCategories.ALL
+
+            if (isIce) {
+                CatalogCategories.ICE_BREATH
+            } else if (isFire) {
+                CatalogCategories.DRAGON_FIRE
+            } else {
+                CatalogCategories.ALL
+            }
         }
     }
-}
 
-fun ProductEntity.toDomain(): Product {
-    return Product(
+fun ProductEntity.toDomain(): Product =
+    Product(
         id = this.id,
         name = this.name,
         description = this.description,
@@ -54,6 +60,5 @@ fun ProductEntity.toDomain(): Product {
         imageUrl = this.imageUrl,
         category = this.category,
         isFavorite = this.isFavorite,
-        quantityInCart = this.quantityInCart
+        quantityInCart = this.quantityInCart,
     )
-}

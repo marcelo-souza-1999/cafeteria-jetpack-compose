@@ -21,5 +21,5 @@ data class CheckoutState(
     val isRedirecting: Boolean = false,
     val showCancelNotice: Boolean = false,
     val showSuccessNotice: Boolean = false,
-    val showAddressFieldsError: Boolean = false
+    val showAddressFieldsError: Boolean = false,
 )

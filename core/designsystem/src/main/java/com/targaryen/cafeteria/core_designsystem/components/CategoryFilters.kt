@@ -52,34 +52,36 @@ fun CategoryFilters(
     categories: List<String>,
     selectedCategory: String,
     onCategorySelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "glowTransition")
 
     val glowScale by infiniteTransition.animateFloat(
         initialValue = GLOW_SCALE_MIN,
         targetValue = GLOW_SCALE_MAX,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glowScale"
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(durationMillis = ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
+        label = "glowScale",
     )
 
     val glowAlpha by infiniteTransition.animateFloat(
         initialValue = GLOW_ALPHA_MIN,
         targetValue = GLOW_ALPHA_MAX,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glowAlpha"
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(durationMillis = ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
+        label = "glowAlpha",
     )
 
     LazyRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(TargaryenTheme.dimens.spaceSmall),
-        contentPadding = PaddingValues(horizontal = TargaryenTheme.dimens.spaceNormal)
+        contentPadding = PaddingValues(horizontal = TargaryenTheme.dimens.spaceNormal),
     ) {
         items(categories) { category ->
             val isSelected = category == selectedCategory
@@ -88,45 +90,49 @@ fun CategoryFilters(
             val textColor = if (isSelected) ValyrianGold else TargaryenWhite
 
             Box(
-                modifier = Modifier
-                    .then(
-                        if (isSelected) {
-                            Modifier.drawBehind {
-                                val radius = size.minDimension * GLOW_RADIUS_FACTOR * glowScale
-                                drawCircle(
-                                    brush = Brush.radialGradient(
-                                        colorStops = arrayOf(
-                                            GRADIENT_STOP_START to BloodRed.copy(alpha = glowAlpha),
-                                            GRADIENT_STOP_CENTER to ValyrianGold.copy(alpha = glowAlpha * GLOW_ALPHA_FACTOR),
-                                            GRADIENT_STOP_END to Color.Transparent
-                                        ),
+                modifier =
+                    Modifier
+                        .then(
+                            if (isSelected) {
+                                Modifier.drawBehind {
+                                    val radius = size.minDimension * GLOW_RADIUS_FACTOR * glowScale
+                                    drawCircle(
+                                        brush =
+                                            Brush.radialGradient(
+                                                colorStops =
+                                                    arrayOf(
+                                                        GRADIENT_STOP_START to BloodRed.copy(alpha = glowAlpha),
+                                                        GRADIENT_STOP_CENTER to
+                                                            ValyrianGold.copy(alpha = glowAlpha * GLOW_ALPHA_FACTOR),
+                                                        GRADIENT_STOP_END to Color.Transparent,
+                                                    ),
+                                                center = center,
+                                                radius = radius,
+                                            ),
+                                        radius = radius,
                                         center = center,
-                                        radius = radius
-                                    ),
-                                    radius = radius,
-                                    center = center
-                                )
-                            }
-                        } else Modifier
-                    )
-                    .clip(RoundedCornerShape(TargaryenTheme.dimens.radiusLarge))
-                    .background(containerColor)
-                    .border(
-                        width = TargaryenTheme.dimens.borderSmall,
-                        color = borderColor,
-                        shape = RoundedCornerShape(TargaryenTheme.dimens.radiusLarge)
-                    )
-                    .clickable { onCategorySelected(category) }
-                    .padding(
-                        horizontal = TargaryenTheme.dimens.spaceNormal,
-                        vertical = TargaryenTheme.dimens.spaceSmall
-                    ),
-                contentAlignment = Alignment.Center
+                                    )
+                                }
+                            } else {
+                                Modifier
+                            },
+                        ).clip(RoundedCornerShape(TargaryenTheme.dimens.radiusLarge))
+                        .background(containerColor)
+                        .border(
+                            width = TargaryenTheme.dimens.borderSmall,
+                            color = borderColor,
+                            shape = RoundedCornerShape(TargaryenTheme.dimens.radiusLarge),
+                        ).clickable { onCategorySelected(category) }
+                        .padding(
+                            horizontal = TargaryenTheme.dimens.spaceNormal,
+                            vertical = TargaryenTheme.dimens.spaceSmall,
+                        ),
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = category,
                     color = textColor,
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge,
                 )
             }
         }
@@ -140,7 +146,7 @@ fun CategoryFiltersPreview() {
         CategoryFilters(
             categories = listOf("Todos", "Bebidas Quentes", "Bebidas Frias", "Banquete Real"),
             selectedCategory = "Bebidas Quentes",
-            onCategorySelected = {}
+            onCategorySelected = {},
         )
     }
 }

@@ -9,9 +9,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class UploadProfilePhotoUseCase(
-    private val repository: ProfileRepository
+    private val repository: ProfileRepository,
 ) {
-    operator fun invoke(uri: Uri): Flow<Resource<String, ProfileError>> {
-        return repository.uploadProfilePhoto(uri)
-    }
+    operator fun invoke(uri: Uri): Flow<Resource<String, ProfileError>> = repository.uploadProfilePhoto(uri)
 }

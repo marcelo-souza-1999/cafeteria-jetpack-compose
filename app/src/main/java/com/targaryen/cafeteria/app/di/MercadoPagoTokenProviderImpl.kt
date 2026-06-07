@@ -6,11 +6,7 @@ import org.koin.core.annotation.Single
 
 @Single
 class MercadoPagoTokenProviderImpl : MercadoPagoTokenProvider {
-    override fun getAccessToken(): String {
-        return BuildConfig.MERCADO_PAGO_ACCESS_TOKEN
-    }
+    override fun getAccessToken(): String = BuildConfig.MERCADO_PAGO_ACCESS_TOKEN
 
-    override fun getPublicKey(): String {
-        return BuildConfig.MERCADO_PAGO_PUBLIC_KEY
-    }
+    override fun getPublicKey(): String = BuildConfig.MERCADO_PAGO_PUBLIC_KEY
 }

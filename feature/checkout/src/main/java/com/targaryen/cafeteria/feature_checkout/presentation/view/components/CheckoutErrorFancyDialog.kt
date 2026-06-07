@@ -17,7 +17,7 @@ fun CheckoutErrorFancyDialog(
     message: String,
     isCancelable: Boolean = true,
     onRetryClick: () -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     ErrorFancyDialog(
         title = title,
@@ -26,16 +26,17 @@ fun CheckoutErrorFancyDialog(
         message = message,
         isCancelable = isCancelable,
         dialogActionType = DialogActionType.ACTIONABLE,
-        dialogProperties = DialogButtonProperties(
-            positiveButtonText = R.string.dialog_checkout_error_button_retry,
-            negativeButtonText = R.string.dialog_checkout_error_button_cancel,
-            buttonColor = BloodRed,
-            buttonTextColor = Color.White
-        ),
+        dialogProperties =
+            DialogButtonProperties(
+                positiveButtonText = R.string.dialog_checkout_error_button_retry,
+                negativeButtonText = R.string.dialog_checkout_error_button_cancel,
+                buttonColor = BloodRed,
+                buttonTextColor = Color.White,
+            ),
         dialogStyle = DialogStyle.UPPER_CUTTING,
         positiveButtonClick = onRetryClick,
         negativeButtonClick = onDismissRequest,
-        dismissTouchOutside = onDismissRequest
+        dismissTouchOutside = onDismissRequest,
     )
 }
 
@@ -47,7 +48,7 @@ private fun CheckoutErrorFancyDialogPreview() {
             title = "Tributo Negado",
             message = "Os corvos falharam ao voar na tempestade de rede.",
             onRetryClick = {},
-            onDismissRequest = {}
+            onDismissRequest = {},
         )
     }
 }

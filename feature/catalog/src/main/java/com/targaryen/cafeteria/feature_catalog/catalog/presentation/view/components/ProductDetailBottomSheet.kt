@@ -1,7 +1,5 @@
 package com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components
 
-import com.targaryen.cafeteria.core_designsystem.model.CatalogCategories
-import com.targaryen.cafeteria.core_designsystem.R as DesignSystemR
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -31,14 +29,15 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.targaryen.cafeteria.core_designsystem.components.TargaryenButton
+import com.targaryen.cafeteria.core_designsystem.model.CatalogCategories
 import com.targaryen.cafeteria.core_designsystem.theme.BloodRed
 import com.targaryen.cafeteria.core_designsystem.theme.DragonScale
 import com.targaryen.cafeteria.core_designsystem.theme.Obsidian
@@ -48,6 +47,7 @@ import com.targaryen.cafeteria.core_designsystem.theme.TargaryenWhite
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.model.ProductUiModel
 import java.util.Locale
+import com.targaryen.cafeteria.core_designsystem.R as DesignSystemR
 
 private const val LABEL_UNIT_PRICE = "Preço Unitário:"
 private const val LABEL_TOTAL_CART = "Total no Carrinho:"
@@ -60,7 +60,7 @@ fun ProductDetailBottomSheet(
     onIncreaseQuantity: (ProductUiModel) -> Unit,
     onDecreaseQuantity: (ProductUiModel) -> Unit,
     onToggleFavorite: (ProductUiModel) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -70,48 +70,52 @@ fun ProductDetailBottomSheet(
         containerColor = DragonScale,
         contentColor = TargaryenWhite,
         scrimColor = Obsidian.copy(alpha = 0.8f),
-        modifier = modifier
+        modifier = modifier,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(TargaryenTheme.dimens.spaceLarge)
-                .padding(bottom = TargaryenTheme.dimens.spaceLarge),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(TargaryenTheme.dimens.spaceLarge)
+                    .padding(bottom = TargaryenTheme.dimens.spaceLarge),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Imagem ampliada
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(TargaryenTheme.dimens.bottomSheetImageHeight)
-                    .clip(RoundedCornerShape(TargaryenTheme.dimens.radiusLarge))
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(Obsidian, BloodRed.copy(alpha = 0.6f))
-                        )
-                    ),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(TargaryenTheme.dimens.bottomSheetImageHeight)
+                        .clip(RoundedCornerShape(TargaryenTheme.dimens.radiusLarge))
+                        .background(
+                            brush =
+                                Brush.verticalGradient(
+                                    colors = listOf(Obsidian, BloodRed.copy(alpha = 0.6f)),
+                                ),
+                        ),
+                contentAlignment = Alignment.Center,
             ) {
                 coil3.compose.AsyncImage(
                     model = product.imageUrl?.replace(" ", "%20"),
                     contentDescription = product.name,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                 )
 
                 // Botão de Favorito Flutuante
                 IconButton(
                     onClick = { onToggleFavorite(product) },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(TargaryenTheme.dimens.spaceNormal)
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(TargaryenTheme.dimens.spaceNormal),
                 ) {
                     Icon(
                         imageVector = if (product.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = "Favoritar",
                         tint = if (product.isFavorite) BloodRed else SilverHair,
-                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeMedium * FAVORITE_ICON_SCALE)
+                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeMedium * FAVORITE_ICON_SCALE),
                     )
                 }
             }
@@ -122,7 +126,7 @@ fun ProductDetailBottomSheet(
             Text(
                 text = product.name,
                 style = MaterialTheme.typography.titleLarge,
-                color = ValyrianGold
+                color = ValyrianGold,
             )
 
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceExtraSmall))
@@ -131,7 +135,7 @@ fun ProductDetailBottomSheet(
             Text(
                 text = product.category.uppercase(),
                 style = MaterialTheme.typography.labelMedium,
-                color = SilverHair.copy(alpha = 0.7f)
+                color = SilverHair.copy(alpha = 0.7f),
             )
 
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceMedium))
@@ -141,7 +145,7 @@ fun ProductDetailBottomSheet(
                 text = product.description,
                 style = MaterialTheme.typography.bodyLarge,
                 color = SilverHair,
-                lineHeight = 22.sp
+                lineHeight = 22.sp,
             )
 
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
@@ -150,22 +154,23 @@ fun ProductDetailBottomSheet(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = LABEL_UNIT_PRICE,
                     style = MaterialTheme.typography.labelLarge,
-                    color = SilverHair
+                    color = SilverHair,
                 )
                 Text(
-                    text = String.format(
-                        Locale.forLanguageTag("pt-BR"),
-                        "%s %.2f",
-                        stringResource(DesignSystemR.string.currency_symbol),
-                        product.price
-                    ),
+                    text =
+                        String.format(
+                            Locale.forLanguageTag("pt-BR"),
+                            "%s %.2f",
+                            stringResource(DesignSystemR.string.currency_symbol),
+                            product.price,
+                        ),
                     style = MaterialTheme.typography.titleMedium,
-                    color = ValyrianGold
+                    color = ValyrianGold,
                 )
             }
 
@@ -174,22 +179,23 @@ fun ProductDetailBottomSheet(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = LABEL_TOTAL_CART,
                         style = MaterialTheme.typography.labelLarge,
-                        color = SilverHair
+                        color = SilverHair,
                     )
                     Text(
-                        text = String.format(
-                            Locale.forLanguageTag("pt-BR"),
-                            "%s %.2f",
-                            stringResource(DesignSystemR.string.currency_symbol),
-                            product.price * product.quantityInCart
-                        ),
+                        text =
+                            String.format(
+                                Locale.forLanguageTag("pt-BR"),
+                                "%s %.2f",
+                                stringResource(DesignSystemR.string.currency_symbol),
+                                product.price * product.quantityInCart,
+                            ),
                         style = MaterialTheme.typography.titleLarge,
-                        color = ValyrianGold
+                        color = ValyrianGold,
                     )
                 }
             }
@@ -200,49 +206,50 @@ fun ProductDetailBottomSheet(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Row(
-                    modifier = Modifier
-                        .width(TargaryenTheme.dimens.quantitySelectorWidth)
-                        .height(TargaryenTheme.dimens.quantitySelectorHeight)
-                        .border(
-                            TargaryenTheme.dimens.borderSmall,
-                            ValyrianGold,
-                            RoundedCornerShape(TargaryenTheme.dimens.radiusMedium)
-                        )
-                        .background(Obsidian),
+                    modifier =
+                        Modifier
+                            .width(TargaryenTheme.dimens.quantitySelectorWidth)
+                            .height(TargaryenTheme.dimens.quantitySelectorHeight)
+                            .border(
+                                TargaryenTheme.dimens.borderSmall,
+                                ValyrianGold,
+                                RoundedCornerShape(TargaryenTheme.dimens.radiusMedium),
+                            ).background(Obsidian),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(
                         onClick = { onDecreaseQuantity(product) },
-                        enabled = product.quantityInCart > 0
+                        enabled = product.quantityInCart > 0,
                     ) {
                         Icon(
                             imageVector = Icons.Default.Remove,
                             contentDescription = stringResource(DesignSystemR.string.content_desc_decrease),
-                            tint = if (product.quantityInCart > 0) {
-                                ValyrianGold
-                            } else {
-                                SilverHair.copy(alpha = 0.5f)
-                            }
+                            tint =
+                                if (product.quantityInCart > 0) {
+                                    ValyrianGold
+                                } else {
+                                    SilverHair.copy(alpha = 0.5f)
+                                },
                         )
                     }
 
                     Text(
                         text = product.quantityInCart.toString(),
                         color = TargaryenWhite,
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleMedium,
                     )
 
                     IconButton(
-                        onClick = { onIncreaseQuantity(product) }
+                        onClick = { onIncreaseQuantity(product) },
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = stringResource(DesignSystemR.string.content_desc_increase),
-                            tint = ValyrianGold
+                            tint = ValyrianGold,
                         )
                     }
                 }
@@ -252,7 +259,7 @@ fun ProductDetailBottomSheet(
                 TargaryenButton(
                     text = stringResource(DesignSystemR.string.button_close),
                     onClick = onDismiss,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -262,22 +269,24 @@ fun ProductDetailBottomSheet(
 @Preview(name = "Catalog Detail Bottom Sheet - Dark Mode", showBackground = true)
 @Composable
 fun ProductDetailBottomSheetPreview() {
-    val mockProduct = ProductUiModel(
-        id = "5",
-        name = "Banquete de Aegon",
-        description = "Uma seleção rústica e farta de pães artesanais de Westeros " +
-                "servidos quentes com geleia de frutas silvestres e manteiga trufada.",
-        price = 35.0,
-        category = CatalogCategories.ROYAL_FEAST,
-        quantityInCart = 2
-    )
+    val mockProduct =
+        ProductUiModel(
+            id = "5",
+            name = "Banquete de Aegon",
+            description =
+                "Uma seleção rústica e farta de pães artesanais de Westeros " +
+                    "servidos quentes com geleia de frutas silvestres e manteiga trufada.",
+            price = 35.0,
+            category = CatalogCategories.ROYAL_FEAST,
+            quantityInCart = 2,
+        )
     TargaryenTheme {
         ProductDetailBottomSheet(
             product = mockProduct,
             onDismiss = {},
             onIncreaseQuantity = {},
             onDecreaseQuantity = {},
-            onToggleFavorite = {}
+            onToggleFavorite = {},
         )
     }
 }

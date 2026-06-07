@@ -12,23 +12,18 @@ import org.koin.core.annotation.Single
 @Module
 @ComponentScan("com.targaryen.cafeteria.coredatabase")
 class DatabaseModule {
-
     @Single
-    fun provideDatabase(context: Context): TargaryenDatabase {
-        return Room.databaseBuilder<TargaryenDatabase>(
-            context = context,
-            name = "targaryen_database"
-        ).fallbackToDestructiveMigration()
+    fun provideDatabase(context: Context): TargaryenDatabase =
+        Room
+            .databaseBuilder<TargaryenDatabase>(
+                context = context,
+                name = "targaryen_database",
+            ).fallbackToDestructiveMigration()
             .build()
-    }
 
     @Single
-    fun provideUserDao(database: TargaryenDatabase): UserDao {
-        return database.userDao()
-    }
+    fun provideUserDao(database: TargaryenDatabase): UserDao = database.userDao()
 
     @Single
-    fun provideProductDao(database: TargaryenDatabase): ProductDao {
-        return database.productDao()
-    }
+    fun provideProductDao(database: TargaryenDatabase): ProductDao = database.productDao()
 }

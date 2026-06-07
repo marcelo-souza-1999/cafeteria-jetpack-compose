@@ -5,7 +5,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class ToggleFavoriteUseCase(
-    private val repository: CatalogRepository
+    private val repository: CatalogRepository,
 ) {
     suspend operator fun invoke(productId: String) {
         repository.toggleFavorite(productId)

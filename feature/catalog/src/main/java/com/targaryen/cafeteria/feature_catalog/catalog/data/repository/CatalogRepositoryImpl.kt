@@ -21,42 +21,40 @@ import org.koin.core.annotation.Single
 @Single
 class CatalogRepositoryImpl(
     private val localDao: ProductDao,
-    remoteDataSource: FirestoreDataSource
+    remoteDataSource: FirestoreDataSource,
 ) : CatalogRepository {
-
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     init {
-        remoteDataSource.streamProducts()
+        remoteDataSource
+            .streamProducts()
             .onEach { snapshot ->
                 val currentLocalProducts = localDao.getProducts().firstOrNull() ?: emptyList()
                 val favoriteMap = currentLocalProducts.associate { it.id to it.isFavorite }
                 val quantityMap = currentLocalProducts.associate { it.id to it.quantityInCart }
 
-                val entitiesToInsert = snapshot.documents.map { doc ->
-                    val isFavorite = favoriteMap[doc.id] ?: false
-                    val quantity = quantityMap[doc.id] ?: 0
-                    doc.toProductEntity(
-                        currentIsFavorite = isFavorite,
-                        currentQuantity = quantity
-                    )
-                }
+                val entitiesToInsert =
+                    snapshot.documents.map { doc ->
+                        val isFavorite = favoriteMap[doc.id] ?: false
+                        val quantity = quantityMap[doc.id] ?: 0
+                        doc.toProductEntity(
+                            currentIsFavorite = isFavorite,
+                            currentQuantity = quantity,
+                        )
+                    }
 
                 if (entitiesToInsert.isNotEmpty()) {
                     localDao.insertProducts(entitiesToInsert)
                 }
-            }
-            .catch { error ->
+            }.catch { error ->
                 Log.e("CatalogRepository", "Erro assíncrono na stream de produtos do Firestore", error)
-            }
-            .launchIn(coroutineScope)
+            }.launchIn(coroutineScope)
     }
 
-    override fun getProducts(): Flow<List<Product>> {
-        return localDao.getProducts().map { entities ->
+    override fun getProducts(): Flow<List<Product>> =
+        localDao.getProducts().map { entities ->
             entities.map { it.toDomain() }
         }
-    }
 
     override suspend fun toggleFavorite(productId: String) {
         val product = localDao.getProduct(productId).firstOrNull()
@@ -66,7 +64,10 @@ class CatalogRepositoryImpl(
         }
     }
 
-    override suspend fun updateProductQuantity(productId: String, quantity: Int) {
+    override suspend fun updateProductQuantity(
+        productId: String,
+        quantity: Int,
+    ) {
         localDao.updateCartQuantity(productId, quantity)
     }
 

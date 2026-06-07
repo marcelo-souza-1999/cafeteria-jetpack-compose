@@ -1,8 +1,8 @@
 package com.targaryen.cafeteria.feature_catalog.profile.domain.usecase
 
+import android.net.Uri
 import com.targaryen.cafeteria.core_network.Resource
 import com.targaryen.cafeteria.feature_catalog.profile.domain.model.PurchaseHistoryItem
-import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileError
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileRepository
 import io.mockk.every
 import io.mockk.mockk
@@ -11,88 +11,94 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
-import android.net.Uri
 
 class ProfileUseCasesTest {
-
     private val repository: ProfileRepository = mockk()
 
     @Test
-    fun `GetProfileUseCase should delegate to repository`() = runTest {
-        every { repository.getProfile() } returns flowOf(Resource.Success(mockk()))
+    fun `GetProfileUseCase should delegate to repository`() =
+        runTest {
+            every { repository.getProfile() } returns flowOf(Resource.Success(mockk()))
 
-        GetProfileUseCase(repository)().collect()
+            GetProfileUseCase(repository)().collect()
 
-        verify { repository.getProfile() }
-    }
-
-    @Test
-    fun `DeleteAccountUseCase should delegate to repository`() = runTest {
-        every { repository.deleteAccount() } returns flowOf(Resource.Success(Unit))
-
-        DeleteAccountUseCase(repository)().collect()
-
-        verify { repository.deleteAccount() }
-    }
+            verify { repository.getProfile() }
+        }
 
     @Test
-    fun `GetPurchaseHistoryUseCase should delegate to repository`() = runTest {
-        val mockHistory = listOf<PurchaseHistoryItem>()
-        every { repository.getPurchaseHistory() } returns flowOf(Resource.Success(mockHistory))
+    fun `DeleteAccountUseCase should delegate to repository`() =
+        runTest {
+            every { repository.deleteAccount() } returns flowOf(Resource.Success(Unit))
 
-        GetPurchaseHistoryUseCase(repository)().collect()
+            DeleteAccountUseCase(repository)().collect()
 
-        verify { repository.getPurchaseHistory() }
-    }
-
-    @Test
-    fun `UpdateEmailUseCase should delegate to repository`() = runTest {
-        val email = "new@test.com"
-        every { repository.updateEmail(email) } returns flowOf(Resource.Success(Unit))
-
-        UpdateEmailUseCase(repository)(email).collect()
-
-        verify { repository.updateEmail(email) }
-    }
+            verify { repository.deleteAccount() }
+        }
 
     @Test
-    fun `UpdatePasswordUseCase should delegate to repository`() = runTest {
-        val currentPass = "current"
-        val newPass = "new"
-        every { repository.updatePassword(currentPass, newPass) } returns flowOf(Resource.Success(Unit))
+    fun `GetPurchaseHistoryUseCase should delegate to repository`() =
+        runTest {
+            val mockHistory = listOf<PurchaseHistoryItem>()
+            every { repository.getPurchaseHistory() } returns flowOf(Resource.Success(mockHistory))
 
-        UpdatePasswordUseCase(repository)(currentPass, newPass).collect()
+            GetPurchaseHistoryUseCase(repository)().collect()
 
-        verify { repository.updatePassword(currentPass, newPass) }
-    }
-
-    @Test
-    fun `UpdateProfileNameUseCase should delegate to repository`() = runTest {
-        val newName = "New Name"
-        every { repository.updateProfileName(newName) } returns flowOf(Resource.Success(Unit))
-
-        UpdateProfileNameUseCase(repository)(newName).collect()
-
-        verify { repository.updateProfileName(newName) }
-    }
+            verify { repository.getPurchaseHistory() }
+        }
 
     @Test
-    fun `UpdateProfilePhotoUseCase should delegate to repository`() = runTest {
-        val photoUrl = "http://test.com/photo.jpg"
-        every { repository.updateProfilePhoto(photoUrl) } returns flowOf(Resource.Success(Unit))
+    fun `UpdateEmailUseCase should delegate to repository`() =
+        runTest {
+            val email = "new@test.com"
+            every { repository.updateEmail(email) } returns flowOf(Resource.Success(Unit))
 
-        UpdateProfilePhotoUseCase(repository)(photoUrl).collect()
+            UpdateEmailUseCase(repository)(email).collect()
 
-        verify { repository.updateProfilePhoto(photoUrl) }
-    }
+            verify { repository.updateEmail(email) }
+        }
 
     @Test
-    fun `UploadProfilePhotoUseCase should delegate to repository`() = runTest {
-        val mockUri = mockk<Uri>()
-        every { repository.uploadProfilePhoto(mockUri) } returns flowOf(Resource.Success("http://photo.url"))
+    fun `UpdatePasswordUseCase should delegate to repository`() =
+        runTest {
+            val currentPass = "current"
+            val newPass = "new"
+            every { repository.updatePassword(currentPass, newPass) } returns flowOf(Resource.Success(Unit))
 
-        UploadProfilePhotoUseCase(repository)(mockUri).collect()
+            UpdatePasswordUseCase(repository)(currentPass, newPass).collect()
 
-        verify { repository.uploadProfilePhoto(mockUri) }
-    }
+            verify { repository.updatePassword(currentPass, newPass) }
+        }
+
+    @Test
+    fun `UpdateProfileNameUseCase should delegate to repository`() =
+        runTest {
+            val newName = "New Name"
+            every { repository.updateProfileName(newName) } returns flowOf(Resource.Success(Unit))
+
+            UpdateProfileNameUseCase(repository)(newName).collect()
+
+            verify { repository.updateProfileName(newName) }
+        }
+
+    @Test
+    fun `UpdateProfilePhotoUseCase should delegate to repository`() =
+        runTest {
+            val photoUrl = "http://test.com/photo.jpg"
+            every { repository.updateProfilePhoto(photoUrl) } returns flowOf(Resource.Success(Unit))
+
+            UpdateProfilePhotoUseCase(repository)(photoUrl).collect()
+
+            verify { repository.updateProfilePhoto(photoUrl) }
+        }
+
+    @Test
+    fun `UploadProfilePhotoUseCase should delegate to repository`() =
+        runTest {
+            val mockUri = mockk<Uri>()
+            every { repository.uploadProfilePhoto(mockUri) } returns flowOf(Resource.Success("http://photo.url"))
+
+            UploadProfilePhotoUseCase(repository)(mockUri).collect()
+
+            verify { repository.uploadProfilePhoto(mockUri) }
+        }
 }

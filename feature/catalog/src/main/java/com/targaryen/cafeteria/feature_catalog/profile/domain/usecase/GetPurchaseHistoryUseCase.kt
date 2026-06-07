@@ -9,9 +9,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class GetPurchaseHistoryUseCase(
-    private val repository: ProfileRepository
+    private val repository: ProfileRepository,
 ) {
-    operator fun invoke(): Flow<Resource<List<PurchaseHistoryItem>, ProfileError>> {
-        return repository.getPurchaseHistory()
-    }
+    operator fun invoke(): Flow<Resource<List<PurchaseHistoryItem>, ProfileError>> = repository.getPurchaseHistory()
 }

@@ -78,19 +78,20 @@ fun CatalogScreen(
     onLogoutClick: () -> Unit,
     onCheckoutClick: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CatalogViewModel = koinViewModel()
+    viewModel: CatalogViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    val actions = remember(onTabSelected, onMenuClick, onLogoutClick, onCheckoutClick) {
-        CatalogActions(onTabSelected, onMenuClick, onLogoutClick, onCheckoutClick)
-    }
+    val actions =
+        remember(onTabSelected, onMenuClick, onLogoutClick, onCheckoutClick) {
+            CatalogActions(onTabSelected, onMenuClick, onLogoutClick, onCheckoutClick)
+        }
 
     CatalogScreenContent(
         uiState = uiState,
         onIntent = { intent -> viewModel.onIntent(intent) },
         actions = actions,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -100,15 +101,16 @@ fun CatalogScreenContent(
     uiState: CatalogUiState,
     onIntent: (CatalogIntent) -> Unit,
     actions: CatalogActions,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    val categories = listOf(
-        CatalogCategories.ALL,
-        CatalogCategories.DRAGON_FIRE,
-        CatalogCategories.ICE_BREATH,
-        CatalogCategories.ROYAL_FEAST,
-        CatalogCategories.CROWN_ELIXIRS
-    )
+    val categories =
+        listOf(
+            CatalogCategories.ALL,
+            CatalogCategories.DRAGON_FIRE,
+            CatalogCategories.ICE_BREATH,
+            CatalogCategories.ROYAL_FEAST,
+            CatalogCategories.CROWN_ELIXIRS,
+        )
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -118,9 +120,10 @@ fun CatalogScreenContent(
 
     val currentTab = TargaryenTab.entries[pagerState.currentPage]
 
-    val cartItemsCount = remember(uiState.products) {
-        uiState.products.count { product -> product.quantityInCart > 0 }
-    }
+    val cartItemsCount =
+        remember(uiState.products) {
+            uiState.products.count { product -> product.quantityInCart > 0 }
+        }
 
     LaunchedEffect(cartItemsCount) {
         if (cartItemsCount == 0 && pagerState.currentPage == TargaryenTab.CART.ordinal) {
@@ -134,33 +137,35 @@ fun CatalogScreenContent(
         drawerContent = {
             ModalDrawerSheet(
                 drawerContainerColor = DragonScale,
-                drawerContentColor = TargaryenWhite
+                drawerContentColor = TargaryenWhite,
             ) {
                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
 
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(TargaryenTheme.dimens.spaceMedium),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(TargaryenTheme.dimens.spaceMedium),
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Image(
-                        painter = painterResource(
-                            id = R.drawable.ic_logo_login_screen
-                        ),
+                        painter =
+                            painterResource(
+                                id = R.drawable.ic_logo_login_screen,
+                            ),
                         contentDescription = null,
-                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeExtraLarge * BRAND_LOGO_SCALE)
+                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeExtraLarge * BRAND_LOGO_SCALE),
                     )
                     Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
                     Text(
                         text = stringResource(DesignSystemR.string.drawer_brand_title),
                         style = MaterialTheme.typography.titleMedium,
-                        color = ValyrianGold
+                        color = ValyrianGold,
                     )
                     Text(
                         text = stringResource(DesignSystemR.string.drawer_brand_subtitle),
                         style = MaterialTheme.typography.labelSmall,
-                        color = SilverHair.copy(alpha = 0.7f)
+                        color = SilverHair.copy(alpha = 0.7f),
                     )
                 }
 
@@ -170,7 +175,7 @@ fun CatalogScreenContent(
                     label = {
                         Text(
                             stringResource(DesignSystemR.string.drawer_menu_home),
-                            color = ValyrianGold
+                            color = ValyrianGold,
                         )
                     },
                     selected = currentTab == TargaryenTab.CATALOG,
@@ -184,21 +189,22 @@ fun CatalogScreenContent(
                         Icon(
                             Icons.Default.Home,
                             contentDescription = null,
-                            tint = ValyrianGold
+                            tint = ValyrianGold,
                         )
                     },
-                    colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = BloodRed.copy(alpha = 0.3f),
-                        unselectedContainerColor = Color.Transparent
-                    ),
-                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall)
+                    colors =
+                        NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = BloodRed.copy(alpha = 0.3f),
+                            unselectedContainerColor = Color.Transparent,
+                        ),
+                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall),
                 )
 
                 NavigationDrawerItem(
                     label = {
                         Text(
                             stringResource(DesignSystemR.string.drawer_menu_favorites),
-                            color = ValyrianGold
+                            color = ValyrianGold,
                         )
                     },
                     selected = currentTab == TargaryenTab.FAVORITES,
@@ -212,21 +218,22 @@ fun CatalogScreenContent(
                         Icon(
                             Icons.Default.Book,
                             contentDescription = null,
-                            tint = ValyrianGold
+                            tint = ValyrianGold,
                         )
                     },
-                    colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = BloodRed.copy(alpha = 0.3f),
-                        unselectedContainerColor = Color.Transparent
-                    ),
-                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall)
+                    colors =
+                        NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = BloodRed.copy(alpha = 0.3f),
+                            unselectedContainerColor = Color.Transparent,
+                        ),
+                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall),
                 )
 
                 NavigationDrawerItem(
                     label = {
                         Text(
                             stringResource(DesignSystemR.string.drawer_menu_cart),
-                            color = ValyrianGold
+                            color = ValyrianGold,
                         )
                     },
                     selected = currentTab == TargaryenTab.CART,
@@ -240,21 +247,22 @@ fun CatalogScreenContent(
                         Icon(
                             Icons.Default.CardGiftcard,
                             contentDescription = null,
-                            tint = ValyrianGold
+                            tint = ValyrianGold,
                         )
                     },
-                    colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = BloodRed.copy(alpha = 0.3f),
-                        unselectedContainerColor = Color.Transparent
-                    ),
-                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall)
+                    colors =
+                        NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = BloodRed.copy(alpha = 0.3f),
+                            unselectedContainerColor = Color.Transparent,
+                        ),
+                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall),
                 )
 
                 NavigationDrawerItem(
                     label = {
                         Text(
                             stringResource(DesignSystemR.string.drawer_menu_profile),
-                            color = ValyrianGold
+                            color = ValyrianGold,
                         )
                     },
                     selected = currentTab == TargaryenTab.PROFILE,
@@ -268,14 +276,15 @@ fun CatalogScreenContent(
                         Icon(
                             Icons.Default.Person,
                             contentDescription = null,
-                            tint = ValyrianGold
+                            tint = ValyrianGold,
                         )
                     },
-                    colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = BloodRed.copy(alpha = 0.3f),
-                        unselectedContainerColor = Color.Transparent
-                    ),
-                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall)
+                    colors =
+                        NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = BloodRed.copy(alpha = 0.3f),
+                            unselectedContainerColor = Color.Transparent,
+                        ),
+                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall),
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -284,7 +293,7 @@ fun CatalogScreenContent(
                     label = {
                         Text(
                             stringResource(DesignSystemR.string.drawer_menu_logout),
-                            color = BloodRed
+                            color = BloodRed,
                         )
                     },
                     selected = false,
@@ -298,18 +307,19 @@ fun CatalogScreenContent(
                         Icon(
                             Icons.AutoMirrored.Filled.Logout,
                             contentDescription = null,
-                            tint = BloodRed
+                            tint = BloodRed,
                         )
                     },
-                    colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = Color.Transparent,
-                        unselectedContainerColor = Color.Transparent
-                    ),
-                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall)
+                    colors =
+                        NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = Color.Transparent,
+                            unselectedContainerColor = Color.Transparent,
+                        ),
+                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall),
                 )
                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
             }
-        }
+        },
     ) {
         Scaffold(
             modifier = modifier,
@@ -322,7 +332,7 @@ fun CatalogScreenContent(
                             if (drawerState.isClosed) drawerState.open() else drawerState.close()
                         }
                     },
-                    onLogoutClick = { showLogoutConfirmation.value = true }
+                    onLogoutClick = { showLogoutConfirmation.value = true },
                 )
             },
             bottomBar = {
@@ -334,18 +344,19 @@ fun CatalogScreenContent(
                         }
                         actions.onTabSelected(tab)
                     },
-                    badgeCount = uiState.badgeCount
+                    badgeCount = uiState.badgeCount,
                 )
             },
-            containerColor = Obsidian
+            containerColor = Obsidian,
         ) { paddingValues ->
             HorizontalPager(
                 state = pagerState,
                 userScrollEnabled = false,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Obsidian)
-                    .padding(paddingValues)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Obsidian)
+                        .padding(paddingValues),
             ) { page ->
                 when (page) {
                     0 -> {
@@ -356,7 +367,7 @@ fun CatalogScreenContent(
                                 query = uiState.searchQuery,
                                 onQueryChange = { text -> onIntent(CatalogIntent.Search(text)) },
                                 onClearQuery = { onIntent(CatalogIntent.ClearSearch) },
-                                modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceNormal)
+                                modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceNormal),
                             )
 
                             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
@@ -367,10 +378,10 @@ fun CatalogScreenContent(
                                 onCategorySelected = { category ->
                                     onIntent(
                                         CatalogIntent.SelectCategory(
-                                            category
-                                        )
+                                            category,
+                                        ),
                                     )
-                                }
+                                },
                             )
 
                             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
@@ -383,13 +394,14 @@ fun CatalogScreenContent(
                                 onDecreaseQuantity = { item ->
                                     onIntent(
                                         CatalogIntent.RemoveFromCart(
-                                            item
-                                        )
+                                            item,
+                                        ),
                                     )
                                 },
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .weight(1f)
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .weight(1f),
                             )
                         }
                     }
@@ -404,7 +416,7 @@ fun CatalogScreenContent(
                                     text = stringResource(DesignSystemR.string.favorites_tab_title),
                                     style = MaterialTheme.typography.titleMedium,
                                     color = ValyrianGold,
-                                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceNormal)
+                                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceNormal),
                                 )
                                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
                                 ProductGrid(
@@ -412,51 +424,53 @@ fun CatalogScreenContent(
                                     onProductClick = { item ->
                                         onIntent(
                                             CatalogIntent.SelectProduct(
-                                                item
-                                            )
+                                                item,
+                                            ),
                                         )
                                     },
                                     onAddToCart = { item -> onIntent(CatalogIntent.AddToCart(item)) },
                                     onIncreaseQuantity = { item ->
                                         onIntent(
                                             CatalogIntent.AddToCart(
-                                                item
-                                            )
+                                                item,
+                                            ),
                                         )
                                     },
                                     onDecreaseQuantity = { item ->
                                         onIntent(
                                             CatalogIntent.RemoveFromCart(
-                                                item
-                                            )
+                                                item,
+                                            ),
                                         )
                                     },
-                                    modifier = Modifier.fillMaxSize()
+                                    modifier = Modifier.fillMaxSize(),
                                 )
                             }
                         }
                     }
 
-                    TargaryenTab.CART.ordinal -> CartScreen(
-                        products = uiState.products.filter { product -> product.quantityInCart > 0 },
-                        onIncreaseQuantity = { item -> onIntent(CatalogIntent.AddToCart(item)) },
-                        onDecreaseQuantity = { item -> onIntent(CatalogIntent.RemoveFromCart(item)) },
-                        onRemoveProduct = { item ->
-                            onIntent(
-                                CatalogIntent.UpdateProductQuantity(
-                                    item.id,
-                                    0
+                    TargaryenTab.CART.ordinal ->
+                        CartScreen(
+                            products = uiState.products.filter { product -> product.quantityInCart > 0 },
+                            onIncreaseQuantity = { item -> onIntent(CatalogIntent.AddToCart(item)) },
+                            onDecreaseQuantity = { item -> onIntent(CatalogIntent.RemoveFromCart(item)) },
+                            onRemoveProduct = { item ->
+                                onIntent(
+                                    CatalogIntent.UpdateProductQuantity(
+                                        item.id,
+                                        0,
+                                    ),
                                 )
-                            )
-                        },
-                        onProductClick = { item -> onIntent(CatalogIntent.SelectProduct(item)) },
-                        onCheckoutClick = actions.onCheckoutClick
-                    )
+                            },
+                            onProductClick = { item -> onIntent(CatalogIntent.SelectProduct(item)) },
+                            onCheckoutClick = actions.onCheckoutClick,
+                        )
 
-                    TargaryenTab.PROFILE.ordinal -> ProfileScreen(
-                        viewModel = koinViewModel(),
-                        onLogout = { showLogoutConfirmation.value = true }
-                    )
+                    TargaryenTab.PROFILE.ordinal ->
+                        ProfileScreen(
+                            viewModel = koinViewModel(),
+                            onLogout = { showLogoutConfirmation.value = true },
+                        )
                 }
             }
 
@@ -466,7 +480,7 @@ fun CatalogScreenContent(
                     onDismiss = { onIntent(CatalogIntent.SelectProduct(null)) },
                     onIncreaseQuantity = { item -> onIntent(CatalogIntent.AddToCart(item)) },
                     onDecreaseQuantity = { item -> onIntent(CatalogIntent.RemoveFromCart(item)) },
-                    onToggleFavorite = { item -> onIntent(CatalogIntent.ToggleFavorite(item)) }
+                    onToggleFavorite = { item -> onIntent(CatalogIntent.ToggleFavorite(item)) },
                 )
             }
 
@@ -476,7 +490,7 @@ fun CatalogScreenContent(
                         showLogoutConfirmation.value = false
                         actions.onLogoutClick()
                     },
-                    onDismiss = { showLogoutConfirmation.value = false }
+                    onDismiss = { showLogoutConfirmation.value = false },
                 )
             }
         }
@@ -486,31 +500,32 @@ fun CatalogScreenContent(
 @Composable
 fun FavoritesScreenStub() {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Obsidian)
-            .padding(TargaryenTheme.dimens.spaceLarge),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Obsidian)
+                .padding(TargaryenTheme.dimens.spaceLarge),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Icon(
             imageVector = Icons.Default.Favorite,
             contentDescription = null,
             modifier = Modifier.size(TargaryenTheme.dimens.iconSizeExtraLarge),
-            tint = BloodRed
+            tint = BloodRed,
         )
         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
         Text(
             text = stringResource(DesignSystemR.string.favorites_stub_title),
             style = MaterialTheme.typography.titleLarge,
-            color = ValyrianGold
+            color = ValyrianGold,
         )
         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
         Text(
             text = stringResource(DesignSystemR.string.favorites_stub_desc),
             style = MaterialTheme.typography.bodyMedium,
             color = SilverHair,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -518,91 +533,100 @@ fun FavoritesScreenStub() {
 @Preview(name = "Catalog Screen - Dark Mode")
 @Composable
 fun CatalogScreenPreview() {
-    val mockProducts = listOf(
-        ProductUiModel(
-            id = "1",
-            name = "Targaryen Blood Blend",
-            description = "Café extraído sob o fogo do dragão, encorpado e com notas " +
-                    "intensas de especiarias e frutas vermelhas da antiga Valíria.",
-            price = 12.5,
-            category = CatalogCategories.DRAGON_FIRE,
-            quantityInCart = 1
-        ),
-        ProductUiModel(
-            id = "2",
-            name = "Valyrian Velvet Latte",
-            description = "Uma combinação sedosa e mística de café espresso robusto, " +
-                    "leite vaporizado cremoso e um toque sutil de cacau sagrado.",
-            price = 15.0,
-            category = CatalogCategories.DRAGON_FIRE,
-            quantityInCart = 0
-        ),
-        ProductUiModel(
-            id = "3",
-            name = "Dragonstone Brew",
-            description = "Cold brew maturado em rochas vulcânicas de Dragonstone, " +
-                    "extremamente refrescante, infundido com notas cítricas de laranja e menta.",
-            price = 10.0,
-            category = CatalogCategories.DRAGON_FIRE,
-            quantityInCart = 0
-        ),
-        ProductUiModel(
-            id = "4",
-            name = "Winterfell Frost",
-            description = "Café gelado batido com menta selvagem colhida além da " +
-                    "Muralha e um xarope doce artesanal das terras do Norte.",
-            price = 11.0,
-            category = CatalogCategories.ICE_BREATH,
-            quantityInCart = 0
-        ),
-        ProductUiModel(
-            id = "5",
-            name = "Banquete de Aegon",
-            description = "Uma seleção rústica e farta de pães artesanais de Westeros " +
-                    "servidos quentes com geleia de frutas silvestres e manteiga trufada.",
-            price = 35.0,
-            category = CatalogCategories.ROYAL_FEAST,
-            quantityInCart = 0
-        ),
-        ProductUiModel(
-            id = "6",
-            name = "Torta de Limão de Sansa",
-            description = "Fatia generosa de torta de limão siciliano selvagem, com " +
-                    "massa folhada e merengue dourado perfeitamente tostado.",
-            price = 18.0,
-            category = CatalogCategories.ROYAL_FEAST,
-            quantityInCart = 0
-        ),
-        ProductUiModel(
-            id = "7",
-            name = "Lágrimas de Lys",
-            description = "Elixir doce e perigoso com infusão de flores raras das ilhas " +
-                    "de Lys, servido gelado para os que ousam desafiar o destino.",
-            price = 22.0,
-            category = CatalogCategories.CROWN_ELIXIRS,
-            quantityInCart = 0
+    val mockProducts =
+        listOf(
+            ProductUiModel(
+                id = "1",
+                name = "Targaryen Blood Blend",
+                description =
+                    "Café extraído sob o fogo do dragão, encorpado e com notas " +
+                        "intensas de especiarias e frutas vermelhas da antiga Valíria.",
+                price = 12.5,
+                category = CatalogCategories.DRAGON_FIRE,
+                quantityInCart = 1,
+            ),
+            ProductUiModel(
+                id = "2",
+                name = "Valyrian Velvet Latte",
+                description =
+                    "Uma combinação sedosa e mística de café espresso robusto, " +
+                        "leite vaporizado cremoso e um toque sutil de cacau sagrado.",
+                price = 15.0,
+                category = CatalogCategories.DRAGON_FIRE,
+                quantityInCart = 0,
+            ),
+            ProductUiModel(
+                id = "3",
+                name = "Dragonstone Brew",
+                description =
+                    "Cold brew maturado em rochas vulcânicas de Dragonstone, " +
+                        "extremamente refrescante, infundido com notas cítricas de laranja e menta.",
+                price = 10.0,
+                category = CatalogCategories.DRAGON_FIRE,
+                quantityInCart = 0,
+            ),
+            ProductUiModel(
+                id = "4",
+                name = "Winterfell Frost",
+                description =
+                    "Café gelado batido com menta selvagem colhida além da " +
+                        "Muralha e um xarope doce artesanal das terras do Norte.",
+                price = 11.0,
+                category = CatalogCategories.ICE_BREATH,
+                quantityInCart = 0,
+            ),
+            ProductUiModel(
+                id = "5",
+                name = "Banquete de Aegon",
+                description =
+                    "Uma seleção rústica e farta de pães artesanais de Westeros " +
+                        "servidos quentes com geleia de frutas silvestres e manteiga trufada.",
+                price = 35.0,
+                category = CatalogCategories.ROYAL_FEAST,
+                quantityInCart = 0,
+            ),
+            ProductUiModel(
+                id = "6",
+                name = "Torta de Limão de Sansa",
+                description =
+                    "Fatia generosa de torta de limão siciliano selvagem, com " +
+                        "massa folhada e merengue dourado perfeitamente tostado.",
+                price = 18.0,
+                category = CatalogCategories.ROYAL_FEAST,
+                quantityInCart = 0,
+            ),
+            ProductUiModel(
+                id = "7",
+                name = "Lágrimas de Lys",
+                description =
+                    "Elixir doce e perigoso com infusão de flores raras das ilhas " +
+                        "de Lys, servido gelado para os que ousam desafiar o destino.",
+                price = 22.0,
+                category = CatalogCategories.CROWN_ELIXIRS,
+                quantityInCart = 0,
+            ),
         )
-    )
 
     TargaryenTheme {
         CatalogScreenContent(
-            uiState = CatalogUiState(
-                searchQuery = "",
-                selectedCategory = CatalogCategories.ALL,
-                products = mockProducts,
-                selectedProduct = null,
-                badgeCount = 1
-            ),
+            uiState =
+                CatalogUiState(
+                    searchQuery = "",
+                    selectedCategory = CatalogCategories.ALL,
+                    products = mockProducts,
+                    selectedProduct = null,
+                    badgeCount = 1,
+                ),
             onIntent = {},
-            actions = CatalogActions(
-                onTabSelected = {},
-                onMenuClick = {},
-                onLogoutClick = {},
-                onCheckoutClick = {}
-            )
+            actions =
+                CatalogActions(
+                    onTabSelected = {},
+                    onMenuClick = {},
+                    onLogoutClick = {},
+                    onCheckoutClick = {},
+                ),
         )
     }
 }
 
 private const val BRAND_LOGO_SCALE = 1.3f
-

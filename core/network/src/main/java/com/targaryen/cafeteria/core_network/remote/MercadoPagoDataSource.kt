@@ -12,17 +12,18 @@ import org.koin.core.annotation.Single
 @Single
 class MercadoPagoDataSource(
     private val httpClient: HttpClient,
-    private val tokenProvider: MercadoPagoTokenProvider
+    private val tokenProvider: MercadoPagoTokenProvider,
 ) {
     @Suppress("TooGenericExceptionCaught")
-    suspend fun createPreference(request: MpPreferenceRequest): Result<MpPreferenceResponse> {
-        return try {
+    suspend fun createPreference(request: MpPreferenceRequest): Result<MpPreferenceResponse> =
+        try {
             val token = tokenProvider.getAccessToken()
             val response: MpPreferenceResponse =
-                httpClient.post("https://api.mercadopago.com/checkout/preferences") {
-                    header("Authorization", "Bearer $token")
-                    setBody(request)
-                }.body()
+                httpClient
+                    .post("https://api.mercadopago.com/checkout/preferences") {
+                        header("Authorization", "Bearer $token")
+                        setBody(request)
+                    }.body()
 
             if (response.id.isNullOrBlank()) {
                 Result.failure(Exception("Falha ao criar preferência no Mercado Pago"))
@@ -32,5 +33,4 @@ class MercadoPagoDataSource(
         } catch (e: Exception) {
             Result.failure(e)
         }
-    }
 }

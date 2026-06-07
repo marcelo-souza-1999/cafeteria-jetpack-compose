@@ -22,12 +22,12 @@ import org.koin.core.annotation.KoinViewModel
 class CatalogViewModel(
     getCatalogUseCase: GetCatalogUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
-    private val repository: CatalogRepository
+    private val repository: CatalogRepository,
 ) : ViewModel() {
-
     val uiState: StateFlow<CatalogUiState>
-        field: MutableStateFlow<CatalogUiState> = MutableStateFlow(
-            CatalogUiState(selectedCategory = CatalogCategories.ALL)
+        field: MutableStateFlow<CatalogUiState> =
+        MutableStateFlow(
+            CatalogUiState(selectedCategory = CatalogCategories.ALL),
         )
 
     private var currentAllUiProducts: List<ProductUiModel> = emptyList()
@@ -35,22 +35,22 @@ class CatalogViewModel(
     init {
         getCatalogUseCase()
             .onEach { products ->
-                val uiProducts = products.map { domainProduct ->
-                    ProductUiModel(
-                        id = domainProduct.id,
-                        name = domainProduct.name,
-                        description = domainProduct.description,
-                        price = domainProduct.price,
-                        category = domainProduct.category,
-                        imageUrl = domainProduct.imageUrl,
-                        isFavorite = domainProduct.isFavorite,
-                        quantityInCart = domainProduct.quantityInCart
-                    )
-                }
+                val uiProducts =
+                    products.map { domainProduct ->
+                        ProductUiModel(
+                            id = domainProduct.id,
+                            name = domainProduct.name,
+                            description = domainProduct.description,
+                            price = domainProduct.price,
+                            category = domainProduct.category,
+                            imageUrl = domainProduct.imageUrl,
+                            isFavorite = domainProduct.isFavorite,
+                            quantityInCart = domainProduct.quantityInCart,
+                        )
+                    }
                 currentAllUiProducts = uiProducts
                 updateFilteredProducts()
-            }
-            .launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
     }
 
     fun onIntent(intent: CatalogIntent) {
@@ -112,28 +112,32 @@ class CatalogViewModel(
         val query = uiState.value.searchQuery
         val category = uiState.value.selectedCategory
 
-        val filtered = currentAllUiProducts.filter { product ->
-            val matchesCategory = category == CatalogCategories.ALL ||
-                    product.category.equals(category, ignoreCase = true)
-            val matchesQuery = query.isBlank() ||
-                    product.name.contains(query, ignoreCase = true) ||
-                    product.description.contains(query, ignoreCase = true)
-            matchesCategory && matchesQuery
-        }
+        val filtered =
+            currentAllUiProducts.filter { product ->
+                val matchesCategory =
+                    category == CatalogCategories.ALL ||
+                        product.category.equals(category, ignoreCase = true)
+                val matchesQuery =
+                    query.isBlank() ||
+                        product.name.contains(query, ignoreCase = true) ||
+                        product.description.contains(query, ignoreCase = true)
+                matchesCategory && matchesQuery
+            }
 
         val totalBadgeCount = currentAllUiProducts.sumOf { it.quantityInCart }
         val favorites = currentAllUiProducts.filter { it.isFavorite }
 
-        val updatedSelected = uiState.value.selectedProduct?.let { sel ->
-            currentAllUiProducts.find { it.id == sel.id } ?: sel
-        }
+        val updatedSelected =
+            uiState.value.selectedProduct?.let { sel ->
+                currentAllUiProducts.find { it.id == sel.id } ?: sel
+            }
 
         uiState.update { state ->
             state.copy(
                 products = filtered,
                 favoriteProducts = favorites,
                 badgeCount = totalBadgeCount,
-                selectedProduct = updatedSelected
+                selectedProduct = updatedSelected,
             )
         }
     }

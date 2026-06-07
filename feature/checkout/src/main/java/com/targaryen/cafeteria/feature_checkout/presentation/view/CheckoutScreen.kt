@@ -81,7 +81,7 @@ fun CheckoutScreen(
     state: CheckoutState,
     onIntent: (CheckoutIntent) -> Unit,
     onNavigateBack: () -> Unit,
-    onPaymentSuccess: () -> Unit
+    onPaymentSuccess: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -102,13 +102,14 @@ fun CheckoutScreen(
     val currentIsRedirecting by rememberUpdatedState(state.isRedirecting)
 
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                if (currentIsRedirecting) {
-                    currentOnIntent(CheckoutIntent.OnCancelCheckout)
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_RESUME) {
+                    if (currentIsRedirecting) {
+                        currentOnIntent(CheckoutIntent.OnCancelCheckout)
+                    }
                 }
             }
-        }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
@@ -124,60 +125,65 @@ fun CheckoutScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null,
-                            tint = ValyrianGold
+                            tint = ValyrianGold,
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Obsidian
-                )
+                colors =
+                    TopAppBarDefaults.topAppBarColors(
+                        containerColor = Obsidian,
+                    ),
             )
         },
-        containerColor = Obsidian
+        containerColor = Obsidian,
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .imePadding()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp)
-                .navigationBarsPadding(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .imePadding()
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp)
+                    .navigationBarsPadding(),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
                 text = stringResource(R.string.checkout_address_section),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    color = ValyrianGold,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
+                style =
+                    MaterialTheme.typography.titleLarge.copy(
+                        color = ValyrianGold,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                    ),
             )
 
             OutlinedTextField(
                 value = state.cep,
                 onValueChange = { onIntent(CheckoutIntent.OnCepChanged(it)) },
                 label = { Text(stringResource(R.string.checkout_label_cep), color = Color.Gray) },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next,
+                    ),
                 singleLine = true,
                 maxLines = 1,
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Obsidian,
-                    unfocusedContainerColor = Obsidian,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedIndicatorColor = BloodRed,
-                    unfocusedIndicatorColor = Color.Gray
-                ),
-                modifier = Modifier.fillMaxWidth()
+                colors =
+                    TextFieldDefaults.colors(
+                        focusedContainerColor = Obsidian,
+                        unfocusedContainerColor = Obsidian,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedIndicatorColor = BloodRed,
+                        unfocusedIndicatorColor = Color.Gray,
+                    ),
+                modifier = Modifier.fillMaxWidth(),
             )
 
             TextButton(
                 onClick = { onIntent(CheckoutIntent.OnSearchAddressClicked) },
-                modifier = Modifier.align(Alignment.End)
+                modifier = Modifier.align(Alignment.End),
             ) {
                 Text(stringResource(R.string.checkout_action_no_cep), color = ValyrianGold)
             }
@@ -185,7 +191,7 @@ fun CheckoutScreen(
             if (state.isLoadingAddress) {
                 LinearProgressIndicator(
                     color = BloodRed,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
             val streetInteraction = remember { MutableInteractionSource() }
@@ -200,23 +206,32 @@ fun CheckoutScreen(
                 label = {
                     Text(
                         stringResource(R.string.checkout_label_street),
-                        color = Color.Gray
+                        color = Color.Gray,
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 maxLines = 1,
                 isError = state.showAddressFieldsError,
-                supportingText = if (state.showAddressFieldsError) {
-                    { Text(stringResource(R.string.checkout_message_disabled_fields), color = MaterialTheme.colorScheme.error) }
-                } else null,
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White,
-                    focusedContainerColor = Obsidian,
-                    unfocusedContainerColor = Obsidian,
-                    disabledTextColor = Color.Gray
-                )
+                supportingText =
+                    if (state.showAddressFieldsError) {
+                        {
+                            Text(
+                                stringResource(R.string.checkout_message_disabled_fields),
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
+                    } else {
+                        null
+                    },
+                colors =
+                    TextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedContainerColor = Obsidian,
+                        unfocusedContainerColor = Obsidian,
+                        disabledTextColor = Color.Gray,
+                    ),
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -232,18 +247,20 @@ fun CheckoutScreen(
                     label = {
                         Text(
                             stringResource(R.string.checkout_label_city),
-                            color = Color.Gray
+                            color = Color.Gray,
                         )
                     },
                     modifier = Modifier.weight(1f),
                     singleLine = true,
                     maxLines = 1,
                     isError = state.showAddressFieldsError,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = Color.White, unfocusedTextColor = Color.White,
-                        focusedContainerColor = Obsidian,
-                        unfocusedContainerColor = Obsidian
-                    )
+                    colors =
+                        TextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedContainerColor = Obsidian,
+                            unfocusedContainerColor = Obsidian,
+                        ),
                 )
                 val stateInteraction = remember { MutableInteractionSource() }
                 if (stateInteraction.collectIsPressedAsState().value) {
@@ -257,18 +274,20 @@ fun CheckoutScreen(
                     label = {
                         Text(
                             stringResource(R.string.checkout_label_state),
-                            color = Color.Gray
+                            color = Color.Gray,
                         )
                     },
                     modifier = Modifier.width(80.dp),
                     singleLine = true,
                     maxLines = 1,
                     isError = state.showAddressFieldsError,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = Color.White, unfocusedTextColor = Color.White,
-                        focusedContainerColor = Obsidian,
-                        unfocusedContainerColor = Obsidian
-                    )
+                    colors =
+                        TextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedContainerColor = Obsidian,
+                            unfocusedContainerColor = Obsidian,
+                        ),
                 )
             }
 
@@ -278,22 +297,25 @@ fun CheckoutScreen(
                 label = {
                     Text(
                         stringResource(R.string.checkout_label_number),
-                        color = Color.Gray
+                        color = Color.Gray,
                     )
                 },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next,
+                    ),
                 singleLine = true,
                 maxLines = 1,
                 modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White, unfocusedTextColor = Color.White,
-                    focusedContainerColor = Obsidian,
-                    unfocusedContainerColor = Obsidian,
-                    focusedIndicatorColor = BloodRed
-                )
+                colors =
+                    TextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedContainerColor = Obsidian,
+                        unfocusedContainerColor = Obsidian,
+                        focusedIndicatorColor = BloodRed,
+                    ),
             )
 
             OutlinedTextField(
@@ -302,25 +324,27 @@ fun CheckoutScreen(
                 label = {
                     Text(
                         stringResource(R.string.checkout_label_reference),
-                        color = Color.Gray
+                        color = Color.Gray,
                     )
                 },
                 leadingIcon = {
                     Icon(
                         Icons.Default.LocationOn,
                         contentDescription = null,
-                        tint = ValyrianGold
+                        tint = ValyrianGold,
                     )
                 },
                 singleLine = true,
                 maxLines = 1,
                 modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White, unfocusedTextColor = Color.White,
-                    focusedContainerColor = Obsidian,
-                    unfocusedContainerColor = Obsidian,
-                    focusedIndicatorColor = BloodRed
-                )
+                colors =
+                    TextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedContainerColor = Obsidian,
+                        unfocusedContainerColor = Obsidian,
+                        focusedIndicatorColor = BloodRed,
+                    ),
             )
 
             OutlinedTextField(
@@ -329,39 +353,43 @@ fun CheckoutScreen(
                 label = {
                     Text(
                         stringResource(R.string.checkout_label_recipient),
-                        color = Color.Gray
+                        color = Color.Gray,
                     )
                 },
                 leadingIcon = {
                     Icon(
                         Icons.Default.Person,
                         contentDescription = null,
-                        tint = ValyrianGold
+                        tint = ValyrianGold,
                     )
                 },
                 singleLine = true,
                 maxLines = 1,
                 modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.White, unfocusedTextColor = Color.White,
-                    focusedContainerColor = Obsidian,
-                    unfocusedContainerColor = Obsidian,
-                    focusedIndicatorColor = BloodRed
-                )
+                colors =
+                    TextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedContainerColor = Obsidian,
+                        unfocusedContainerColor = Obsidian,
+                        focusedIndicatorColor = BloodRed,
+                    ),
             )
 
             Button(
                 onClick = { onIntent(CheckoutIntent.OnSubmitPayment) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-                    .height(56.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = BloodRed,
-                    contentColor = Color.White
-                ),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                        .height(56.dp),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = BloodRed,
+                        contentColor = Color.White,
+                    ),
                 enabled = !state.isCreatingPreference,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
             ) {
                 if (state.isCreatingPreference) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
@@ -369,7 +397,7 @@ fun CheckoutScreen(
                     Text(
                         text = stringResource(R.string.checkout_action_submit),
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
                 }
             }
@@ -381,7 +409,7 @@ fun CheckoutScreen(
             onDismiss = { onIntent(CheckoutIntent.OnDismissCepModal) },
             onSearch = { uf, city, street ->
                 onIntent(CheckoutIntent.OnSearchReverseCep(uf, city, street))
-            }
+            },
         )
     }
 
@@ -405,7 +433,7 @@ fun CheckoutScreen(
             },
             onDismissRequest = {
                 onIntent(CheckoutIntent.OnDismissError)
-            }
+            },
         )
     }
 
@@ -417,7 +445,7 @@ fun CheckoutScreen(
             text = {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Text(stringResource(R.string.dialog_redirect_message), color = Color.White)
                     CircularProgressIndicator(color = BloodRed)
@@ -428,7 +456,7 @@ fun CheckoutScreen(
                 TextButton(onClick = { onIntent(CheckoutIntent.OnCancelCheckout) }) {
                     Text(stringResource(R.string.dialog_redirect_button_cancel), color = Color.Gray)
                 }
-            }
+            },
         )
     }
 
@@ -443,7 +471,7 @@ fun CheckoutScreen(
             },
             onDismissRequest = {
                 onIntent(CheckoutIntent.OnDismissCancelNotice)
-            }
+            },
         )
     }
 
@@ -459,7 +487,7 @@ fun CheckoutScreen(
             onDismissRequest = {
                 onIntent(CheckoutIntent.OnDismissSuccessNotice)
                 onPaymentSuccess()
-            }
+            },
         )
     }
 }
@@ -467,7 +495,7 @@ fun CheckoutScreen(
 @Composable
 fun CepSearchDialog(
     onDismiss: () -> Unit,
-    onSearch: (String, String, String) -> Unit
+    onSearch: (String, String, String) -> Unit,
 ) {
     var uf by remember { mutableStateOf("") }
     var city by remember { mutableStateOf("") }
@@ -487,63 +515,75 @@ fun CepSearchDialog(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     value = uf,
-                    onValueChange = { 
+                    onValueChange = {
                         uf = it
                         if (it.isNotBlank()) ufError = false
                     },
                     label = { Text(stringResource(R.string.dialog_cep_search_label_uf)) },
                     isError = ufError,
-                    supportingText = if (ufError) {
-                        { Text("Campo obrigatório", color = MaterialTheme.colorScheme.error) }
-                    } else null,
+                    supportingText =
+                        if (ufError) {
+                            { Text("Campo obrigatório", color = MaterialTheme.colorScheme.error) }
+                        } else {
+                            null
+                        },
                     singleLine = true,
                     maxLines = 1,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedContainerColor = Obsidian,
-                        unfocusedContainerColor = Obsidian
-                    )
+                    colors =
+                        TextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedContainerColor = Obsidian,
+                            unfocusedContainerColor = Obsidian,
+                        ),
                 )
                 OutlinedTextField(
                     value = city,
-                    onValueChange = { 
+                    onValueChange = {
                         city = it
                         if (it.isNotBlank()) cityError = false
                     },
                     label = { Text(stringResource(R.string.dialog_cep_search_label_city)) },
                     isError = cityError,
-                    supportingText = if (cityError) {
-                        { Text("Campo obrigatório", color = MaterialTheme.colorScheme.error) }
-                    } else null,
+                    supportingText =
+                        if (cityError) {
+                            { Text("Campo obrigatório", color = MaterialTheme.colorScheme.error) }
+                        } else {
+                            null
+                        },
                     singleLine = true,
                     maxLines = 1,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedContainerColor = Obsidian,
-                        unfocusedContainerColor = Obsidian
-                    )
+                    colors =
+                        TextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedContainerColor = Obsidian,
+                            unfocusedContainerColor = Obsidian,
+                        ),
                 )
                 OutlinedTextField(
                     value = street,
-                    onValueChange = { 
+                    onValueChange = {
                         street = it
                         if (it.isNotBlank()) streetError = false
                     },
                     label = { Text(stringResource(R.string.dialog_cep_search_label_street)) },
                     isError = streetError,
-                    supportingText = if (streetError) {
-                        { Text("Campo obrigatório", color = MaterialTheme.colorScheme.error) }
-                    } else null,
+                    supportingText =
+                        if (streetError) {
+                            { Text("Campo obrigatório", color = MaterialTheme.colorScheme.error) }
+                        } else {
+                            null
+                        },
                     singleLine = true,
                     maxLines = 1,
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedContainerColor = Obsidian,
-                        unfocusedContainerColor = Obsidian
-                    )
+                    colors =
+                        TextFieldDefaults.colors(
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            focusedContainerColor = Obsidian,
+                            unfocusedContainerColor = Obsidian,
+                        ),
                 )
             }
         },
@@ -564,15 +604,20 @@ fun CepSearchDialog(
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.dialog_cep_search_action_cancel), color = Color.Gray)
             }
-        }
+        },
     )
 }
 
-private fun launchMercadoPagoCheckout(context: Context, initPoint: String) {
+private fun launchMercadoPagoCheckout(
+    context: Context,
+    initPoint: String,
+) {
     val uri = initPoint.toUri()
-    val customTabsIntent = CustomTabsIntent.Builder()
-        .setShowTitle(true)
-        .build()
+    val customTabsIntent =
+        CustomTabsIntent
+            .Builder()
+            .setShowTitle(true)
+            .build()
 
     try {
         customTabsIntent.launchUrl(context, uri)
@@ -587,18 +632,19 @@ private fun launchMercadoPagoCheckout(context: Context, initPoint: String) {
 private fun CheckoutScreenPreview() {
     TargaryenTheme {
         CheckoutScreen(
-            state = CheckoutState(
-                cep = "01001-000",
-                street = "Praça da Sé",
-                city = "São Paulo",
-                state = "SP",
-                number = "100",
-                referencePoint = "Catedral da Sé",
-                recipientName = "Aegon Targaryen"
-            ),
+            state =
+                CheckoutState(
+                    cep = "01001-000",
+                    street = "Praça da Sé",
+                    city = "São Paulo",
+                    state = "SP",
+                    number = "100",
+                    referencePoint = "Catedral da Sé",
+                    recipientName = "Aegon Targaryen",
+                ),
             onIntent = {},
             onNavigateBack = {},
-            onPaymentSuccess = {}
+            onPaymentSuccess = {},
         )
     }
 }

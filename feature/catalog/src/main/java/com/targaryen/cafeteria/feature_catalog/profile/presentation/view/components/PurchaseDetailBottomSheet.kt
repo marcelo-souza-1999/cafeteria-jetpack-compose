@@ -1,7 +1,5 @@
 package com.targaryen.cafeteria.feature_catalog.profile.presentation.view.components
 
-import androidx.compose.ui.tooling.preview.Preview
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.targaryen.cafeteria.core_designsystem.theme.CharcoalBlack
 import com.targaryen.cafeteria.core_designsystem.theme.DimmedGold
@@ -41,7 +40,7 @@ import java.util.Date
 @Composable
 fun PurchaseDetailBottomSheet(
     item: PurchaseHistoryItem,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm", LocalLocale.current.platformLocale)
@@ -50,26 +49,27 @@ fun PurchaseDetailBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = CharcoalBlack
+        containerColor = CharcoalBlack,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(TargaryenTheme.dimens.spaceLarge)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(TargaryenTheme.dimens.spaceLarge),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Receipt,
                     contentDescription = null,
                     tint = ValyrianGold,
-                    modifier = Modifier.size(28.dp)
+                    modifier = Modifier.size(28.dp),
                 )
                 Spacer(modifier = Modifier.width(TargaryenTheme.dimens.spaceMedium))
                 Text(
                     text = "Recibo Real ${item.id}",
                     style = MaterialTheme.typography.titleLarge,
                     color = ValyrianGold,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             }
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceMedium))
@@ -79,13 +79,13 @@ fun PurchaseDetailBottomSheet(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = null,
                     tint = DimmedGold,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(18.dp),
                 )
                 Spacer(modifier = Modifier.width(TargaryenTheme.dimens.spaceSmall))
                 Text(
                     text = "Status: ${item.status}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = DimmedGold
+                    color = DimmedGold,
                 )
             }
 
@@ -94,13 +94,13 @@ fun PurchaseDetailBottomSheet(
                 text = "Itens do Banquete:",
                 style = MaterialTheme.typography.titleMedium,
                 color = SilverHair,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
             Text(
                 text = item.itemsSummary,
                 style = MaterialTheme.typography.bodyLarge,
-                color = TargaryenWhite
+                color = TargaryenWhite,
             )
 
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
@@ -109,24 +109,24 @@ fun PurchaseDetailBottomSheet(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
                     text = formattedDate,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = SilverHair
+                    color = SilverHair,
                 )
                 Text(
                     text = "Total: R$ ${
                         String.format(
                             LocalLocale.current.platformLocale,
                             "%.2f",
-                            item.totalPrice
+                            item.totalPrice,
                         )
                     }",
                     style = MaterialTheme.typography.titleMedium,
                     color = ValyrianGold,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             }
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
@@ -139,14 +139,15 @@ fun PurchaseDetailBottomSheet(
 fun PurchaseDetailBottomSheetPreview() {
     TargaryenTheme {
         PurchaseDetailBottomSheet(
-            item = PurchaseHistoryItem(
-                id = "ORD-001",
-                dateMillis = System.currentTimeMillis(),
-                totalPrice = 125.50,
-                itemsSummary = "2x Dragonstone Brew, 1x Banquete de Aegon",
-                status = "Entregue nas Chamas"
-            ),
-            onDismissRequest = {}
+            item =
+                PurchaseHistoryItem(
+                    id = "ORD-001",
+                    dateMillis = System.currentTimeMillis(),
+                    totalPrice = 125.50,
+                    itemsSummary = "2x Dragonstone Brew, 1x Banquete de Aegon",
+                    status = "Entregue nas Chamas",
+                ),
+            onDismissRequest = {},
         )
     }
 }

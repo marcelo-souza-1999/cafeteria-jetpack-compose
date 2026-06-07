@@ -8,5 +8,5 @@ data class CatalogUiState(
     val products: List<ProductUiModel> = emptyList(),
     val favoriteProducts: List<ProductUiModel> = emptyList(),
     val selectedProduct: ProductUiModel? = null,
-    val badgeCount: Int = 0
+    val badgeCount: Int = 0,
 )

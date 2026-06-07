@@ -1,6 +1,5 @@
 package com.targaryen.cafeteria.feature_catalog.profile.presentation.view.components
 
-import com.targaryen.cafeteria.feature_catalog.R
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,26 +17,27 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import com.targaryen.cafeteria.core_designsystem.components.TargaryenPasswordField
 import com.targaryen.cafeteria.core_designsystem.theme.BloodRed
 import com.targaryen.cafeteria.core_designsystem.theme.CharcoalBlack
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenWhite
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
+import com.targaryen.cafeteria.feature_catalog.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileSecurityBottomSheet(
     onDismissRequest: () -> Unit,
-    onChangePassword: (String, String) -> Unit
+    onChangePassword: (String, String) -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var currentPass by remember { mutableStateOf("") }
@@ -51,24 +51,25 @@ fun ProfileSecurityBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
-        containerColor = CharcoalBlack
+        containerColor = CharcoalBlack,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(TargaryenTheme.dimens.spaceLarge)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(TargaryenTheme.dimens.spaceLarge),
         ) {
             Text(
                 text = stringResource(R.string.profile_sheet_security_title),
                 style = MaterialTheme.typography.titleLarge,
                 color = ValyrianGold,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
             Text(
                 text = stringResource(R.string.profile_sheet_security_desc),
                 style = MaterialTheme.typography.bodyMedium,
-                color = TargaryenWhite.copy(alpha = 0.8f)
+                color = TargaryenWhite.copy(alpha = 0.8f),
             )
 
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
@@ -81,12 +82,13 @@ fun ProfileSecurityBottomSheet(
                 },
                 label = stringResource(R.string.profile_label_current_password),
                 isError = currentPassError != null,
-                supportingText = currentPassError?.let { error ->
-                    { Text(text = error, color = BloodRed) }
-                },
+                supportingText =
+                    currentPassError?.let { error ->
+                        { Text(text = error, color = BloodRed) }
+                    },
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Security, contentDescription = null, tint = ValyrianGold)
-                }
+                },
             )
 
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceMedium))
@@ -99,12 +101,13 @@ fun ProfileSecurityBottomSheet(
                 },
                 label = stringResource(R.string.profile_label_new_password),
                 isError = newPassError != null,
-                supportingText = newPassError?.let { error ->
-                    { Text(text = error, color = BloodRed) }
-                },
+                supportingText =
+                    newPassError?.let { error ->
+                        { Text(text = error, color = BloodRed) }
+                    },
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Lock, contentDescription = null, tint = ValyrianGold)
-                }
+                },
             )
 
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
@@ -115,28 +118,30 @@ fun ProfileSecurityBottomSheet(
                     val isNewEmpty = newPass.isBlank()
                     val isNewWeak = !isNewEmpty && newPass.length < 6
 
-                    currentPassError = if (isCurrentEmpty) {
-                        emptyPasswordError
-                    } else {
-                        null
-                    }
+                    currentPassError =
+                        if (isCurrentEmpty) {
+                            emptyPasswordError
+                        } else {
+                            null
+                        }
 
-                    newPassError = when {
-                        isNewEmpty -> emptyPasswordError
-                        isNewWeak -> weakPasswordError
-                        else -> null
-                    }
+                    newPassError =
+                        when {
+                            isNewEmpty -> emptyPasswordError
+                            isNewWeak -> weakPasswordError
+                            else -> null
+                        }
 
                     if (currentPassError == null && newPassError == null) {
                         onChangePassword(currentPass, newPass)
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = BloodRed)
+                colors = ButtonDefaults.buttonColors(containerColor = BloodRed),
             ) {
                 Text(text = "Validar", color = TargaryenWhite, fontWeight = FontWeight.Bold)
             }
-            
+
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
         }
     }
@@ -148,7 +153,7 @@ fun ProfileSecurityBottomSheetPreview() {
     TargaryenTheme {
         ProfileSecurityBottomSheet(
             onDismissRequest = {},
-            onChangePassword = { _, _ -> }
+            onChangePassword = { _, _ -> },
         )
     }
 }

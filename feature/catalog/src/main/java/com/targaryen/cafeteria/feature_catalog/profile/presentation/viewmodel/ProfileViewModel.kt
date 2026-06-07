@@ -16,9 +16,8 @@ import org.koin.core.annotation.KoinViewModel
 
 @KoinViewModel
 class ProfileViewModel(
-    private val repository: ProfileRepository
+    private val repository: ProfileRepository,
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(ProfileState())
     val uiState: StateFlow<ProfileState> = _uiState.asStateFlow()
 
@@ -34,7 +33,7 @@ class ProfileViewModel(
             is ProfileIntent.ChangePassword -> changePassword(intent.currentPass, intent.newPass)
             is ProfileIntent.ChangeName -> changeName(intent.newName)
             is ProfileIntent.ChangeEmail -> changeEmail(intent.newEmail)
-            
+
             is ProfileIntent.ShowDeleteDialog,
             is ProfileIntent.DismissDeleteDialog,
             is ProfileIntent.ConfirmDeleteAccount,
@@ -44,24 +43,46 @@ class ProfileViewModel(
             is ProfileIntent.DismissEmailSuccessDialog,
             is ProfileIntent.ShowPurchaseDetail,
             is ProfileIntent.DismissPurchaseDetail,
-            is ProfileIntent.ToggleHistoryExpansion -> handleNavigationAndDialogs(intent)
-            
-            is ProfileIntent.ClearMessages -> _uiState.update { state -> state.copy(error = null, successMessage = null) }
+            is ProfileIntent.ToggleHistoryExpansion,
+            -> handleNavigationAndDialogs(intent)
+
+            is ProfileIntent.ClearMessages ->
+                _uiState.update { state ->
+                    state.copy(
+                        error = null,
+                        successMessage = null,
+                    )
+                }
         }
     }
 
     private fun handleNavigationAndDialogs(intent: ProfileIntent) {
         when (intent) {
             is ProfileIntent.ShowDeleteDialog -> _uiState.update { state -> state.copy(showDeleteConfirmation = true) }
-            is ProfileIntent.DismissDeleteDialog -> _uiState.update { state -> state.copy(showDeleteConfirmation = false) }
+            is ProfileIntent.DismissDeleteDialog ->
+                _uiState.update { state ->
+                    state.copy(showDeleteConfirmation = false)
+                }
             is ProfileIntent.ConfirmDeleteAccount -> deleteAccount()
             is ProfileIntent.ShowSecurityModal -> _uiState.update { state -> state.copy(showSecurityModal = true) }
             is ProfileIntent.DismissSecurityModal -> _uiState.update { state -> state.copy(showSecurityModal = false) }
-            is ProfileIntent.ShowEmailSuccessDialog -> _uiState.update { state -> state.copy(showEmailSuccessDialog = true) }
-            is ProfileIntent.DismissEmailSuccessDialog -> _uiState.update { state -> state.copy(showEmailSuccessDialog = false) }
-            is ProfileIntent.ShowPurchaseDetail -> _uiState.update { state -> state.copy(selectedPurchase = intent.item) }
+            is ProfileIntent.ShowEmailSuccessDialog ->
+                _uiState.update { state ->
+                    state.copy(showEmailSuccessDialog = true)
+                }
+            is ProfileIntent.DismissEmailSuccessDialog ->
+                _uiState.update { state ->
+                    state.copy(showEmailSuccessDialog = false)
+                }
+            is ProfileIntent.ShowPurchaseDetail ->
+                _uiState.update { state ->
+                    state.copy(selectedPurchase = intent.item)
+                }
             is ProfileIntent.DismissPurchaseDetail -> _uiState.update { state -> state.copy(selectedPurchase = null) }
-            is ProfileIntent.ToggleHistoryExpansion -> _uiState.update { state -> state.copy(isHistoryExpanded = !state.isHistoryExpanded) }
+            is ProfileIntent.ToggleHistoryExpansion ->
+                _uiState.update { state ->
+                    state.copy(isHistoryExpanded = !state.isHistoryExpanded)
+                }
             else -> {}
         }
     }
@@ -77,7 +98,7 @@ class ProfileViewModel(
                                 isLoading = false,
                                 name = resource.data.name,
                                 email = resource.data.email,
-                                photoUrl = resource.data.photoUrl
+                                photoUrl = resource.data.photoUrl,
                             )
                         }
                         fetchPurchaseHistory()
@@ -86,7 +107,7 @@ class ProfileViewModel(
                         _uiState.update { state ->
                             state.copy(
                                 isLoading = false,
-                                error = resource.error.toFormattedString()
+                                error = resource.error.toFormattedString(),
                             )
                         }
                     }
@@ -115,7 +136,7 @@ class ProfileViewModel(
                             state.copy(
                                 isUpdatingPhoto = false,
                                 photoUrl = url,
-                                successMessage = "Avatar atualizado com sucesso."
+                                successMessage = "Avatar atualizado com sucesso.",
                             )
                         }
                     }
@@ -123,7 +144,7 @@ class ProfileViewModel(
                         _uiState.update { state ->
                             state.copy(
                                 isUpdatingPhoto = false,
-                                error = resource.error.toFormattedString()
+                                error = resource.error.toFormattedString(),
                             )
                         }
                     }
@@ -131,7 +152,7 @@ class ProfileViewModel(
             }
         }
     }
-    
+
     private fun uploadPhoto(intent: ProfileIntent.UploadPhoto) {
         _uiState.update { state -> state.copy(isUpdatingPhoto = true) }
         viewModelScope.launch {
@@ -145,7 +166,7 @@ class ProfileViewModel(
                         _uiState.update { state ->
                             state.copy(
                                 isUpdatingPhoto = false,
-                                error = resource.error.toFormattedString()
+                                error = resource.error.toFormattedString(),
                             )
                         }
                     }
@@ -154,7 +175,10 @@ class ProfileViewModel(
         }
     }
 
-    private fun changePassword(currentPass: String, newPass: String) {
+    private fun changePassword(
+        currentPass: String,
+        newPass: String,
+    ) {
         _uiState.update { state -> state.copy(isLoading = true, showSecurityModal = false) }
         viewModelScope.launch {
             repository.updatePassword(currentPass, newPass).collect { resource ->
@@ -163,7 +187,7 @@ class ProfileViewModel(
                         _uiState.update { state ->
                             state.copy(
                                 isLoading = false,
-                                successMessage = "Segredos alterados com glória. Suas defesas estão renovadas."
+                                successMessage = "Segredos alterados com glória. Suas defesas estão renovadas.",
                             )
                         }
                     }
@@ -171,7 +195,7 @@ class ProfileViewModel(
                         _uiState.update { state ->
                             state.copy(
                                 isLoading = false,
-                                error = resource.error.toFormattedString()
+                                error = resource.error.toFormattedString(),
                             )
                         }
                     }
@@ -179,7 +203,7 @@ class ProfileViewModel(
             }
         }
     }
-    
+
     private fun changeName(name: String) {
         _uiState.update { state -> state.copy(isLoading = true) }
         viewModelScope.launch {
@@ -190,7 +214,7 @@ class ProfileViewModel(
                             state.copy(
                                 isLoading = false,
                                 name = name,
-                                successMessage = "Título real alterado."
+                                successMessage = "Título real alterado.",
                             )
                         }
                     }
@@ -198,7 +222,7 @@ class ProfileViewModel(
                         _uiState.update { state ->
                             state.copy(
                                 isLoading = false,
-                                error = resource.error.toFormattedString()
+                                error = resource.error.toFormattedString(),
                             )
                         }
                     }
@@ -206,7 +230,7 @@ class ProfileViewModel(
             }
         }
     }
-    
+
     private fun changeEmail(email: String) {
         _uiState.update { state -> state.copy(isLoading = true) }
         viewModelScope.launch {
@@ -216,7 +240,7 @@ class ProfileViewModel(
                         _uiState.update { state ->
                             state.copy(
                                 isLoading = false,
-                                showEmailSuccessDialog = true
+                                showEmailSuccessDialog = true,
                             )
                         }
                     }
@@ -224,7 +248,7 @@ class ProfileViewModel(
                         _uiState.update { state ->
                             state.copy(
                                 isLoading = false,
-                                error = resource.error.toFormattedString()
+                                error = resource.error.toFormattedString(),
                             )
                         }
                     }
@@ -245,7 +269,7 @@ class ProfileViewModel(
                         _uiState.update { state ->
                             state.copy(
                                 isLoading = false,
-                                error = resource.error.toFormattedString()
+                                error = resource.error.toFormattedString(),
                             )
                         }
                     }
@@ -255,11 +279,10 @@ class ProfileViewModel(
     }
 }
 
-private fun ProfileError.toFormattedString(): String {
-    return when (this) {
+private fun ProfileError.toFormattedString(): String =
+    when (this) {
         is ProfileError.NetworkError -> "As muralhas de Westeros estão instáveis. Verifique sua conexão com o reino."
         is ProfileError.UserNotFound -> "Linhagem de nobreza não localizada nos pergaminhos reais."
         is ProfileError.InvalidPassword -> "Selo inválido. Reautorize seu acesso antes de alterar seus segredos."
         is ProfileError.Unknown -> this.message ?: "O fogo do dragão causou uma anomalia desconhecida."
     }
-}

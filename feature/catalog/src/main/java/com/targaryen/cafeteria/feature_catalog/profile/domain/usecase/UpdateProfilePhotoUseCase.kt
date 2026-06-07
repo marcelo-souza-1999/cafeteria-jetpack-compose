@@ -8,9 +8,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class UpdateProfilePhotoUseCase(
-    private val repository: ProfileRepository
+    private val repository: ProfileRepository,
 ) {
-    operator fun invoke(photoUrl: String): Flow<Resource<Unit, ProfileError>> {
-        return repository.updateProfilePhoto(photoUrl)
-    }
+    operator fun invoke(photoUrl: String): Flow<Resource<Unit, ProfileError>> = repository.updateProfilePhoto(photoUrl)
 }

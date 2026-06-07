@@ -22,7 +22,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class ProfileScreenTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -41,7 +40,7 @@ class ProfileScreenTest {
             TargaryenTheme {
                 ProfileScreen(
                     onLogout = onLogout,
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -49,28 +48,30 @@ class ProfileScreenTest {
 
     @Test
     fun profileScreen_initialState_shouldDisplayUserProfileDetails() {
-        uiStateFlow.value = ProfileState(
-            name = "Daemon Targaryen",
-            email = "daemon@dragonstone.com",
-            photoUrl = "preset_crown"
-        )
+        uiStateFlow.value =
+            ProfileState(
+                name = "Daemon Targaryen",
+                email = "daemon@dragonstone.com",
+                photoUrl = "preset_crown",
+            )
         setContent()
 
         composeTestRule.onNodeWithText("Daemon Targaryen").assertIsDisplayed()
         composeTestRule.onNodeWithText("daemon@dragonstone.com").assertIsDisplayed()
-        
+
         // Expandir seção de segurança para tornar o botão visível
         composeTestRule.onNodeWithText(context.getString(R.string.profile_section_security_title)).performClick()
-        
+
         composeTestRule.onNodeWithText(context.getString(R.string.profile_btn_delete_account)).assertIsDisplayed()
     }
 
     @Test
     fun profileScreen_whenDeleteAccountClicked_shouldDispatchIntent() {
-        uiStateFlow.value = ProfileState(
-            name = "Daemon Targaryen",
-            email = "daemon@dragonstone.com"
-        )
+        uiStateFlow.value =
+            ProfileState(
+                name = "Daemon Targaryen",
+                email = "daemon@dragonstone.com",
+            )
         setContent()
 
         // Expandir seção de segurança para tornar o botão visível

@@ -8,9 +8,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class SendPasswordResetEmailUseCase(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
 ) {
-    operator fun invoke(email: String): Flow<Resource<Unit, AuthError>> {
-        return authRepository.sendPasswordResetEmail(email)
-    }
+    operator fun invoke(email: String): Flow<Resource<Unit, AuthError>> = authRepository.sendPasswordResetEmail(email)
 }

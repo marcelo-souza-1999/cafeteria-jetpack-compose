@@ -8,6 +8,7 @@ import com.targaryen.cafeteria.core_network.model.MpPreferenceResponse
 import com.targaryen.cafeteria.core_network.model.ViaCepResponse
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
+import com.targaryen.cafeteria.feature_checkout.R
 import com.targaryen.cafeteria.feature_checkout.domain.CheckoutRepository
 import com.targaryen.cafeteria.feature_checkout.presentation.intent.CheckoutIntent
 import com.targaryen.cafeteria.feature_checkout.util.MainDispatcherRule
@@ -23,14 +24,12 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class CheckoutViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -38,18 +37,19 @@ class CheckoutViewModelTest {
     private val catalogRepository: CatalogRepository = mockk()
     private val paymentStatusTracker: PaymentStatusTracker = mockk()
 
-    private val mockCartProducts = listOf(
-        Product(
-            id = "1",
-            name = "Espresso",
-            description = "Desc",
-            price = 5.0,
-            imageUrl = "",
-            category = "DRAGON_FIRE",
-            isFavorite = false,
-            quantityInCart = 2
+    private val mockCartProducts =
+        listOf(
+            Product(
+                id = "1",
+                name = "Espresso",
+                description = "Desc",
+                price = 5.0,
+                imageUrl = "",
+                category = "DRAGON_FIRE",
+                isFavorite = false,
+                quantityInCart = 2,
+            ),
         )
-    )
 
     private val paymentStatusFlow = MutableSharedFlow<PaymentStatus>(replay = 1)
     private val mockAuth: FirebaseAuth = mockk()
@@ -64,7 +64,7 @@ class CheckoutViewModelTest {
 
         every { catalogRepository.getProducts() } returns flowOf(mockCartProducts)
         every { paymentStatusTracker.paymentStatus } returns paymentStatusFlow
-        
+
         coEvery { checkoutRepository.fetchAddressByCep(any()) } returns Result.success(mockk(relaxed = true))
     }
 
@@ -74,97 +74,110 @@ class CheckoutViewModelTest {
     }
 
     @Test
-    fun `initialization should load cart items and start observing payment status`() = runTest {
-        val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
-        val state = viewModel.uiState.value
+    fun `initialization should load cart items and start observing payment status`() =
+        runTest {
+            val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
+            val state = viewModel.uiState.value
 
-        assertEquals(1, state.cartItems.size)
-        assertEquals("Espresso", state.cartItems[0].name)
-    }
-
-    @Test
-    fun `when CEP changes and reaches 8 digits, it should fetch address`() = runTest {
-        val mockAddress = ViaCepResponse(
-            cep = "01001-000",
-            logradouro = "Praca da Se",
-            localidade = "Sao Paulo",
-            uf = "SP"
-        )
-        coEvery { checkoutRepository.fetchAddressByCep("01001000") } returns Result.success(mockAddress)
-
-        val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
-
-        viewModel.onIntent(CheckoutIntent.OnCepChanged("01001000"))
-
-        val state = viewModel.uiState.value
-        assertFalse(state.isLoadingAddress)
-        assertEquals("Praca da Se", state.street)
-        assertEquals("Sao Paulo", state.city)
-        assertEquals("SP", state.state)
-    }
+            assertEquals(1, state.cartItems.size)
+            assertEquals("Espresso", state.cartItems[0].name)
+        }
 
     @Test
-    fun `when submit payment is clicked with invalid fields, it should show error`() = runTest {
-        val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
+    fun `when CEP changes and reaches 8 digits, it should fetch address`() =
+        runTest {
+            val mockAddress =
+                ViaCepResponse(
+                    cep = "01001-000",
+                    logradouro = "Praca da Se",
+                    localidade = "Sao Paulo",
+                    uf = "SP",
+                )
+            coEvery { checkoutRepository.fetchAddressByCep("01001000") } returns Result.success(mockAddress)
 
-        viewModel.onIntent(CheckoutIntent.OnSubmitPayment)
+            val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
 
-        val state = viewModel.uiState.value
-        assertEquals(com.targaryen.cafeteria.feature_checkout.R.string.error_checkout_required_fields, state.errorResId)
-    }
+            viewModel.onIntent(CheckoutIntent.OnCepChanged("01001000"))
 
-    @Test
-    fun `when submit payment is clicked with valid fields, it should create preference`() = runTest {
-        val mockPreference = MpPreferenceResponse(
-            id = "pref_123",
-            initPoint = "http://init.point",
-            sandboxInitPoint = "http://sandbox.init.point"
-        )
-        coEvery { checkoutRepository.createPreferenceForCart(mockCartProducts) } returns Result.success(mockPreference)
-
-        val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
-
-        // Pre-fill fields
-        viewModel.onIntent(CheckoutIntent.OnCepChanged("12345678"))
-        viewModel.onIntent(CheckoutIntent.OnNumberChanged("100"))
-        viewModel.onIntent(CheckoutIntent.OnReferencePointChanged("Red Keep"))
-        viewModel.onIntent(CheckoutIntent.OnRecipientNameChanged("Rhaenyra"))
-
-        viewModel.onIntent(CheckoutIntent.OnSubmitPayment)
-
-        val state = viewModel.uiState.value
-        assertEquals("pref_123", state.preferenceId)
-        assertEquals("http://init.point", state.initPoint)
-        assertFalse(state.isCreatingPreference)
-    }
+            val state = viewModel.uiState.value
+            assertFalse(state.isLoadingAddress)
+            assertEquals("Praca da Se", state.street)
+            assertEquals("Sao Paulo", state.city)
+            assertEquals("SP", state.state)
+        }
 
     @Test
-    fun `when payment status becomes success, it should save order and clear cart`() = runTest {
-        coEvery { checkoutRepository.saveOrder("test_uid", "2x Espresso", 10.0, "Aprovado") } returns Result.success(Unit)
-        coEvery { catalogRepository.clearCart() } returns Unit
+    fun `when submit payment is clicked with invalid fields, it should show error`() =
+        runTest {
+            val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
 
-        val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
+            viewModel.onIntent(CheckoutIntent.OnSubmitPayment)
 
-        paymentStatusFlow.emit(PaymentStatus.SUCCESS)
-
-        val state = viewModel.uiState.value
-        assertTrue(state.showSuccessNotice)
-        assertFalse(state.isRedirecting)
-
-        coVerify { checkoutRepository.saveOrder("test_uid", "2x Espresso", 10.0, "Aprovado") }
-        coVerify { catalogRepository.clearCart() }
-    }
+            val state = viewModel.uiState.value
+            assertEquals(
+                R.string.error_checkout_required_fields,
+                state.errorResId,
+            )
+        }
 
     @Test
-    fun `when resetState intent is received, fields should clear`() = runTest {
-        val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
+    fun `when submit payment is clicked with valid fields, it should create preference`() =
+        runTest {
+            val mockPreference =
+                MpPreferenceResponse(
+                    id = "pref_123",
+                    initPoint = "http://init.point",
+                    sandboxInitPoint = "http://sandbox.init.point",
+                )
+            val preferenceResult = Result.success(mockPreference)
+            coEvery { checkoutRepository.createPreferenceForCart(mockCartProducts) } returns preferenceResult
 
-        viewModel.onIntent(CheckoutIntent.OnCepChanged("12345678"))
-        assertEquals("12345678", viewModel.uiState.value.cep)
+            val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
 
-        viewModel.onIntent(CheckoutIntent.OnResetState)
-        val state = viewModel.uiState.value
-        assertEquals("", state.cep)
-        assertFalse(state.showSuccessNotice)
-    }
+            // Pre-fill fields
+            viewModel.onIntent(CheckoutIntent.OnCepChanged("12345678"))
+            viewModel.onIntent(CheckoutIntent.OnNumberChanged("100"))
+            viewModel.onIntent(CheckoutIntent.OnReferencePointChanged("Red Keep"))
+            viewModel.onIntent(CheckoutIntent.OnRecipientNameChanged("Rhaenyra"))
+
+            viewModel.onIntent(CheckoutIntent.OnSubmitPayment)
+
+            val state = viewModel.uiState.value
+            assertEquals("pref_123", state.preferenceId)
+            assertEquals("http://init.point", state.initPoint)
+            assertFalse(state.isCreatingPreference)
+        }
+
+    @Test
+    fun `when payment status becomes success, it should save order and clear cart`() =
+        runTest {
+            val saveResult = Result.success(Unit)
+            coEvery { checkoutRepository.saveOrder("test_uid", "2x Espresso", 10.0, "Aprovado") } returns saveResult
+            coEvery { catalogRepository.clearCart() } returns Unit
+
+            val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
+
+            paymentStatusFlow.emit(PaymentStatus.SUCCESS)
+
+            val state = viewModel.uiState.value
+            assertTrue(state.showSuccessNotice)
+            assertFalse(state.isRedirecting)
+
+            coVerify { checkoutRepository.saveOrder("test_uid", "2x Espresso", 10.0, "Aprovado") }
+            coVerify { catalogRepository.clearCart() }
+        }
+
+    @Test
+    fun `when resetState intent is received, fields should clear`() =
+        runTest {
+            val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
+
+            viewModel.onIntent(CheckoutIntent.OnCepChanged("12345678"))
+            assertEquals("12345678", viewModel.uiState.value.cep)
+
+            viewModel.onIntent(CheckoutIntent.OnResetState)
+            val state = viewModel.uiState.value
+            assertEquals("", state.cep)
+            assertFalse(state.showSuccessNotice)
+        }
 }

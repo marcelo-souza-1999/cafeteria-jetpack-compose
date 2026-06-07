@@ -26,14 +26,14 @@ fun TargaryenTopBar(
     onBackClick: (() -> Unit)? = null,
     onMenuClick: (() -> Unit)? = null,
     onLogoutClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     TopAppBar(
         title = {
             Text(
                 text = title,
                 color = DimmedGold,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
         },
         navigationIcon = {
@@ -42,7 +42,7 @@ fun TargaryenTopBar(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Voltar",
-                        tint = ValyrianGold
+                        tint = ValyrianGold,
                     )
                 }
             } else if (onMenuClick != null) {
@@ -50,7 +50,7 @@ fun TargaryenTopBar(
                     Icon(
                         imageVector = Icons.Default.Menu,
                         contentDescription = "Menu",
-                        tint = ValyrianGold
+                        tint = ValyrianGold,
                     )
                 }
             }
@@ -61,15 +61,16 @@ fun TargaryenTopBar(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                         contentDescription = "Sair",
-                        tint = ValyrianGold
+                        tint = ValyrianGold,
                     )
                 }
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Obsidian
-        ),
-        modifier = modifier
+        colors =
+            TopAppBarDefaults.topAppBarColors(
+                containerColor = Obsidian,
+            ),
+        modifier = modifier,
     )
 }
 
@@ -80,7 +81,7 @@ fun TargaryenTopBarPreview() {
         TargaryenTopBar(
             title = "O Menu do Dragão",
             onMenuClick = {},
-            onLogoutClick = {}
+            onLogoutClick = {},
         )
     }
 }

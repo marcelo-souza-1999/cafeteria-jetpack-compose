@@ -7,10 +7,16 @@ plugins {
 
 android {
     namespace = "com.targaryen.cafeteria.feature_checkout"
-    compileSdk = libs.versions.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
+        minSdk =
+            libs.versions.minSdk
+                .get()
+                .toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -106,7 +112,7 @@ kover {
                     "*Dimens*",
                     "*Dao_Impl*",
                     "*Database_Impl*",
-                    "*ModuleKt*"
+                    "*ModuleKt*",
                 )
                 annotatedBy("androidx.compose.runtime.Composable")
             }

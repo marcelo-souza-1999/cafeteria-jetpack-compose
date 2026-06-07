@@ -17,7 +17,7 @@ fun CheckoutSuccessFancyDialog(
     message: String,
     isCancelable: Boolean = false,
     onConfirmClick: () -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     SuccessFancyDialog(
         title = title,
@@ -26,17 +26,18 @@ fun CheckoutSuccessFancyDialog(
         message = message,
         isCancelable = isCancelable,
         dialogActionType = DialogActionType.INFORMATIVE,
-        dialogProperties = DialogButtonProperties(
-            neutralButtonText = R.string.dialog_success_button_ok,
-            buttonColor = ValyrianGold,
-            buttonTextColor = Color.Black
-        ),
+        dialogProperties =
+            DialogButtonProperties(
+                neutralButtonText = R.string.dialog_success_button_ok,
+                buttonColor = ValyrianGold,
+                buttonTextColor = Color.Black,
+            ),
         dialogStyle = DialogStyle.UPPER_CUTTING,
         neutralButtonClick = {
             onConfirmClick()
             onDismissRequest()
         },
-        dismissTouchOutside = onDismissRequest
+        dismissTouchOutside = onDismissRequest,
     )
 }
 
@@ -48,7 +49,7 @@ private fun CheckoutSuccessFancyDialogPreview() {
             title = "Tributo Aceito",
             message = "O trono de ferro reconhece seu pagamento. Que o fogo e o sangue guiem seus passos.",
             onConfirmClick = {},
-            onDismissRequest = {}
+            onDismissRequest = {},
         )
     }
 }

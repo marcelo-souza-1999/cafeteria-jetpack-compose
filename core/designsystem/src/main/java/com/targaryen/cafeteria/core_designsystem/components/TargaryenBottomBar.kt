@@ -40,18 +40,18 @@ fun TargaryenBottomBar(
     currentTab: TargaryenTab,
     onTabSelected: (TargaryenTab) -> Unit,
     modifier: Modifier = Modifier,
-    badgeCount: Int = 3
+    badgeCount: Int = 3,
 ) {
     NavigationBar(
         containerColor = Obsidian,
-        modifier = modifier
+        modifier = modifier,
     ) {
         TargaryenTab.entries.forEach { tab ->
             TargaryenBottomBarItem(
                 tab = tab,
                 isSelected = currentTab == tab,
                 badgeCount = badgeCount,
-                onClick = { onTabSelected(tab) }
+                onClick = { onTabSelected(tab) },
             )
         }
     }
@@ -62,58 +62,66 @@ private fun RowScope.TargaryenBottomBarItem(
     tab: TargaryenTab,
     isSelected: Boolean,
     badgeCount: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
-    val label = when (tab) {
-        TargaryenTab.CATALOG -> "Catálogo"
-        TargaryenTab.FAVORITES -> "Favoritos"
-        TargaryenTab.CART -> "Carrinho"
-        TargaryenTab.PROFILE -> "Perfil"
-    }
+    val label =
+        when (tab) {
+            TargaryenTab.CATALOG -> "Catálogo"
+            TargaryenTab.FAVORITES -> "Favoritos"
+            TargaryenTab.CART -> "Carrinho"
+            TargaryenTab.PROFILE -> "Perfil"
+        }
 
     val infiniteTransition = rememberInfiniteTransition(label = "DragonEmbers")
-    val animatedScale = infiniteTransition.animateFloat(
-        initialValue = 0.8f,
-        targetValue = 1.3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "GlowScale"
-    )
-    val animatedAlpha = infiniteTransition.animateFloat(
-        initialValue = 0.2f,
-        targetValue = 0.6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "GlowAlpha"
-    )
+    val animatedScale =
+        infiniteTransition.animateFloat(
+            initialValue = 0.8f,
+            targetValue = 1.3f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "GlowScale",
+        )
+    val animatedAlpha =
+        infiniteTransition.animateFloat(
+            initialValue = 0.2f,
+            targetValue = 0.6f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "GlowAlpha",
+        )
 
     val glowScale = if (isSelected) animatedScale.value else 0f
     val glowAlpha = if (isSelected) animatedAlpha.value else 0f
 
-    val iconModifier = if (isSelected) {
-        Modifier.drawBehind {
-            val radius = size.minDimension / 2f * glowScale
-            drawCircle(
-                brush = Brush.radialGradient(
-                    colors = listOf(
-                        BloodRed.copy(alpha = glowAlpha),
-                        ValyrianGold.copy(alpha = glowAlpha * 0.3f),
-                        Color.Transparent
-                    ),
+    val iconModifier =
+        if (isSelected) {
+            Modifier.drawBehind {
+                val radius = size.minDimension / 2f * glowScale
+                drawCircle(
+                    brush =
+                        Brush.radialGradient(
+                            colors =
+                                listOf(
+                                    BloodRed.copy(alpha = glowAlpha),
+                                    ValyrianGold.copy(alpha = glowAlpha * 0.3f),
+                                    Color.Transparent,
+                                ),
+                            center = center,
+                            radius = radius,
+                        ),
+                    radius = radius,
                     center = center,
-                    radius = radius
-                ),
-                radius = radius,
-                center = center
-            )
+                )
+            }
+        } else {
+            Modifier
         }
-    } else {
-        Modifier
-    }
 
     NavigationBarItem(
         selected = isSelected,
@@ -121,7 +129,7 @@ private fun RowScope.TargaryenBottomBarItem(
         icon = {
             Box(
                 modifier = iconModifier,
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 if (tab == TargaryenTab.CART) {
                     BadgedBox(
@@ -129,27 +137,28 @@ private fun RowScope.TargaryenBottomBarItem(
                             if (badgeCount > 0) {
                                 Badge(
                                     containerColor = BloodRed,
-                                    contentColor = TargaryenWhite
+                                    contentColor = TargaryenWhite,
                                 ) {
                                     Text(text = badgeCount.toString())
                                 }
                             }
-                        }
+                        },
                     ) {
                         Icon(
                             imageVector = Icons.Default.ShoppingCart,
-                            contentDescription = label
+                            contentDescription = label,
                         )
                     }
                 } else {
-                    val icon = when (tab) {
-                        TargaryenTab.CATALOG -> Icons.Default.Home
-                        TargaryenTab.FAVORITES -> Icons.Default.Favorite
-                        TargaryenTab.PROFILE -> Icons.Default.Person
-                    }
+                    val icon =
+                        when (tab) {
+                            TargaryenTab.CATALOG -> Icons.Default.Home
+                            TargaryenTab.FAVORITES -> Icons.Default.Favorite
+                            TargaryenTab.PROFILE -> Icons.Default.Person
+                        }
                     Icon(
                         imageVector = icon,
-                        contentDescription = label
+                        contentDescription = label,
                     )
                 }
             }
@@ -157,13 +166,14 @@ private fun RowScope.TargaryenBottomBarItem(
         label = {
             Text(text = label)
         },
-        colors = NavigationBarItemDefaults.colors(
-            selectedIconColor = ValyrianGold,
-            unselectedIconColor = SilverHair,
-            selectedTextColor = ValyrianGold,
-            unselectedTextColor = SilverHair,
-            indicatorColor = Color.Transparent
-        )
+        colors =
+            NavigationBarItemDefaults.colors(
+                selectedIconColor = ValyrianGold,
+                unselectedIconColor = SilverHair,
+                selectedTextColor = ValyrianGold,
+                unselectedTextColor = SilverHair,
+                indicatorColor = Color.Transparent,
+            ),
     )
 }
 
@@ -173,7 +183,7 @@ fun TargaryenBottomBarPreview() {
     TargaryenTheme {
         TargaryenBottomBar(
             currentTab = TargaryenTab.CART,
-            onTabSelected = {}
+            onTabSelected = {},
         )
     }
 }

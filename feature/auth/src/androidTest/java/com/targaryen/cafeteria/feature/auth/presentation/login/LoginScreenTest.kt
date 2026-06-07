@@ -28,7 +28,6 @@ import org.koin.dsl.module
 
 @RunWith(AndroidJUnit4::class)
 class LoginScreenTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -44,9 +43,11 @@ class LoginScreenTest {
         every { mockViewModel.events } returns eventFlow
 
         startKoin {
-            modules(module {
-                single(named("WebClientId")) { "dummy_client_id" }
-            })
+            modules(
+                module {
+                    single(named("WebClientId")) { "dummy_client_id" }
+                },
+            )
         }
     }
 
@@ -57,14 +58,14 @@ class LoginScreenTest {
 
     private fun setContent(
         onLoginClick: () -> Unit = {},
-        onRegisterClick: () -> Unit = {}
+        onRegisterClick: () -> Unit = {},
     ) {
         composeTestRule.setContent {
             TargaryenTheme {
                 LoginScreen(
                     onLoginClick = onLoginClick,
                     onRegisterClick = onRegisterClick,
-                    viewModel = mockViewModel
+                    viewModel = mockViewModel,
                 )
             }
         }
@@ -109,20 +110,22 @@ class LoginScreenTest {
         composeTestRule.onNodeWithText(context.getString(R.string.action_login)).assertIsNotEnabled()
 
         // Valid state
-        uiStateFlow.value = LoginUiState(
-            email = "valid@test.com",
-            password = "password123"
-        )
+        uiStateFlow.value =
+            LoginUiState(
+                email = "valid@test.com",
+                password = "password123",
+            )
         // Re-composition happens
         composeTestRule.onNodeWithText(context.getString(R.string.action_login)).assertIsEnabled()
     }
 
     @Test
     fun loginScreen_whenLoginClicked_shouldCallViewModel() {
-        uiStateFlow.value = LoginUiState(
-            email = "valid@test.com",
-            password = "password123"
-        )
+        uiStateFlow.value =
+            LoginUiState(
+                email = "valid@test.com",
+                password = "password123",
+            )
         setContent()
 
         composeTestRule.onNodeWithText(context.getString(R.string.action_login)).performClick()

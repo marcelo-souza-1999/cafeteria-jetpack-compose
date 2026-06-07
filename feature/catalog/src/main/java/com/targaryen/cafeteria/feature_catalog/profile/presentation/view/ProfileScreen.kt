@@ -90,7 +90,7 @@ import java.util.Locale
 fun ProfileScreen(
     viewModel: ProfileViewModel,
     modifier: Modifier = Modifier,
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -103,7 +103,7 @@ fun ProfileScreen(
     ProfileScreenContent(
         uiState = uiState,
         onIntent = { intent -> viewModel.onIntent(intent) },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -111,7 +111,7 @@ fun ProfileScreen(
 fun ProfileScreenContent(
     uiState: ProfileState,
     onIntent: (ProfileIntent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
 
@@ -126,39 +126,43 @@ fun ProfileScreenContent(
     val showAvatarOptions = remember { mutableStateOf(false) }
     val croppingImageUri = remember { mutableStateOf<Uri?>(null) }
 
-    val photoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri ->
-            if (uri != null) {
-                croppingImageUri.value = uri
-            }
-        }
-    )
-
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview(),
-        onResult = { bitmap ->
-            if (bitmap != null) {
-                val tempUri = ProfileUtils.saveBitmapToTempFile(context, bitmap)
-                if (tempUri != null) {
-                    croppingImageUri.value = tempUri
+    val photoPickerLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.PickVisualMedia(),
+            onResult = { uri ->
+                if (uri != null) {
+                    croppingImageUri.value = uri
                 }
-            }
-        }
-    )
+            },
+        )
+
+    val cameraLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.TakePicturePreview(),
+            onResult = { bitmap ->
+                if (bitmap != null) {
+                    val tempUri = ProfileUtils.saveBitmapToTempFile(context, bitmap)
+                    if (tempUri != null) {
+                        croppingImageUri.value = tempUri
+                    }
+                }
+            },
+        )
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Obsidian)
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(Obsidian),
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                horizontal = TargaryenTheme.dimens.spaceLarge,
-                vertical = TargaryenTheme.dimens.spaceLarge
-            ),
-            horizontalAlignment = Alignment.CenterHorizontally
+            contentPadding =
+                PaddingValues(
+                    horizontal = TargaryenTheme.dimens.spaceLarge,
+                    vertical = TargaryenTheme.dimens.spaceLarge,
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             item {
                 ProfileAvatarSection(
@@ -169,7 +173,7 @@ fun ProfileScreenContent(
                         if (!uiState.isUpdatingPhoto) {
                             showAvatarOptions.value = true
                         }
-                    }
+                    },
                 )
                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceMedium))
 
@@ -178,7 +182,7 @@ fun ProfileScreenContent(
                     email = uiState.email,
                     onChangeName = { name -> onIntent(ProfileIntent.ChangeName(name)) },
                     onChangeEmail = { email -> onIntent(ProfileIntent.ChangeEmail(email)) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
 
@@ -188,37 +192,48 @@ fun ProfileScreenContent(
                     style = MaterialTheme.typography.bodyMedium,
                     color = SilverHair,
                     modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Start
+                    textAlign = TextAlign.Start,
                 )
                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(TargaryenTheme.dimens.spaceSmall)
+                    horizontalArrangement = Arrangement.spacedBy(TargaryenTheme.dimens.spaceSmall),
                 ) {
                     ProfileUtils.AVATAR_PRESETS.forEach { presetUrl ->
                         Box(
-                            modifier = Modifier
-                                .size(TargaryenTheme.dimens.avatarPreset)
-                                .border(
-                                    BorderStroke(
-                                        if (uiState.photoUrl == presetUrl) TargaryenTheme.dimens.borderMedium else TargaryenTheme.dimens.borderSmall,
-                                        if (uiState.photoUrl == presetUrl) ValyrianGold else SilverHair.copy(
-                                            alpha = 0.3f
-                                        )
-                                    ),
-                                    CircleShape
-                                )
-                                .clickable(enabled = !uiState.isUpdatingPhoto) {
-                                    onIntent(ProfileIntent.UpdatePhoto(presetUrl))
-                                }
+                            modifier =
+                                Modifier
+                                    .size(TargaryenTheme.dimens.avatarPreset)
+                                    .border(
+                                        BorderStroke(
+                                            if (uiState.photoUrl ==
+                                                presetUrl
+                                            ) {
+                                                TargaryenTheme.dimens.borderMedium
+                                            } else {
+                                                TargaryenTheme.dimens.borderSmall
+                                            },
+                                            if (uiState.photoUrl == presetUrl) {
+                                                ValyrianGold
+                                            } else {
+                                                SilverHair.copy(
+                                                    alpha = 0.3f,
+                                                )
+                                            },
+                                        ),
+                                        CircleShape,
+                                    ).clickable(enabled = !uiState.isUpdatingPhoto) {
+                                        onIntent(ProfileIntent.UpdatePhoto(presetUrl))
+                                    },
                         ) {
                             AsyncImage(
                                 model = ProfileUtils.getAvatarModel(presetUrl),
                                 contentDescription = stringResource(R.string.profile_desc_preset),
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(CircleShape),
-                                contentScale = ContentScale.Crop
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .clip(CircleShape),
+                                contentScale = ContentScale.Crop,
                             )
                         }
                     }
@@ -231,41 +246,47 @@ fun ProfileScreenContent(
                     text = stringResource(R.string.profile_banquet_chronicles_title),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = ValyrianGold,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = TargaryenTheme.dimens.spaceSmall),
-                    textAlign = TextAlign.Start
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = TargaryenTheme.dimens.spaceSmall),
+                    textAlign = TextAlign.Start,
                 )
             }
 
             if (uiState.purchaseHistory.isEmpty()) {
                 item {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = TargaryenTheme.dimens.spaceMedium),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = TargaryenTheme.dimens.spaceMedium),
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
                             contentDescription = null,
                             tint = SilverHair.copy(alpha = 0.4f),
-                            modifier = Modifier.size(TargaryenTheme.dimens.spaceMassive)
+                            modifier = Modifier.size(TargaryenTheme.dimens.spaceMassive),
                         )
                         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
                         Text(
                             text = stringResource(R.string.profile_empty_history_desc),
                             color = SilverHair,
                             textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }
             } else {
                 val itemsToShow =
-                    if (uiState.isHistoryExpanded) uiState.purchaseHistory else uiState.purchaseHistory.take(
-                        2
-                    )
+                    if (uiState.isHistoryExpanded) {
+                        uiState.purchaseHistory
+                    } else {
+                        uiState.purchaseHistory.take(
+                            2,
+                        )
+                    }
 
                 items(itemsToShow) { item ->
                     PurchaseHistoryCard(item) {
@@ -278,12 +299,15 @@ fun ProfileScreenContent(
                     item {
                         TextButton(onClick = { onIntent(ProfileIntent.ToggleHistoryExpansion) }) {
                             Text(
-                                text = if (uiState.isHistoryExpanded) {
-                                    stringResource(R.string.profile_history_collapse)
-                                } else {
-                                    "${stringResource(R.string.profile_btn_see_all_records)} (${uiState.purchaseHistory.size})"
-                                },
-                                color = DimmedGold
+                                text =
+                                    if (uiState.isHistoryExpanded) {
+                                        stringResource(R.string.profile_history_collapse)
+                                    } else {
+                                        "${stringResource(
+                                            R.string.profile_btn_see_all_records,
+                                        )} (${uiState.purchaseHistory.size})"
+                                    },
+                                color = DimmedGold,
                             )
                         }
                     }
@@ -294,7 +318,7 @@ fun ProfileScreenContent(
                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
                 ProfileSecuritySection(
                     onResetPasswordClick = { onIntent(ProfileIntent.ShowSecurityModal) },
-                    onDeleteAccountClick = { onIntent(ProfileIntent.ShowDeleteDialog) }
+                    onDeleteAccountClick = { onIntent(ProfileIntent.ShowDeleteDialog) },
                 )
                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
             }
@@ -302,11 +326,12 @@ fun ProfileScreenContent(
 
         if (uiState.isLoading) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.7f))
-                    .clickable(enabled = false) {},
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.7f))
+                        .clickable(enabled = false) {},
+                contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator(color = ValyrianGold)
             }
@@ -314,7 +339,7 @@ fun ProfileScreenContent(
 
         SnackbarHost(
             hostState = snackBarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
 
@@ -324,92 +349,97 @@ fun ProfileScreenContent(
         onLaunchCamera = { cameraLauncher.launch(null) },
         onLaunchGallery = {
             photoPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
             )
         },
         onUploadCroppedPhoto = { croppedUri ->
             onIntent(ProfileIntent.UploadPhoto(croppedUri))
-        }
+        },
     )
 
     ProfileSecurityAndErrorDialogs(
         uiState = uiState,
-        onIntent = onIntent
+        onIntent = onIntent,
     )
 }
 
 @Composable
 private fun ProfileSecurityAndErrorDialogs(
     uiState: ProfileState,
-    onIntent: (ProfileIntent) -> Unit
+    onIntent: (ProfileIntent) -> Unit,
 ) {
     uiState.error?.let { error ->
         ProfileErrorFancyDialog(
             message = error,
-            onDismiss = { onIntent(ProfileIntent.ClearMessages) }
+            onDismiss = { onIntent(ProfileIntent.ClearMessages) },
         )
     }
 
     if (uiState.showSecurityModal) {
         ProfileSecurityBottomSheet(
             onDismissRequest = { onIntent(ProfileIntent.DismissSecurityModal) },
-            onChangePassword = { old, new -> onIntent(ProfileIntent.ChangePassword(old, new)) }
+            onChangePassword = { old, new -> onIntent(ProfileIntent.ChangePassword(old, new)) },
         )
     }
 
     if (uiState.showDeleteConfirmation) {
         ProfileDeleteWarningFancyDialog(
             onConfirm = { onIntent(ProfileIntent.ConfirmDeleteAccount) },
-            onDismiss = { onIntent(ProfileIntent.DismissDeleteDialog) }
+            onDismiss = { onIntent(ProfileIntent.DismissDeleteDialog) },
         )
     }
 
     uiState.selectedPurchase?.let { purchase ->
         PurchaseDetailBottomSheet(
             item = purchase,
-            onDismissRequest = { onIntent(ProfileIntent.DismissPurchaseDetail) }
+            onDismissRequest = { onIntent(ProfileIntent.DismissPurchaseDetail) },
         )
     }
 }
 
 @Composable
-private fun PurchaseHistoryCard(item: PurchaseHistoryItem, onClick: () -> Unit) {
+private fun PurchaseHistoryCard(
+    item: PurchaseHistoryItem,
+    onClick: () -> Unit,
+) {
     val formatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
     val formattedDate = formatter.format(Date(item.dateMillis))
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = CharcoalBlack),
-        border = BorderStroke(TargaryenTheme.dimens.borderSmall, ValyrianGold.copy(alpha = 0.15f))
+        border = BorderStroke(TargaryenTheme.dimens.borderSmall, ValyrianGold.copy(alpha = 0.15f)),
     ) {
         Column(modifier = Modifier.padding(TargaryenTheme.dimens.spaceMedium)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = "Banquete de $formattedDate",
                     style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                    color = ValyrianGold
+                    color = ValyrianGold,
                 )
                 Text(
                     text = item.status,
                     style = MaterialTheme.typography.labelSmall,
-                    color = when (item.status) {
-                        "Aprovado" -> ValyrianGold
-                        "Pendente" -> SilverHair.copy(alpha = 0.7f)
-                        else -> BloodRed
-                    }
+                    color =
+                        when (item.status) {
+                            "Aprovado" -> ValyrianGold
+                            "Pendente" -> SilverHair.copy(alpha = 0.7f)
+                            else -> BloodRed
+                        },
                 )
             }
             Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
             Text(
                 text = item.itemsSummary,
                 color = TargaryenWhite,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
     }
@@ -419,7 +449,7 @@ private fun PurchaseHistoryCard(item: PurchaseHistoryItem, onClick: () -> Unit) 
 fun CropImageDialog(
     imageUri: Uri,
     onConfirm: (Uri) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -441,50 +471,53 @@ fun CropImageDialog(
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Card(
             colors = CardDefaults.cardColors(containerColor = CharcoalBlack),
-            border = BorderStroke(
-                TargaryenTheme.dimens.borderSmall,
-                ValyrianGold.copy(alpha = 0.2f)
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(TargaryenTheme.dimens.spaceMedium)
+            border =
+                BorderStroke(
+                    TargaryenTheme.dimens.borderSmall,
+                    ValyrianGold.copy(alpha = 0.2f),
+                ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(TargaryenTheme.dimens.spaceMedium),
         ) {
             Column(
                 modifier = Modifier.padding(TargaryenTheme.dimens.spaceMedium),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
                     text = stringResource(R.string.profile_crop_title),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = ValyrianGold
+                    color = ValyrianGold,
                 )
                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceMedium))
 
                 Box(
-                    modifier = Modifier
-                        .size(containerSizeDp)
-                        .clip(CircleShape)
-                        .background(Color.Black),
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier
+                            .size(containerSizeDp)
+                            .clip(CircleShape)
+                            .background(Color.Black),
+                    contentAlignment = Alignment.Center,
                 ) {
                     androidx.compose.foundation.Image(
                         bitmap = bitmap.asImageBitmap(),
                         contentDescription = null,
                         contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .pointerInput(Unit) {
-                                detectTransformGestures { _, pan, _, _ ->
-                                    offsetX.floatValue += pan.x
-                                    offsetY.floatValue += pan.y
-                                }
-                            }
-                            .graphicsLayer(
-                                scaleX = scale.floatValue,
-                                scaleY = scale.floatValue,
-                                translationX = offsetX.floatValue,
-                                translationY = offsetY.floatValue
-                            )
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .pointerInput(Unit) {
+                                    detectTransformGestures { _, pan, _, _ ->
+                                        offsetX.floatValue += pan.x
+                                        offsetY.floatValue += pan.y
+                                    }
+                                }.graphicsLayer(
+                                    scaleX = scale.floatValue,
+                                    scaleY = scale.floatValue,
+                                    translationX = offsetX.floatValue,
+                                    translationY = offsetY.floatValue,
+                                ),
                     )
                 }
 
@@ -492,38 +525,40 @@ fun CropImageDialog(
                 Text(
                     text = stringResource(R.string.profile_crop_zoom),
                     color = SilverHair,
-                    style = MaterialTheme.typography.labelSmall
+                    style = MaterialTheme.typography.labelSmall,
                 )
                 Slider(
                     value = scale.floatValue,
                     onValueChange = { newScale -> scale.floatValue = newScale },
                     valueRange = 1f..3f,
-                    colors = androidx.compose.material3.SliderDefaults.colors(
-                        thumbColor = ValyrianGold,
-                        activeTrackColor = ValyrianGold,
-                        inactiveTrackColor = SilverHair.copy(alpha = 0.2f)
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                    colors =
+                        androidx.compose.material3.SliderDefaults.colors(
+                            thumbColor = ValyrianGold,
+                            activeTrackColor = ValyrianGold,
+                            inactiveTrackColor = SilverHair.copy(alpha = 0.2f),
+                        ),
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceMedium))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.End,
                 ) {
                     TextButton(onClick = onDismiss) {
                         Text(stringResource(R.string.profile_btn_cancel), color = SilverHair)
                     }
                     Spacer(modifier = Modifier.width(TargaryenTheme.dimens.spaceSmall))
                     TextButton(onClick = {
-                        val croppedBitmap = ProfileUtils.cropBitmap(
-                            originalBitmap = bitmap,
-                            scale = scale.floatValue,
-                            offsetX = offsetX.floatValue,
-                            offsetY = offsetY.floatValue,
-                            containerSizePx = containerSizePx,
-                            cropSize = 500
-                        )
+                        val croppedBitmap =
+                            ProfileUtils.cropBitmap(
+                                originalBitmap = bitmap,
+                                scale = scale.floatValue,
+                                offsetX = offsetX.floatValue,
+                                offsetY = offsetY.floatValue,
+                                containerSizePx = containerSizePx,
+                                cropSize = 500,
+                            )
                         val croppedUri = ProfileUtils.saveBitmapToTempFile(context, croppedBitmap)
                         if (croppedUri != null) {
                             onConfirm(croppedUri)
@@ -543,7 +578,7 @@ private fun AvatarImageDialogs(
     croppingImageUri: MutableState<Uri?>,
     onLaunchCamera: () -> Unit,
     onLaunchGallery: () -> Unit,
-    onUploadCroppedPhoto: (Uri) -> Unit
+    onUploadCroppedPhoto: (Uri) -> Unit,
 ) {
     if (showAvatarOptions.value) {
         AlertDialog(
@@ -552,13 +587,13 @@ private fun AvatarImageDialogs(
                 Text(
                     text = stringResource(R.string.profile_photo_source_title),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = ValyrianGold
+                    color = ValyrianGold,
                 )
             },
             text = {
                 Text(
                     text = stringResource(R.string.profile_photo_source_desc),
-                    color = SilverHair
+                    color = SilverHair,
                 )
             },
             confirmButton = {
@@ -568,7 +603,7 @@ private fun AvatarImageDialogs(
                 }) {
                     Text(
                         stringResource(R.string.profile_photo_source_gallery),
-                        color = ValyrianGold
+                        color = ValyrianGold,
                     )
                 }
             },
@@ -580,7 +615,7 @@ private fun AvatarImageDialogs(
                     }) {
                         Text(
                             stringResource(R.string.profile_photo_source_camera),
-                            color = ValyrianGold
+                            color = ValyrianGold,
                         )
                     }
                     Spacer(modifier = Modifier.width(TargaryenTheme.dimens.spaceSmall))
@@ -591,7 +626,7 @@ private fun AvatarImageDialogs(
             },
             containerColor = CharcoalBlack,
             shape = MaterialTheme.shapes.medium,
-            tonalElevation = TargaryenTheme.dimens.spaceExtraSmall
+            tonalElevation = TargaryenTheme.dimens.spaceExtraSmall,
         )
     }
 
@@ -604,7 +639,7 @@ private fun AvatarImageDialogs(
             },
             onDismiss = {
                 croppingImageUri.value = null
-            }
+            },
         )
     }
 }
@@ -618,40 +653,42 @@ private const val MOCK_PRICE_LOW = 10.00
 @Preview(name = "Profile Screen - Default State")
 @Composable
 fun ProfileScreenPreview() {
-    val mockState = ProfileState(
-        name = "Aegon Targaryen",
-        email = "aegon.conqueror@valyria.com",
-        photoUrl = "preset_dragon",
-        purchaseHistory = listOf(
-            PurchaseHistoryItem(
-                "ORD-001",
-                System.currentTimeMillis(),
-                MOCK_PRICE_HIGH,
-                "2x Dragonstone Brew, 1x Banquete de Aegon",
-                "Entregue nas Chamas"
-            ),
-            PurchaseHistoryItem(
-                "ORD-002",
-                System.currentTimeMillis() - ONE_DAY_MILLIS,
-                MOCK_PRICE_MID,
-                "3x Valyrian Velvet Latte",
-                "Preparando nos Fornos"
-            ),
-            PurchaseHistoryItem(
-                "ORD-003",
-                System.currentTimeMillis() - TWO_DAYS_MILLIS,
-                MOCK_PRICE_LOW,
-                "1x Café Negro",
-                "Entregue nas Chamas"
-            )
+    val mockState =
+        ProfileState(
+            name = "Aegon Targaryen",
+            email = "aegon.conqueror@valyria.com",
+            photoUrl = "preset_dragon",
+            purchaseHistory =
+                listOf(
+                    PurchaseHistoryItem(
+                        "ORD-001",
+                        System.currentTimeMillis(),
+                        MOCK_PRICE_HIGH,
+                        "2x Dragonstone Brew, 1x Banquete de Aegon",
+                        "Entregue nas Chamas",
+                    ),
+                    PurchaseHistoryItem(
+                        "ORD-002",
+                        System.currentTimeMillis() - ONE_DAY_MILLIS,
+                        MOCK_PRICE_MID,
+                        "3x Valyrian Velvet Latte",
+                        "Preparando nos Fornos",
+                    ),
+                    PurchaseHistoryItem(
+                        "ORD-003",
+                        System.currentTimeMillis() - TWO_DAYS_MILLIS,
+                        MOCK_PRICE_LOW,
+                        "1x Café Negro",
+                        "Entregue nas Chamas",
+                    ),
+                ),
         )
-    )
 
     TargaryenTheme {
         ProfileScreenContent(
             uiState = mockState,
             onIntent = {},
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }

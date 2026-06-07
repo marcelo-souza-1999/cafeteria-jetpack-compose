@@ -11,5 +11,5 @@ data class ViaCepResponse(
     @SerialName("bairro") val bairro: String? = null,
     @SerialName("localidade") val localidade: String? = null,
     @SerialName("uf") val uf: String? = null,
-    @SerialName("erro") val erro: Boolean? = null
+    @SerialName("erro") val erro: Boolean? = null,
 )

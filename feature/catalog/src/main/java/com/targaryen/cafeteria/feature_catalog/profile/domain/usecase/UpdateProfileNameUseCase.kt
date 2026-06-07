@@ -8,9 +8,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class UpdateProfileNameUseCase(
-    private val repository: ProfileRepository
+    private val repository: ProfileRepository,
 ) {
-    operator fun invoke(name: String): Flow<Resource<Unit, ProfileError>> {
-        return repository.updateProfileName(name)
-    }
+    operator fun invoke(name: String): Flow<Resource<Unit, ProfileError>> = repository.updateProfileName(name)
 }

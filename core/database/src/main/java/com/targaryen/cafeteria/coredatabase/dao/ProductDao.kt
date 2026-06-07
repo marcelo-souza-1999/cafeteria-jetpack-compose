@@ -22,10 +22,16 @@ interface ProductDao {
     suspend fun insertProducts(products: List<ProductEntity>)
 
     @Query("UPDATE products SET isFavorite = :isFavorite WHERE id = :id")
-    suspend fun updateFavoriteStatus(id: String, isFavorite: Boolean)
+    suspend fun updateFavoriteStatus(
+        id: String,
+        isFavorite: Boolean,
+    )
 
     @Query("UPDATE products SET quantityInCart = :quantity WHERE id = :id")
-    suspend fun updateCartQuantity(id: String, quantity: Int)
+    suspend fun updateCartQuantity(
+        id: String,
+        quantity: Int,
+    )
 
     @Query("UPDATE products SET quantityInCart = 0")
     suspend fun clearCart()

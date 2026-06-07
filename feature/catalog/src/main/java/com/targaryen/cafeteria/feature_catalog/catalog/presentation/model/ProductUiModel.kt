@@ -8,5 +8,5 @@ data class ProductUiModel(
     val category: String,
     val quantityInCart: Int = 0,
     val imageUrl: String? = null,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
 )

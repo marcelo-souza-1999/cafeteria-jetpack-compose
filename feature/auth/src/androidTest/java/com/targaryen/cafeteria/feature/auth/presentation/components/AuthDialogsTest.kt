@@ -16,7 +16,6 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class AuthDialogsTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -30,14 +29,14 @@ class AuthDialogsTest {
     fun errorDialog_shouldDisplayCorrectTitleAndMessage() {
         val title = "Error Title"
         val message = "Error Message"
-        
+
         composeTestRule.setContent {
             TargaryenTheme {
                 AuthErrorFancyDialog(
                     title = title,
                     message = message,
                     onRetryClick = onRetryClick,
-                    onDismissRequest = onDismissRequest
+                    onDismissRequest = onDismissRequest,
                 )
             }
         }
@@ -54,7 +53,7 @@ class AuthDialogsTest {
                     title = "Error",
                     message = "Message",
                     onRetryClick = onRetryClick,
-                    onDismissRequest = onDismissRequest
+                    onDismissRequest = onDismissRequest,
                 )
             }
         }
@@ -69,14 +68,14 @@ class AuthDialogsTest {
     fun successDialog_shouldDisplayCorrectTitleAndMessage() {
         val title = "Success Title"
         val message = "Success Message"
-        
+
         composeTestRule.setContent {
             TargaryenTheme {
                 AuthSuccessFancyDialog(
                     title = title,
                     message = message,
                     onConfirmClick = onConfirmClick,
-                    onDismissRequest = onDismissRequest
+                    onDismissRequest = onDismissRequest,
                 )
             }
         }
@@ -93,7 +92,7 @@ class AuthDialogsTest {
                     title = "Success",
                     message = "Message",
                     onConfirmClick = onConfirmClick,
-                    onDismissRequest = onDismissRequest
+                    onDismissRequest = onDismissRequest,
                 )
             }
         }

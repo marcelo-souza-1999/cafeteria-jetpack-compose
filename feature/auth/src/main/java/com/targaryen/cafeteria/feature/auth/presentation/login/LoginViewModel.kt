@@ -20,9 +20,8 @@ import org.koin.core.annotation.KoinViewModel
 class LoginViewModel(
     private val signInWithEmailUseCase: SignInWithEmailUseCase,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
-    private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase
+    private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase,
 ) : ViewModel() {
-
     val uiState: StateFlow<LoginUiState>
         field: MutableStateFlow<LoginUiState> = MutableStateFlow(LoginUiState())
 
@@ -38,22 +37,22 @@ class LoginViewModel(
     }
 
     fun onForgotPasswordClick() {
-        uiState.update { 
+        uiState.update {
             it.copy(
-                isForgotPasswordSheetOpen = true, 
-                forgotPasswordEmail = it.email, 
-                isForgotPasswordSuccess = false
-            ) 
+                isForgotPasswordSheetOpen = true,
+                forgotPasswordEmail = it.email,
+                isForgotPasswordSuccess = false,
+            )
         }
     }
 
     fun onForgotPasswordDismiss() {
-        uiState.update { 
+        uiState.update {
             it.copy(
-                isForgotPasswordSheetOpen = false, 
-                forgotPasswordEmail = "", 
-                isForgotPasswordSuccess = false
-            ) 
+                isForgotPasswordSheetOpen = false,
+                forgotPasswordEmail = "",
+                isForgotPasswordSuccess = false,
+            )
         }
     }
 
@@ -67,7 +66,7 @@ class LoginViewModel(
 
         viewModelScope.launch {
             uiState.update { it.copy(isForgotPasswordLoading = true, isForgotPasswordSuccess = false) }
-            
+
             sendPasswordResetEmailUseCase(email).collect { resource ->
                 uiState.update { it.copy(isForgotPasswordLoading = false) }
                 when (resource) {
@@ -89,7 +88,7 @@ class LoginViewModel(
 
         viewModelScope.launch {
             uiState.update { it.copy(isEmailLoading = true) }
-            
+
             signInWithEmailUseCase(currentState.email, currentState.password).collect { resource ->
                 uiState.update { it.copy(isEmailLoading = false) }
                 when (resource) {

@@ -14,7 +14,7 @@ import com.targaryen.cafeteria.feature_catalog.R
 @Composable
 fun LogoutConfirmationDialog(
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     WarningFancyDialog(
         title = stringResource(R.string.logout_confirm_title),
@@ -23,16 +23,17 @@ fun LogoutConfirmationDialog(
         message = stringResource(R.string.logout_confirm_msg),
         isCancelable = true,
         dialogActionType = DialogActionType.ACTIONABLE,
-        dialogProperties = DialogButtonProperties(
-            positiveButtonText = R.string.logout_btn_confirm,
-            negativeButtonText = R.string.logout_btn_dismiss,
-            buttonColor = MaterialTheme.colorScheme.error,
-            buttonTextColor = MaterialTheme.colorScheme.onError
-        ),
+        dialogProperties =
+            DialogButtonProperties(
+                positiveButtonText = R.string.logout_btn_confirm,
+                negativeButtonText = R.string.logout_btn_dismiss,
+                buttonColor = MaterialTheme.colorScheme.error,
+                buttonTextColor = MaterialTheme.colorScheme.onError,
+            ),
         dialogStyle = DialogStyle.UPPER_CUTTING,
         positiveButtonClick = onConfirm,
         negativeButtonClick = onDismiss,
-        dismissTouchOutside = onDismiss
+        dismissTouchOutside = onDismiss,
     )
 }
 

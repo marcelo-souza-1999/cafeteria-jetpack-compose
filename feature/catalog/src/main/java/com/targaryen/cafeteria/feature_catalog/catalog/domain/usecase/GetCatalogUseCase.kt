@@ -7,9 +7,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class GetCatalogUseCase(
-    private val repository: CatalogRepository
+    private val repository: CatalogRepository,
 ) {
-    operator fun invoke(): Flow<List<Product>> {
-        return repository.getProducts()
-    }
+    operator fun invoke(): Flow<List<Product>> = repository.getProducts()
 }

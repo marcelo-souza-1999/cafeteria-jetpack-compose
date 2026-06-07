@@ -24,31 +24,32 @@ fun TargaryenButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
 ) {
     Button(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         enabled = enabled && !isLoading,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = BloodRed,
-            contentColor = ValyrianGold,
-            disabledContainerColor = BloodRed.copy(alpha = 0.5f),
-            disabledContentColor = ValyrianGold.copy(alpha = 0.5f)
-        ),
-        shape = RoundedCornerShape(TargaryenTheme.dimens.radiusMedium)
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = BloodRed,
+                contentColor = ValyrianGold,
+                disabledContainerColor = BloodRed.copy(alpha = 0.5f),
+                disabledContentColor = ValyrianGold.copy(alpha = 0.5f),
+            ),
+        shape = RoundedCornerShape(TargaryenTheme.dimens.radiusMedium),
     ) {
         Box(contentAlignment = Alignment.Center) {
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
                     color = ValyrianGold,
-                    strokeWidth = 2.dp
+                    strokeWidth = 2.dp,
                 )
             } else {
                 Text(
                     text = text,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             }
         }
@@ -58,10 +59,10 @@ fun TargaryenButton(
 @Preview(showBackground = true)
 @Composable
 private fun TargaryenButtonPreviewLight() {
-    TargaryenTheme() {
+    TargaryenTheme {
         TargaryenButton(
             text = "Reivindicar",
-            onClick = {}
+            onClick = {},
         )
     }
 }
@@ -69,10 +70,10 @@ private fun TargaryenButtonPreviewLight() {
 @Preview(showBackground = true)
 @Composable
 private fun TargaryenButtonPreviewDark() {
-    TargaryenTheme() {
+    TargaryenTheme {
         TargaryenButton(
             text = "Reivindicar",
-            onClick = {}
+            onClick = {},
         )
     }
 }

@@ -107,7 +107,7 @@ kover {
                     "*Dimens*",
                     "*Dao_Impl*",
                     "*Database_Impl*",
-                    "*ModuleKt*"
+                    "*ModuleKt*",
                 )
                 annotatedBy("androidx.compose.runtime.Composable")
             }

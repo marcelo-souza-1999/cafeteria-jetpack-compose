@@ -24,74 +24,79 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class CheckoutRepositoryImplTest {
-
     private val viaCepDataSource: ViaCepDataSource = mockk()
     private val mercadoPagoDataSource: MercadoPagoDataSource = mockk()
     private val firestore: FirebaseFirestore = mockk(relaxed = true)
 
     private lateinit var repository: CheckoutRepositoryImpl
 
-    private val mockProducts = listOf(
-        Product(
-            id = "1",
-            name = "Espresso",
-            description = "Desc",
-            price = 5.0,
-            imageUrl = "",
-            category = "DRAGON_FIRE",
-            isFavorite = false,
-            quantityInCart = 2
+    private val mockProducts =
+        listOf(
+            Product(
+                id = "1",
+                name = "Espresso",
+                description = "Desc",
+                price = 5.0,
+                imageUrl = "",
+                category = "DRAGON_FIRE",
+                isFavorite = false,
+                quantityInCart = 2,
+            ),
         )
-    )
 
     @Before
     fun setup() {
-        repository = CheckoutRepositoryImpl(
-            viaCepDataSource = viaCepDataSource,
-            mercadoPagoDataSource = mercadoPagoDataSource,
-            firestore = firestore
-        )
+        repository =
+            CheckoutRepositoryImpl(
+                viaCepDataSource = viaCepDataSource,
+                mercadoPagoDataSource = mercadoPagoDataSource,
+                firestore = firestore,
+            )
     }
 
     @Test
-    fun fetchAddressByCep_shouldDelegateToViaCepDataSource() = runTest {
-        val mockResponse = ViaCepResponse(cep = "01001-000", logradouro = "Praca da Se")
-        coEvery { viaCepDataSource.fetchAddressByCep("01001000") } returns Result.success(mockResponse)
+    fun fetchAddressByCep_shouldDelegateToViaCepDataSource() =
+        runTest {
+            val mockResponse = ViaCepResponse(cep = "01001-000", logradouro = "Praca da Se")
+            coEvery { viaCepDataSource.fetchAddressByCep("01001000") } returns Result.success(mockResponse)
 
-        val result = repository.fetchAddressByCep("01001000")
+            val result = repository.fetchAddressByCep("01001000")
 
-        assertTrue(result.isSuccess)
-        assertEquals(mockResponse, result.getOrNull())
-        coVerify { viaCepDataSource.fetchAddressByCep("01001000") }
-    }
-
-    @Test
-    fun createPreferenceForCart_whenCartNotEmpty_shouldDelegateToMercadoPagoDataSource() = runTest {
-        val mockResponse = MpPreferenceResponse(id = "pref_123")
-        coEvery { mercadoPagoDataSource.createPreference(any()) } returns Result.success(mockResponse)
-
-        val result = repository.createPreferenceForCart(mockProducts)
-
-        assertTrue(result.isSuccess)
-        assertEquals(mockResponse, result.getOrNull())
-        coVerify { mercadoPagoDataSource.createPreference(any()) }
-    }
+            assertTrue(result.isSuccess)
+            assertEquals(mockResponse, result.getOrNull())
+            coVerify { viaCepDataSource.fetchAddressByCep("01001000") }
+        }
 
     @Test
-    fun saveOrder_shouldInsertIntoFirestoreOrdersCollection() = runTest {
-        val collectionRef: CollectionReference = mockk()
-        val docRef: DocumentReference = mockk()
-        every { firestore.collection("orders") } returns collectionRef
-        every { collectionRef.add(any()) } returns Tasks.forResult(docRef)
+    fun createPreferenceForCart_whenCartNotEmpty_shouldDelegateToMercadoPagoDataSource() =
+        runTest {
+            val mockResponse = MpPreferenceResponse(id = "pref_123")
+            coEvery { mercadoPagoDataSource.createPreference(any()) } returns Result.success(mockResponse)
 
-        val result = repository.saveOrder(
-            userId = "user_123",
-            itemsSummary = "2x Espresso",
-            totalPrice = 10.0,
-            status = "Aprovado"
-        )
+            val result = repository.createPreferenceForCart(mockProducts)
 
-        assertTrue(result.isSuccess)
-        verify { firestore.collection("orders") }
-    }
+            assertTrue(result.isSuccess)
+            assertEquals(mockResponse, result.getOrNull())
+            coVerify { mercadoPagoDataSource.createPreference(any()) }
+        }
+
+    @Test
+    fun saveOrder_shouldInsertIntoFirestoreOrdersCollection() =
+        runTest {
+            val collectionRef: CollectionReference = mockk()
+            val docRef: DocumentReference = mockk()
+            every { firestore.collection("orders") } returns collectionRef
+            every { collectionRef.add(any()) } returns Tasks.forResult(docRef)
+
+            val result =
+                repository.saveOrder(
+                    userId = "user_123",
+                    itemsSummary = "2x Espresso",
+                    totalPrice = 10.0,
+                    status = "Aprovado",
+                )
+
+            assertTrue(result.isSuccess)
+            verify { firestore.collection("orders") }
+        }
 }

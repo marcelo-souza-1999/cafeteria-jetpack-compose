@@ -14,7 +14,7 @@ import com.targaryen.cafeteria.feature_catalog.R
 @Composable
 fun ProfileDeleteWarningFancyDialog(
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     WarningFancyDialog(
         title = stringResource(R.string.profile_dialog_delete_title),
@@ -23,16 +23,17 @@ fun ProfileDeleteWarningFancyDialog(
         message = stringResource(R.string.profile_dialog_delete_msg),
         isCancelable = true,
         dialogActionType = DialogActionType.ACTIONABLE,
-        dialogProperties = DialogButtonProperties(
-            positiveButtonText = R.string.profile_dialog_error_retry,
-            negativeButtonText = R.string.profile_dialog_error_cancel,
-            buttonColor = MaterialTheme.colorScheme.error,
-            buttonTextColor = MaterialTheme.colorScheme.onError
-        ),
+        dialogProperties =
+            DialogButtonProperties(
+                positiveButtonText = R.string.profile_dialog_error_retry,
+                negativeButtonText = R.string.profile_dialog_error_cancel,
+                buttonColor = MaterialTheme.colorScheme.error,
+                buttonTextColor = MaterialTheme.colorScheme.onError,
+            ),
         dialogStyle = DialogStyle.UPPER_CUTTING,
         positiveButtonClick = onConfirm,
         negativeButtonClick = onDismiss,
-        dismissTouchOutside = onDismiss
+        dismissTouchOutside = onDismiss,
     )
 }
 

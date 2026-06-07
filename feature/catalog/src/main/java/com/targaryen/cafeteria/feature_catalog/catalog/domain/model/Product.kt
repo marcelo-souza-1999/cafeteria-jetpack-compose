@@ -8,5 +8,5 @@ data class Product(
     val imageUrl: String,
     val category: String,
     val isFavorite: Boolean,
-    val quantityInCart: Int = 0
+    val quantityInCart: Int = 0,
 )

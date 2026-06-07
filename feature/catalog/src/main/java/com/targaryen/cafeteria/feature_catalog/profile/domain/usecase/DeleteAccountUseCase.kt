@@ -8,9 +8,7 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class DeleteAccountUseCase(
-    private val repository: ProfileRepository
+    private val repository: ProfileRepository,
 ) {
-    operator fun invoke(): Flow<Resource<Unit, ProfileError>> {
-        return repository.deleteAccount()
-    }
+    operator fun invoke(): Flow<Resource<Unit, ProfileError>> = repository.deleteAccount()
 }

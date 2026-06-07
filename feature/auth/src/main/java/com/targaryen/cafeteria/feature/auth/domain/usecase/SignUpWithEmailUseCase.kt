@@ -8,9 +8,11 @@ import org.koin.core.annotation.Factory
 
 @Factory
 class SignUpWithEmailUseCase(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
 ) {
-    operator fun invoke(name: String, email: String, pass: String): Flow<Resource<Unit, AuthError>> {
-        return repository.signUpWithEmail(name, email, pass)
-    }
+    operator fun invoke(
+        name: String,
+        email: String,
+        pass: String,
+    ): Flow<Resource<Unit, AuthError>> = repository.signUpWithEmail(name, email, pass)
 }
