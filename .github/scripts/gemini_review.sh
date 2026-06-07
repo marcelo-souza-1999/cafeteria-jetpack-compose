@@ -40,9 +40,9 @@ jq -n \
     }]
   }' > gemini_request.json
 
-echo "Disparando chamada para a API do Gemini (gemini-1.5-flash)..."
+echo "Disparando chamada para a API do Gemini (gemini-3.5-flash)..."
 RESPONSE=$(curl -s -X POST \
-  "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}" \
+  "https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}" \
   -H "Content-Type: application/json" \
   -d @gemini_request.json)
 
