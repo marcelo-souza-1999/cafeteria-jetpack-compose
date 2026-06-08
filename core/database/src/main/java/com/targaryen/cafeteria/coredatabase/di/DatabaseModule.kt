@@ -2,9 +2,9 @@ package com.targaryen.cafeteria.coredatabase.di
 
 import android.content.Context
 import androidx.room3.Room
-import com.targaryen.cafeteria.coredatabase.TargaryenDatabase
 import com.targaryen.cafeteria.coredatabase.dao.ProductDao
 import com.targaryen.cafeteria.coredatabase.dao.UserDao
+import com.targaryen.cafeteria.coredatabase.database.TargaryenDatabase
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single

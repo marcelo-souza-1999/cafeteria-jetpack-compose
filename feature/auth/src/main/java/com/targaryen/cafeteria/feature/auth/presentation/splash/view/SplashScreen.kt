@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.feature.auth.presentation.splash
+package com.targaryen.cafeteria.feature.auth.presentation.splash.view
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -21,6 +21,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.feature.auth.R
+import com.targaryen.cafeteria.feature.auth.presentation.splash.state.SplashEvent
+import com.targaryen.cafeteria.feature.auth.presentation.splash.viewmodel.SplashViewModel
 import org.koin.androidx.compose.koinViewModel
 import com.targaryen.cafeteria.core_designsystem.R as DesignSystemR
 

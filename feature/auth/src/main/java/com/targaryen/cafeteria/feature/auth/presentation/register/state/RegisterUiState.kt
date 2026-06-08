@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.feature.auth.presentation.register
+package com.targaryen.cafeteria.feature.auth.presentation.register.state
 
 data class RegisterUiState(
     val name: String = "",

@@ -6,6 +6,8 @@ import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SendPasswordResetEmailUseCase
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithEmailUseCase
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithGoogleUseCase
+import com.targaryen.cafeteria.feature.auth.presentation.login.state.LoginEvent
+import com.targaryen.cafeteria.feature.auth.presentation.login.viewmodel.LoginViewModel
 import com.targaryen.cafeteria.feature.auth.util.MainDispatcherRule
 import io.mockk.every
 import io.mockk.mockk

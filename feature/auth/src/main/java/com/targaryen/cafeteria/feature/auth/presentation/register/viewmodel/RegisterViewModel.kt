@@ -1,10 +1,12 @@
-package com.targaryen.cafeteria.feature.auth.presentation.register
+package com.targaryen.cafeteria.feature.auth.presentation.register.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithGoogleUseCase
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignUpWithEmailUseCase
+import com.targaryen.cafeteria.feature.auth.presentation.register.state.RegisterEvent
+import com.targaryen.cafeteria.feature.auth.presentation.register.state.RegisterUiState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

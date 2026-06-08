@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.feature.auth.presentation.register
+package com.targaryen.cafeteria.feature.auth.presentation.register.view
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.Image
@@ -54,6 +54,10 @@ import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.feature.auth.R
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import com.targaryen.cafeteria.feature.auth.presentation.components.AuthErrorFancyDialog
+import com.targaryen.cafeteria.feature.auth.presentation.register.state.RegisterActions
+import com.targaryen.cafeteria.feature.auth.presentation.register.state.RegisterEvent
+import com.targaryen.cafeteria.feature.auth.presentation.register.state.RegisterUiState
+import com.targaryen.cafeteria.feature.auth.presentation.register.viewmodel.RegisterViewModel
 import com.targaryen.cafeteria.feature.auth.presentation.util.GoogleAuthUiClient
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel

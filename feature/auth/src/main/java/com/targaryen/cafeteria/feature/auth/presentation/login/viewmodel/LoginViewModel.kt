@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.feature.auth.presentation.login
+package com.targaryen.cafeteria.feature.auth.presentation.login.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,6 +7,8 @@ import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SendPasswordResetEmailUseCase
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithEmailUseCase
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithGoogleUseCase
+import com.targaryen.cafeteria.feature.auth.presentation.login.state.LoginEvent
+import com.targaryen.cafeteria.feature.auth.presentation.login.state.LoginUiState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

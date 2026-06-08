@@ -2,6 +2,8 @@ package com.targaryen.cafeteria.feature.auth.presentation.splash
 
 import app.cash.turbine.test
 import com.targaryen.cafeteria.feature.auth.domain.usecase.CheckAuthSessionUseCase
+import com.targaryen.cafeteria.feature.auth.presentation.splash.state.SplashEvent
+import com.targaryen.cafeteria.feature.auth.presentation.splash.viewmodel.SplashViewModel
 import com.targaryen.cafeteria.feature.auth.util.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.mockk

@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.app
+package com.targaryen.cafeteria.app.application
 
 import android.app.Application
 import org.koin.android.ext.koin.androidContext

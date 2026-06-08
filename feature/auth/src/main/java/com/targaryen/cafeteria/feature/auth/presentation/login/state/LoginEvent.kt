@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.feature.auth.presentation.login
+package com.targaryen.cafeteria.feature.auth.presentation.login.state
 
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 

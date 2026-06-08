@@ -1,6 +1,7 @@
-package com.targaryen.cafeteria.app
+package com.targaryen.cafeteria.app.application
 
 import android.content.Context
+import com.targaryen.cafeteria.app.R
 import com.targaryen.cafeteria.core_network.di.NetworkModule
 import com.targaryen.cafeteria.coredatabase.di.DatabaseModule
 import com.targaryen.cafeteria.feature.auth.di.AuthModule

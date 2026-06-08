@@ -5,6 +5,8 @@ import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithGoogleUseCase
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignUpWithEmailUseCase
+import com.targaryen.cafeteria.feature.auth.presentation.register.state.RegisterEvent
+import com.targaryen.cafeteria.feature.auth.presentation.register.viewmodel.RegisterViewModel
 import com.targaryen.cafeteria.feature.auth.util.MainDispatcherRule
 import io.mockk.every
 import io.mockk.mockk

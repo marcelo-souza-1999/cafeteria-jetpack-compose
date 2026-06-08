@@ -50,4 +50,8 @@
     <string name="logout_confirm_msg">Deseja mesmo se afastar do Trono de Ferro? A sua dinastia e as chamas da Cafeteria Targaryen aguardarão seu glorioso retorno.</string>
     <string name="logout_btn_confirm">Abandonar Trono</string>
     <string name="logout_btn_dismiss">Permanecer</string>
+    <string name="profile_banquet_title_format">Banquete de %s</string>
+    <!-- Statuses -->
+    <string name="status_approved">Aprovado</string>
+    <string name="status_pending">Pendente</string>
 </resources>
