@@ -9,7 +9,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
 import com.targaryen.cafeteria.feature.auth.domain.repository.AuthRepository
-import com.targaryen.cafeteria.feature.auth.presentation.login.view.LoginScreen
+import com.targaryen.cafeteria.feature.auth.presentation.login.LoginScreen
 import com.targaryen.cafeteria.feature.auth.presentation.register.view.RegisterScreen
 import com.targaryen.cafeteria.feature.auth.presentation.splash.view.SplashScreen
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.CatalogScreen

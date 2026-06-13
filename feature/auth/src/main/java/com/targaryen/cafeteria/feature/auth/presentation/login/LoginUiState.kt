@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.feature.auth.presentation.login.state
+package com.targaryen.cafeteria.feature.auth.presentation.login
 
 data class LoginUiState(
     val email: String = "",

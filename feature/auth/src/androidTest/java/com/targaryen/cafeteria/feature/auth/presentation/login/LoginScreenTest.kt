@@ -11,10 +11,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.feature.auth.R
-import com.targaryen.cafeteria.feature.auth.presentation.login.state.LoginEvent
-import com.targaryen.cafeteria.feature.auth.presentation.login.state.LoginUiState
-import com.targaryen.cafeteria.feature.auth.presentation.login.view.LoginScreen
-import com.targaryen.cafeteria.feature.auth.presentation.login.viewmodel.LoginViewModel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

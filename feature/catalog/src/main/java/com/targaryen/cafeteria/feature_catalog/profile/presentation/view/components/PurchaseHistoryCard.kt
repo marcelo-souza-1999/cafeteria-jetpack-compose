@@ -28,8 +28,9 @@ import com.targaryen.cafeteria.core_designsystem.theme.TargaryenWhite
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.feature_catalog.R
 import com.targaryen.cafeteria.feature_catalog.profile.domain.model.PurchaseHistoryItem
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
@@ -37,8 +38,14 @@ fun PurchaseHistoryCard(
     item: PurchaseHistoryItem,
     onClick: () -> Unit,
 ) {
-    val formatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
-    val formattedDate = formatter.format(Date(item.dateMillis))
+    val formatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.getDefault()) }
+    val formattedDate =
+        remember(item.dateMillis) {
+            Instant
+                .ofEpochMilli(item.dateMillis)
+                .atZone(ZoneId.systemDefault())
+                .format(formatter)
+        }
 
     Card(
         modifier =

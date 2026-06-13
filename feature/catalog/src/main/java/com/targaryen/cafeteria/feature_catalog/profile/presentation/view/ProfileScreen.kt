@@ -37,6 +37,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -106,15 +107,15 @@ fun ProfileScreenContent(
     }
 
     val context = LocalContext.current
-    val showAvatarOptions = remember { mutableStateOf(false) }
-    val croppingImageUri = remember { mutableStateOf<Uri?>(null) }
+    var showAvatarOptions by remember { mutableStateOf(false) }
+    var croppingImageUri by remember { mutableStateOf<Uri?>(null) }
 
     val photoPickerLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.PickVisualMedia(),
             onResult = { uri ->
                 if (uri != null) {
-                    croppingImageUri.value = uri
+                    croppingImageUri = uri
                 }
             },
         )
@@ -126,7 +127,7 @@ fun ProfileScreenContent(
                 if (bitmap != null) {
                     val tempUri = ProfileUtils.saveBitmapToTempFile(context, bitmap)
                     if (tempUri != null) {
-                        croppingImageUri.value = tempUri
+                        croppingImageUri = tempUri
                     }
                 }
             },
@@ -154,7 +155,7 @@ fun ProfileScreenContent(
                     isUpdatingPhoto = uiState.isUpdatingPhoto,
                     onPhotoClick = {
                         if (!uiState.isUpdatingPhoto) {
-                            showAvatarOptions.value = true
+                            showAvatarOptions = true
                         }
                     },
                 )
@@ -329,6 +330,8 @@ fun ProfileScreenContent(
     ProfileAvatarImageDialogs(
         showAvatarOptions = showAvatarOptions,
         croppingImageUri = croppingImageUri,
+        onDismissAvatarOptions = { showAvatarOptions = false },
+        onDismissCropping = { croppingImageUri = null },
         onLaunchCamera = { cameraLauncher.launch(null) },
         onLaunchGallery = {
             photoPickerLauncher.launch(

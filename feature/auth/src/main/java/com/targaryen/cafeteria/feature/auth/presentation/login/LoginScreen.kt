@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.feature.auth.presentation.login.view
+package com.targaryen.cafeteria.feature.auth.presentation.login
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.Image
@@ -58,10 +58,6 @@ import com.targaryen.cafeteria.feature.auth.R
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import com.targaryen.cafeteria.feature.auth.presentation.components.AuthErrorFancyDialog
 import com.targaryen.cafeteria.feature.auth.presentation.components.AuthSuccessFancyDialog
-import com.targaryen.cafeteria.feature.auth.presentation.login.state.LoginActions
-import com.targaryen.cafeteria.feature.auth.presentation.login.state.LoginEvent
-import com.targaryen.cafeteria.feature.auth.presentation.login.state.LoginUiState
-import com.targaryen.cafeteria.feature.auth.presentation.login.viewmodel.LoginViewModel
 import com.targaryen.cafeteria.feature.auth.presentation.util.GoogleAuthUiClient
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel

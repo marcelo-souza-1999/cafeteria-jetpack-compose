@@ -9,9 +9,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -22,17 +19,20 @@ import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.feature_catalog.R
 
+@Suppress("LongParameterList")
 @Composable
 fun ProfileAvatarImageDialogs(
-    showAvatarOptions: MutableState<Boolean>,
-    croppingImageUri: MutableState<Uri?>,
+    showAvatarOptions: Boolean,
+    croppingImageUri: Uri?,
+    onDismissAvatarOptions: () -> Unit,
+    onDismissCropping: () -> Unit,
     onLaunchCamera: () -> Unit,
     onLaunchGallery: () -> Unit,
     onUploadCroppedPhoto: (Uri) -> Unit,
 ) {
-    if (showAvatarOptions.value) {
+    if (showAvatarOptions) {
         AlertDialog(
-            onDismissRequest = { showAvatarOptions.value = false },
+            onDismissRequest = onDismissAvatarOptions,
             title = {
                 Text(
                     text = stringResource(R.string.profile_photo_source_title),
@@ -48,7 +48,7 @@ fun ProfileAvatarImageDialogs(
             },
             confirmButton = {
                 TextButton(onClick = {
-                    showAvatarOptions.value = false
+                    onDismissAvatarOptions()
                     onLaunchGallery()
                 }) {
                     Text(
@@ -60,7 +60,7 @@ fun ProfileAvatarImageDialogs(
             dismissButton = {
                 Row {
                     TextButton(onClick = {
-                        showAvatarOptions.value = false
+                        onDismissAvatarOptions()
                         onLaunchCamera()
                     }) {
                         Text(
@@ -69,7 +69,7 @@ fun ProfileAvatarImageDialogs(
                         )
                     }
                     Spacer(modifier = Modifier.width(TargaryenTheme.dimens.spaceSmall))
-                    TextButton(onClick = { showAvatarOptions.value = false }) {
+                    TextButton(onClick = onDismissAvatarOptions) {
                         Text(stringResource(R.string.profile_btn_cancel), color = SilverHair)
                     }
                 }
@@ -80,16 +80,14 @@ fun ProfileAvatarImageDialogs(
         )
     }
 
-    croppingImageUri.value?.let { uri ->
+    croppingImageUri?.let { uri ->
         ProfileCropImageDialog(
             imageUri = uri,
             onConfirm = { croppedUri ->
                 onUploadCroppedPhoto(croppedUri)
-                croppingImageUri.value = null
+                onDismissCropping()
             },
-            onDismiss = {
-                croppingImageUri.value = null
-            },
+            onDismiss = onDismissCropping,
         )
     }
 }
@@ -97,12 +95,12 @@ fun ProfileAvatarImageDialogs(
 @Preview(showBackground = true)
 @Composable
 private fun ProfileAvatarImageDialogsPreview() {
-    val showAvatarOptions = remember { mutableStateOf(true) }
-    val croppingImageUri = remember { mutableStateOf<Uri?>(null) }
     TargaryenTheme {
         ProfileAvatarImageDialogs(
-            showAvatarOptions = showAvatarOptions,
-            croppingImageUri = croppingImageUri,
+            showAvatarOptions = true,
+            croppingImageUri = null,
+            onDismissAvatarOptions = {},
+            onDismissCropping = {},
             onLaunchCamera = {},
             onLaunchGallery = {},
             onUploadCroppedPhoto = {},
