@@ -1,8 +1,9 @@
-package com.targaryen.cafeteria.feature.auth.presentation.splash
+package com.targaryen.cafeteria.feature.auth.presentation.splash.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.targaryen.cafeteria.feature.auth.domain.usecase.CheckAuthSessionUseCase
+import com.targaryen.cafeteria.feature.auth.presentation.splash.state.SplashEvent
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow

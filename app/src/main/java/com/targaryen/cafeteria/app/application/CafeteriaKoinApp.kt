@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.app
+package com.targaryen.cafeteria.app.application
 
 import org.koin.core.annotation.KoinApplication
 

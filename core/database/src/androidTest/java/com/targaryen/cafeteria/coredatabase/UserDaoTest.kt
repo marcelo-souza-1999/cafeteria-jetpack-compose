@@ -4,6 +4,7 @@ import androidx.room3.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.targaryen.cafeteria.coredatabase.dao.UserDao
+import com.targaryen.cafeteria.coredatabase.database.TargaryenDatabase
 import com.targaryen.cafeteria.coredatabase.model.UserEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest

@@ -1,4 +1,4 @@
-package com.targaryen.cafeteria.coredatabase
+package com.targaryen.cafeteria.coredatabase.database
 
 import androidx.room3.Database
 import androidx.room3.RoomDatabase

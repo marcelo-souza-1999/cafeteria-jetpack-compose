@@ -11,6 +11,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.feature.auth.R
+import com.targaryen.cafeteria.feature.auth.presentation.register.state.RegisterEvent
+import com.targaryen.cafeteria.feature.auth.presentation.register.state.RegisterUiState
+import com.targaryen.cafeteria.feature.auth.presentation.register.view.RegisterScreen
+import com.targaryen.cafeteria.feature.auth.presentation.register.viewmodel.RegisterViewModel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
