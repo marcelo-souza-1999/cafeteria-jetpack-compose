@@ -67,6 +67,7 @@ import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.compone
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.ProductDetailBottomSheet
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.ProductGrid
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.viewmodel.CatalogViewModel
+import com.targaryen.cafeteria.feature_catalog.chat.presentation.view.ChatScreen
 import com.targaryen.cafeteria.feature_catalog.profile.presentation.view.ProfileScreen
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -448,6 +449,13 @@ fun CatalogScreenContent(
                                 )
                             }
                         }
+                    }
+
+                    TargaryenTab.CHAT.ordinal -> {
+                        ChatScreen(
+                            viewModel = koinViewModel(),
+                            modifier = Modifier.fillMaxSize(),
+                        )
                     }
 
                     TargaryenTab.CART.ordinal ->

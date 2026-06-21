@@ -54,4 +54,14 @@
     <!-- Statuses -->
     <string name="status_approved">Aprovado</string>
     <string name="status_pending">Pendente</string>
+
+    <!-- Chat IA Rhaenyra -->
+    <string name="chat_welcome_message">Saudações, nobre cliente de Westeros! Eu sou a Rainha Rhaenyra Targaryen. Através deste canal conversacional, posso lhe informar os preços dos nossos produtos imperiais ou calcular quais iguarias do nosso cardápio estão ao alcance de suas posses. O que deseja saborear hoje sob o comando do Trono?</string>
+    <string name="chat_input_placeholder">Fale com a Rainha Rhaenyra...</string>
+    <string name="chat_thinking_indicator">Rhaenyra está deliberando com o conselho...</string>
+    <string name="chat_scope_restriction_message">Desculpe, nobre cliente, mas só posso ajudá-lo com dúvidas sobre o nosso cardápio, preços, compras e o que pode adquirir.</string>
+    <string name="chat_title">Conselho da Rainha</string>
+    <string name="chat_subtitle">Rhaenyra Targaryen conversando</string>
+    <string name="chat_clear_desc">Limpar Crônicas</string>
+    <string name="chat_send_desc">Enviar</string>
 </resources>
