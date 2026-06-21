@@ -24,7 +24,7 @@ class ViaCepDataSource(
             } else {
                 Result.success(response)
             }
-        } catch (e: kotlinx.io.IOException) {
+        } catch (e: java.io.IOException) {
             Result.failure(e)
         } catch (e: SerializationException) {
             Result.failure(e)
@@ -51,7 +51,7 @@ class ViaCepDataSource(
                         }
                     }.body()
             Result.success(response)
-        } catch (e: kotlinx.io.IOException) {
+        } catch (e: java.io.IOException) {
             Result.failure(e)
         } catch (e: SerializationException) {
             Result.failure(e)

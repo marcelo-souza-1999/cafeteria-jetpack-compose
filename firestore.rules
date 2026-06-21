@@ -5,9 +5,32 @@ service cloud.firestore {
       allow read: if true;
       allow write: if false;
     }
+    
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      match /chat_sessions/{sessionId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId
+          && (request.resource == null || (
+               request.resource.data.id is string &&
+               request.resource.data.title is string &&
+               request.resource.data.title.size() <= 100 &&
+               request.resource.data.lastUpdated is int
+             ));
+        
+        match /messages/{messageId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId
+            && (request.resource == null || (
+                 request.resource.data.id is string &&
+                 request.resource.data.text is string &&
+                 request.resource.data.text.size() <= 5000 &&
+                 request.resource.data.sender is string &&
+                 request.resource.data.timestamp is int
+               ));
+        }
+      }
     }
+    
     match /orders/{orderId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;

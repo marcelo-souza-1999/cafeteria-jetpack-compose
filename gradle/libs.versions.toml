@@ -1,13 +1,13 @@
 [versions]
 # --- Build, Plugins & Compilers ---
 agp = "9.2.1"
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 compileSdk = "37"
 minSdk = "26"
 targetSdk = "37"
 jvmTarget = "21"
 ksp = "2.3.6"
-hotSwanCompiler = "1.3.3"
+hotSwanCompiler = "1.3.6"
 google-services = "4.4.4"
 detekt = "1.23.8"
 kover = "0.9.8"
@@ -31,7 +31,7 @@ coroutines = "1.11.0"
 # --- Injeção de Dependências (Koin Annotations) ---
 koin = "4.2.1"
 koin-annotations = "4.2.1"
-koinCompiler = "1.0.0"
+koinCompiler = "1.0.1"
 
 # --- Arquitetura Offline-First (Room 3) ---
 room = "3.0.0-alpha06"
@@ -43,15 +43,15 @@ materialAdaptiveNavigation3 = "1.2.0"
 kotlinxSerializationCore = "1.11.0"
 
 # --- Imagens & Network ---
-coil = "3.4.0"
-okhttp = "5.3.2"
-ktor = "3.5.0"
+coil = "3.5.0"
+okhttp = "5.4.0"
+ktor = "2.3.12"
 
 # --- Inteligência Artificial ---
 generativeai = "0.9.0"
 
 # --- Firebase ---
-firebaseBom = "34.14.0"
+firebaseBom = "34.14.1"
 credentials = "1.6.0"
 googleid = "1.2.0"
 
@@ -122,6 +122,10 @@ androidx-credentials = { group = "androidx.credentials", name = "credentials", v
 androidx-credentials-play-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 generativeai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "generativeai" }
+androidx-appfunctions = { group = "androidx.appfunctions", name = "appfunctions", version = "1.0.0-alpha09" }
+androidx-appfunctions-service = { group = "androidx.appfunctions", name = "appfunctions-service", version = "1.0.0-alpha09" }
+androidx-appfunctions-compiler = { group = "androidx.appfunctions", name = "appfunctions-compiler", version = "1.0.0-alpha09" }
+
 
 # --- Testes Unitários & Qualidade ---
 junit = { group = "junit", name = "junit", version.ref = "junit" }

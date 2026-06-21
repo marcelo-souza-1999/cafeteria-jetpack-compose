@@ -1,9 +1,12 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.koin.compiler)
+    alias(libs.plugins.google.ksp)
 }
 
 android {
@@ -22,6 +25,20 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
+    val localProperties =
+        Properties().apply {
+            val file = rootProject.file("local.properties")
+            if (file.exists()) {
+                load(file.inputStream())
+            }
+        }
+    val geminiKey = localProperties.getProperty("gemini.api.key") ?: System.getenv("GEMINI_API_KEY") ?: ""
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -29,6 +46,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
+        }
+        debug {
+            buildConfigField("String", "GEMINI_API_KEY", "\"$geminiKey\"")
         }
     }
     compileOptions {
@@ -36,15 +57,14 @@ android {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
-    buildFeatures {
-        compose = true
-    }
 }
 
 dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:database"))
     implementation(project(":core:network"))
+
+    implementation(libs.generativeai)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -60,6 +80,9 @@ dependencies {
     implementation(libs.bundles.koin)
     implementation(libs.bundles.navigation)
     implementation(libs.bundles.coil)
+    implementation(libs.androidx.appfunctions)
+    implementation(libs.androidx.appfunctions.service)
+    ksp(libs.androidx.appfunctions.compiler)
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
     implementation(libs.compose.alert.dialog)
