@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.koin.compiler)
+    alias(libs.plugins.google.ksp)
 }
 
 android {
@@ -79,6 +80,10 @@ dependencies {
     implementation(libs.bundles.firebase)
 
     implementation(libs.compose.alert.dialog)
+
+    implementation(libs.androidx.appfunctions)
+    implementation(libs.androidx.appfunctions.service)
+    ksp(libs.androidx.appfunctions.compiler)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)

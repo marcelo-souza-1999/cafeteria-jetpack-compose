@@ -98,10 +98,6 @@ dependencies {
     androidTestImplementation(libs.bundles.koin.test)
     androidTestImplementation(libs.bundles.test.core)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.firestore)
-    implementation(libs.firebase.auth)
 }
 
 koinCompiler {

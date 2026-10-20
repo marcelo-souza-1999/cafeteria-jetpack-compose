@@ -1,6 +1,7 @@
 package com.targaryen.cafeteria.feature_catalog.chat.presentation.state
 
 import com.targaryen.cafeteria.coredatabase.model.ChatSessionEntity
+import com.targaryen.cafeteria.feature_catalog.catalog.presentation.model.ProductUiModel
 import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatMessage
 
 data class ChatUiState(
@@ -11,4 +12,5 @@ data class ChatUiState(
     val currentSessionId: String? = null,
     val sessions: List<ChatSessionEntity> = emptyList(),
     val showHistory: Boolean = false,
+    val productSuggestions: List<ProductUiModel> = emptyList(),
 )

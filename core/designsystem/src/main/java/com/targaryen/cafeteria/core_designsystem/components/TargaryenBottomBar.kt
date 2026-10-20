@@ -90,8 +90,8 @@ private fun getTabIcon(tab: TargaryenTab): ImageVector =
 private fun TargaryenTabIcon(
     tab: TargaryenTab,
     isSelected: Boolean,
-    glowScale: Float,
-    glowAlpha: Float,
+    glowScaleProvider: () -> Float,
+    glowAlphaProvider: () -> Float,
     badgeCount: Int,
 ) {
     val label = getTabLabel(tab)
@@ -116,18 +116,20 @@ private fun TargaryenTabIcon(
     val iconModifier =
         if (isSelected || isChat) {
             Modifier.drawBehind {
-                val radius = size.minDimension / 2f * glowScale
+                val scale = glowScaleProvider()
+                val alpha = glowAlphaProvider()
+                val radius = size.minDimension / 2f * scale
                 val centerColor =
                     if (isChat && !isSelected) {
-                        ValyrianGold.copy(alpha = glowAlpha)
+                        ValyrianGold.copy(alpha = alpha)
                     } else {
-                        BloodRed.copy(alpha = glowAlpha)
+                        BloodRed.copy(alpha = alpha)
                     }
                 val edgeColor =
                     if (isChat && !isSelected) {
-                        BloodRed.copy(alpha = glowAlpha * GLOW_EDGE_ALPHA_FACTOR)
+                        BloodRed.copy(alpha = alpha * GLOW_EDGE_ALPHA_FACTOR)
                     } else {
-                        ValyrianGold.copy(alpha = glowAlpha * GLOW_EDGE_ALPHA_FACTOR)
+                        ValyrianGold.copy(alpha = alpha * GLOW_EDGE_ALPHA_FACTOR)
                     }
                 drawCircle(
                     brush =
@@ -216,7 +218,7 @@ private fun RowScope.TargaryenBottomBarItem(
         )
 
     val isChat = tab == TargaryenTab.CHAT
-    val glowScale =
+    val glowScaleProvider: () -> Float = {
         if (isSelected) {
             animatedScale.value
         } else if (isChat) {
@@ -224,7 +226,8 @@ private fun RowScope.TargaryenBottomBarItem(
         } else {
             0f
         }
-    val glowAlpha =
+    }
+    val glowAlphaProvider: () -> Float = {
         if (isSelected) {
             animatedAlpha.value
         } else if (isChat) {
@@ -232,6 +235,7 @@ private fun RowScope.TargaryenBottomBarItem(
         } else {
             0f
         }
+    }
 
     NavigationBarItem(
         selected = isSelected,
@@ -240,8 +244,8 @@ private fun RowScope.TargaryenBottomBarItem(
             TargaryenTabIcon(
                 tab = tab,
                 isSelected = isSelected,
-                glowScale = glowScale,
-                glowAlpha = glowAlpha,
+                glowScaleProvider = glowScaleProvider,
+                glowAlphaProvider = glowAlphaProvider,
                 badgeCount = badgeCount,
             )
         },

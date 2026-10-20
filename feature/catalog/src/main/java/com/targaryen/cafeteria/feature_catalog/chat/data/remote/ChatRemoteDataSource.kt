@@ -9,9 +9,9 @@ import kotlinx.coroutines.tasks.await
 import org.koin.core.annotation.Single
 
 @Single
-class ChatRemoteDataSource {
-    private val firestore = FirebaseFirestore.getInstance()
-
+class ChatRemoteDataSource(
+    private val firestore: FirebaseFirestore,
+) {
     suspend fun saveSession(
         userId: String,
         session: ChatSessionEntity,
@@ -19,19 +19,19 @@ class ChatRemoteDataSource {
         try {
             val sessionData =
                 hashMapOf(
-                    "id" to session.id,
-                    "title" to session.title,
-                    "lastUpdated" to session.lastUpdated,
+                    FIELD_ID to session.id,
+                    FIELD_TITLE to session.title,
+                    FIELD_LAST_UPDATED to session.lastUpdated,
                 )
             firestore
-                .collection("users")
+                .collection(COLLECTION_USERS)
                 .document(userId)
-                .collection("chat_sessions")
+                .collection(COLLECTION_SESSIONS)
                 .document(session.id)
                 .set(sessionData)
                 .await()
         } catch (e: FirebaseFirestoreException) {
-            Log.e("ChatRemoteDataSource", "Failed to save session to firestore", e)
+            Log.e(TAG, ERROR_SAVE_SESSION, e)
         }
     }
 
@@ -43,22 +43,22 @@ class ChatRemoteDataSource {
         try {
             val messageData =
                 hashMapOf(
-                    "id" to message.id,
-                    "text" to message.text,
-                    "sender" to message.sender,
-                    "timestamp" to message.timestamp,
+                    FIELD_ID to message.id,
+                    FIELD_TEXT to message.text,
+                    FIELD_SENDER to message.sender,
+                    FIELD_TIMESTAMP to message.timestamp,
                 )
             firestore
-                .collection("users")
+                .collection(COLLECTION_USERS)
                 .document(userId)
-                .collection("chat_sessions")
+                .collection(COLLECTION_SESSIONS)
                 .document(sessionId)
-                .collection("messages")
+                .collection(COLLECTION_MESSAGES)
                 .document(message.id)
                 .set(messageData)
                 .await()
         } catch (e: FirebaseFirestoreException) {
-            Log.e("ChatRemoteDataSource", "Failed to save message to firestore", e)
+            Log.e(TAG, ERROR_SAVE_MESSAGE, e)
         }
     }
 
@@ -66,16 +66,16 @@ class ChatRemoteDataSource {
         return try {
             val snapshot =
                 firestore
-                    .collection("users")
+                    .collection(COLLECTION_USERS)
                     .document(userId)
-                    .collection("chat_sessions")
+                    .collection(COLLECTION_SESSIONS)
                     .get()
                     .await()
 
             snapshot.documents.mapNotNull { document ->
-                val id = document.getString("id") ?: return@mapNotNull null
-                val title = document.getString("title") ?: "Chat Imperial"
-                val lastUpdated = document.getLong("lastUpdated") ?: 0L
+                val id = document.getString(FIELD_ID) ?: return@mapNotNull null
+                val title = document.getString(FIELD_TITLE) ?: DEFAULT_CHAT_TITLE
+                val lastUpdated = document.getLong(FIELD_LAST_UPDATED) ?: 0L
                 ChatSessionEntity(
                     id = id,
                     title = title,
@@ -84,7 +84,7 @@ class ChatRemoteDataSource {
                 )
             }
         } catch (e: FirebaseFirestoreException) {
-            Log.e("ChatRemoteDataSource", "Failed to fetch sessions from firestore", e)
+            Log.e(TAG, ERROR_FETCH_SESSIONS, e)
             emptyList()
         }
     }
@@ -96,19 +96,19 @@ class ChatRemoteDataSource {
         return try {
             val snapshot =
                 firestore
-                    .collection("users")
+                    .collection(COLLECTION_USERS)
                     .document(userId)
-                    .collection("chat_sessions")
+                    .collection(COLLECTION_SESSIONS)
                     .document(sessionId)
-                    .collection("messages")
+                    .collection(COLLECTION_MESSAGES)
                     .get()
                     .await()
 
             snapshot.documents.mapNotNull { document ->
-                val id = document.getString("id") ?: return@mapNotNull null
-                val text = document.getString("text") ?: ""
-                val sender = document.getString("sender") ?: "USER"
-                val timestamp = document.getLong("timestamp") ?: 0L
+                val id = document.getString(FIELD_ID) ?: return@mapNotNull null
+                val text = document.getString(FIELD_TEXT) ?: ""
+                val sender = document.getString(FIELD_SENDER) ?: DEFAULT_SENDER_USER
+                val timestamp = document.getLong(FIELD_TIMESTAMP) ?: 0L
                 ChatMessageEntity(
                     id = id,
                     sessionId = sessionId,
@@ -118,7 +118,7 @@ class ChatRemoteDataSource {
                 )
             }
         } catch (e: FirebaseFirestoreException) {
-            Log.e("ChatRemoteDataSource", "Failed to fetch messages from firestore", e)
+            Log.e(TAG, ERROR_FETCH_MESSAGES, e)
             emptyList()
         }
     }
@@ -130,27 +130,52 @@ class ChatRemoteDataSource {
         try {
             val messagesSnapshot =
                 firestore
-                    .collection("users")
+                    .collection(COLLECTION_USERS)
                     .document(userId)
-                    .collection("chat_sessions")
+                    .collection(COLLECTION_SESSIONS)
                     .document(sessionId)
-                    .collection("messages")
+                    .collection(COLLECTION_MESSAGES)
                     .get()
                     .await()
 
+            val batch = firestore.batch()
             messagesSnapshot.documents.forEach { doc ->
-                doc.reference.delete().await()
+                batch.delete(doc.reference)
             }
-
-            firestore
-                .collection("users")
-                .document(userId)
-                .collection("chat_sessions")
-                .document(sessionId)
-                .delete()
-                .await()
+            val sessionRef =
+                firestore
+                    .collection(COLLECTION_USERS)
+                    .document(userId)
+                    .collection(COLLECTION_SESSIONS)
+                    .document(sessionId)
+            batch.delete(sessionRef)
+            batch.commit().await()
         } catch (e: FirebaseFirestoreException) {
-            Log.e("ChatRemoteDataSource", "Failed to delete session from firestore", e)
+            Log.e(TAG, ERROR_DELETE_SESSION, e)
         }
+    }
+
+    companion object {
+        private const val TAG = "ChatRemoteDataSource"
+
+        private const val COLLECTION_USERS = "users"
+        private const val COLLECTION_SESSIONS = "chat_sessions"
+        private const val COLLECTION_MESSAGES = "messages"
+
+        private const val FIELD_ID = "id"
+        private const val FIELD_TITLE = "title"
+        private const val FIELD_LAST_UPDATED = "lastUpdated"
+        private const val FIELD_TEXT = "text"
+        private const val FIELD_SENDER = "sender"
+        private const val FIELD_TIMESTAMP = "timestamp"
+
+        private const val ERROR_SAVE_SESSION = "Failed to save session to firestore"
+        private const val ERROR_SAVE_MESSAGE = "Failed to save message to firestore"
+        private const val ERROR_FETCH_SESSIONS = "Failed to fetch sessions from firestore"
+        private const val ERROR_FETCH_MESSAGES = "Failed to fetch messages from firestore"
+        private const val ERROR_DELETE_SESSION = "Failed to delete session from firestore"
+
+        private const val DEFAULT_CHAT_TITLE = "Chat Imperial"
+        private const val DEFAULT_SENDER_USER = "USER"
     }
 }

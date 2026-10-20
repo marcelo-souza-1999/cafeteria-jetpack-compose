@@ -1,5 +1,7 @@
 package com.targaryen.cafeteria.feature_catalog.chat.presentation.intent
 
+import com.targaryen.cafeteria.feature_catalog.catalog.presentation.model.ProductUiModel
+
 sealed interface ChatIntent {
     data class SendMessage(
         val text: String,
@@ -23,5 +25,9 @@ sealed interface ChatIntent {
 
     data class DeleteSession(
         val sessionId: String,
+    ) : ChatIntent
+
+    data class SelectProductSuggestion(
+        val product: ProductUiModel,
     ) : ChatIntent
 }

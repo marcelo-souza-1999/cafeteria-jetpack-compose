@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -50,17 +51,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.targaryen.cafeteria.core_designsystem.theme.BloodRed
@@ -83,10 +90,21 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun ChatScreen(
+    onNavigateToCheckout: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ChatViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(viewModel.navigationEvents) {
+        viewModel.navigationEvents.collect { event ->
+            when (event) {
+                is ChatViewModel.ChatNavigationEvent.NavigateToCheckout -> {
+                    onNavigateToCheckout()
+                }
+            }
+        }
+    }
 
     ChatScreenContent(
         uiState = uiState,
@@ -102,6 +120,26 @@ fun ChatScreenContent(
     modifier: Modifier = Modifier,
 ) {
     val lazyListState = rememberLazyListState()
+    val focusRequester = remember { FocusRequester() }
+    var textFieldValue by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = uiState.inputText,
+                selection = TextRange(uiState.inputText.length),
+            ),
+        )
+    }
+
+    LaunchedEffect(uiState.inputText) {
+        if (uiState.inputText != textFieldValue.text) {
+            textFieldValue =
+                TextFieldValue(
+                    text = uiState.inputText,
+                    selection = TextRange(uiState.inputText.length),
+                )
+        }
+    }
+
     val welcomeMessage =
         ChatMessage(
             text = stringResource(R.string.chat_welcome_message),
@@ -211,6 +249,49 @@ fun ChatScreenContent(
             }
         }
 
+        if (uiState.productSuggestions.isNotEmpty()) {
+            LazyRow(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(DragonScale)
+                        .padding(
+                            horizontal = TargaryenTheme.dimens.spaceMedium,
+                            vertical = TargaryenTheme.dimens.spaceExtraSmall,
+                        ),
+                horizontalArrangement = Arrangement.spacedBy(TargaryenTheme.dimens.spaceSmall),
+            ) {
+                items(
+                    items = uiState.productSuggestions,
+                    key = { product -> product.id },
+                ) { product ->
+                    Box(
+                        modifier =
+                            Modifier
+                                .background(Obsidian, shape = RoundedCornerShape(percent = 50))
+                                .border(
+                                    width = TargaryenTheme.dimens.borderSmall,
+                                    color = ValyrianGold.copy(alpha = 0.5f),
+                                    shape = RoundedCornerShape(percent = 50),
+                                ).clickable {
+                                    onIntent(ChatIntent.SelectProductSuggestion(product))
+                                    focusRequester.requestFocus()
+                                }.padding(
+                                    horizontal = TargaryenTheme.dimens.spaceNormal,
+                                    vertical = TargaryenTheme.dimens.spaceExtraSmall,
+                                ),
+                    ) {
+                        Text(
+                            text = product.name,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = ValyrianGold,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+            }
+        }
+
         Row(
             modifier =
                 Modifier
@@ -220,15 +301,23 @@ fun ChatScreenContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             OutlinedTextField(
-                value = uiState.inputText,
-                onValueChange = { text -> onIntent(ChatIntent.UpdateInputText(text)) },
+                value = textFieldValue,
+                onValueChange = { newValue ->
+                    textFieldValue = newValue
+                    if (newValue.text != uiState.inputText) {
+                        onIntent(ChatIntent.UpdateInputText(newValue.text))
+                    }
+                },
                 placeholder = {
                     Text(
                         text = stringResource(R.string.chat_input_placeholder),
                         color = SilverHair.copy(alpha = 0.5f),
                     )
                 },
-                modifier = Modifier.weight(1f),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .focusRequester(focusRequester),
                 colors =
                     OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = ValyrianGold,
@@ -442,11 +531,13 @@ fun ChatHistoryBottomSheet(
                         key = { session -> session.id },
                     ) { session ->
                         val isSelected = session.id == uiState.currentSessionId
-                        val formatter =
-                            DateTimeFormatter
-                                .ofPattern("dd/MM/yyyy HH:mm")
-                                .withZone(ZoneId.systemDefault())
-                        val formattedDate = formatter.format(Instant.ofEpochMilli(session.lastUpdated))
+                        val formattedDate =
+                            remember(session.lastUpdated) {
+                                DateTimeFormatter
+                                    .ofPattern("dd/MM/yyyy HH:mm")
+                                    .withZone(ZoneId.systemDefault())
+                                    .format(Instant.ofEpochMilli(session.lastUpdated))
+                            }
 
                         Row(
                             modifier =

@@ -10,14 +10,20 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ChatDao {
-    @Query("SELECT * FROM chat_sessions ORDER BY lastUpdated DESC")
-    fun getAllSessions(): Flow<List<ChatSessionEntity>>
+    @Query("SELECT * FROM chat_sessions WHERE userId = :userId ORDER BY lastUpdated DESC")
+    fun getAllSessions(userId: String): Flow<List<ChatSessionEntity>>
 
     @Query("SELECT * FROM chat_messages WHERE sessionId = :sessionId ORDER BY timestamp ASC")
     fun getMessagesForSession(sessionId: String): Flow<List<ChatMessageEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertSession(session: ChatSessionEntity)
+
+    @Query("UPDATE chat_sessions SET lastUpdated = :lastUpdated WHERE id = :id")
+    suspend fun updateSessionTimestamp(
+        id: String,
+        lastUpdated: Long,
+    )
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMessage(message: ChatMessageEntity)

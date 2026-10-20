@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.targaryen.cafeteria.core_network.tracker.PaymentStatus
 import com.targaryen.cafeteria.core_network.tracker.PaymentStatusTracker
+import com.targaryen.cafeteria.coredatabase.address.AddressProvider
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import com.targaryen.cafeteria.feature_checkout.R
 import com.targaryen.cafeteria.feature_checkout.domain.CheckoutRepository
@@ -26,6 +27,7 @@ class CheckoutViewModel(
     private val checkoutRepository: CheckoutRepository,
     private val catalogRepository: CatalogRepository,
     private val paymentStatusTracker: PaymentStatusTracker,
+    private val addressProvider: AddressProvider,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CheckoutState())
     val uiState: StateFlow<CheckoutState> = _uiState.asStateFlow()
@@ -36,6 +38,7 @@ class CheckoutViewModel(
     init {
         onIntent(CheckoutIntent.OnLoadCartItems)
         observePaymentStatus()
+        resetState()
     }
 
     private fun observePaymentStatus() {
@@ -44,6 +47,7 @@ class CheckoutViewModel(
                 when (status) {
                     PaymentStatus.SUCCESS, PaymentStatus.PENDING -> {
                         isPaymentCompleted = true
+                        addressProvider.clearAddress()
 
                         val currentUser = FirebaseAuth.getInstance().currentUser
                         val userId = currentUser?.uid
@@ -162,6 +166,26 @@ class CheckoutViewModel(
     }
 
     private fun resetState() {
+        val savedAddress = addressProvider.getAddress()
+        if (savedAddress.cep.isNotBlank()) {
+            val cleanCep = savedAddress.cep.filter { char -> char.isDigit() }
+            _uiState.update { state ->
+                state.copy(
+                    cep = cleanCep,
+                    street = savedAddress.street,
+                    city = savedAddress.city,
+                    state = savedAddress.state,
+                    number = savedAddress.number,
+                    referencePoint = savedAddress.referencePoint,
+                    recipientName = savedAddress.recipientName,
+                )
+            }
+            if (cleanCep.length == CEP_LENGTH && savedAddress.street.isBlank()) {
+                fetchAddress(cleanCep)
+            }
+            isPaymentCompleted = false
+            return
+        }
         _uiState.update { state ->
             state.copy(
                 cep = "",

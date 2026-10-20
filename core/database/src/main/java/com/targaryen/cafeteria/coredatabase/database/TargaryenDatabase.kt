@@ -12,7 +12,7 @@ import com.targaryen.cafeteria.coredatabase.model.UserEntity
 
 @Database(
     entities = [UserEntity::class, ProductEntity::class, ChatMessageEntity::class, ChatSessionEntity::class],
-    version = 4,
+    version = 5,
     exportSchema = false,
 )
 abstract class TargaryenDatabase : RoomDatabase() {

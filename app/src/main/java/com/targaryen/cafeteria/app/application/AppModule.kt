@@ -1,6 +1,7 @@
 package com.targaryen.cafeteria.app.application
 
 import android.content.Context
+import com.google.firebase.firestore.FirebaseFirestore
 import com.targaryen.cafeteria.app.R
 import com.targaryen.cafeteria.core_network.di.NetworkModule
 import com.targaryen.cafeteria.coredatabase.di.DatabaseModule
@@ -26,4 +27,7 @@ class AppModule {
     @Single
     @Named("WebClientId")
     fun provideWebClientId(context: Context): String = context.getString(R.string.default_web_client_id)
+
+    @Single
+    fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 }
