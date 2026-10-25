@@ -24,15 +24,18 @@ if [ ! -s "$DIFF_FILE" ]; then
 fi
 
 RULES_FILE=".agents/code_review.md"
+TEMP_RULES=$(mktemp)
 if [ -f "$RULES_FILE" ]; then
-  RULES_CONTENT=$(cat "$RULES_FILE")
+  cp "$RULES_FILE" "$TEMP_RULES"
 else
-  RULES_CONTENT="Voce e um code reviewer especializado em Android (Kotlin, Jetpack Compose, Clean Arch, Koin). Revise o diff enviado e forneca sugestoes e criticas construtivas de alta qualidade tecnica."
+  cat <<'EOF' > "$TEMP_RULES"
+Voce e um code reviewer especializado em Android (Kotlin, Jetpack Compose, Clean Arch, Koin). Revise o diff enviado e forneca sugestoes e criticas construtivas de alta qualidade tecnica.
+EOF
 fi
 
 jq -n \
-  --arg diff "$(cat "$DIFF_FILE")" \
-  --arg rules "$RULES_CONTENT" \
+  --rawfile diff "$DIFF_FILE" \
+  --rawfile rules "$TEMP_RULES" \
   '{
     contents: [{
       parts: [{
@@ -40,6 +43,8 @@ jq -n \
       }]
     }]
   }' > gemini_request.json
+
+rm -f "$TEMP_RULES"
 
 echo "Disparando chamada para a API do Gemini (gemini-3.5-flash)..."
 RESPONSE=$(curl -s -X POST \
@@ -69,7 +74,10 @@ fi
 
 if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
   echo "Postando revisao tecnica no Pull Request #${PR_NUMBER}..."
-  gh pr comment "$PR_NUMBER" --body "$REVIEW_TEXT"
+  TEMP_COMMENT=$(mktemp)
+  echo "$REVIEW_TEXT" > "$TEMP_COMMENT"
+  gh pr comment "$PR_NUMBER" --body-file "$TEMP_COMMENT"
+  rm -f "$TEMP_COMMENT"
   echo "Revisao postada com sucesso."
 else
   echo "Nao foi possivel identificar o numero do Pull Request. Exibindo revisao no log:"
