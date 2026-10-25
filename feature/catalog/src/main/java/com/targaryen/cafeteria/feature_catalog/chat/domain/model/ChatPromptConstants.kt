@@ -10,6 +10,25 @@ object ChatPromptConstants {
 
     const val REAL_CATALOG_CONTEXT_HEADER = "CONTEXTO REAL DO CARDÁPIO DE PRODUTOS DA CAFETERIA:"
 
+    const val SENDER_USER = "USER"
+    const val SENDER_AI = "AI"
+
+    const val ACTION_NAVIGATE_TO_CHECKOUT = "[NAVIGATE_TO_CHECKOUT]"
+
+    const val REPLY_QUOTA_EXCEEDED =
+        "Nobre cliente, as chamas da API excederam os limites do Trono neste momento. " +
+            "Por favor, aguarde alguns instantes (cerca de 1 minuto) antes de enviar uma nova mensagem."
+
+    const val REPLY_UNAVAILABLE_FALLBACK =
+        "As chamas da Cidadela oscilaram e não consegui responder. " +
+            "Por favor, tente enviar novamente."
+
+    const val REPLY_CHECKOUT_REDIRECT =
+        "Com certeza, nobre cliente imperial. " +
+            "Estou direcionando você para a página de checkout."
+
+    const val ERROR_UNKNOWN = "Erro desconhecido"
+
     const val IMPEDITIVE_PHRASE =
         "Desculpe, nobre cliente, mas só posso ajudá-lo com dúvidas sobre o nosso cardápio, preços, compras e o que pode adquirir."
 

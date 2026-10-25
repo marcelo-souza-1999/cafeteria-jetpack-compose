@@ -6,10 +6,12 @@ import androidx.appfunctions.service.AppFunction
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import kotlinx.coroutines.flow.first
 
+private const val MAX_CART_SUGGESTIONS = 3
+
 /**
  * Requisição para adicionar um produto e sua respectiva quantidade ao carrinho.
  *
- * @property productName O nome do café, doce ou produto a ser adicionado (ex: "Targaryen Blood Blend", "Torta de Limão").
+ * @property productName O nome do café, doce ou produto a ser adicionado (ex: "Café Expresso Valíria", "Mocha Fogo de Dragão").
  * @property quantity A quantidade do produto selecionado a ser inserida no carrinho (ex: 1, 2, 5).
  */
 @AppFunctionSerializable
@@ -71,6 +73,30 @@ data class ClearCartResponse(
 )
 
 /**
+ * Requisição para remover ou diminuir a quantidade de um produto no carrinho.
+ *
+ * @property productName O nome do café ou iguaria a ser removido (ex: "Café Expresso Valíria").
+ * @property quantity Quantidade a ser removida (se omitido ou maior/igual ao atual, remove o item).
+ */
+@AppFunctionSerializable
+data class RemoveProductRequest(
+    val productName: String,
+    val quantity: Int = 1,
+)
+
+/**
+ * Resposta resultante da ação de remover produto do carrinho.
+ *
+ * @property success Indica se a remoção ou redução foi executada com sucesso.
+ * @property message Mensagem descritiva detalhando o resultado da operação.
+ */
+@AppFunctionSerializable
+data class RemoveProductResponse(
+    val success: Boolean,
+    val message: String,
+)
+
+/**
  * Conjunto de funções para gerenciamento do carrinho de compras local do app Cafeteria Targaryen.
  */
 class CartAppFunctions(
@@ -79,7 +105,7 @@ class CartAppFunctions(
     /**
      * Adiciona uma quantidade específica de um produto ao carrinho de compras imperial.
      *
-     * @param request Parâmetros contendo o nome exato do produto e a quantidade desejada.
+     * @param request Parâmetros contendo o nome do produto e a quantidade desejada.
      */
     @AppFunction
     suspend fun addProductToCart(
@@ -88,17 +114,29 @@ class CartAppFunctions(
     ): AddProductResponse {
         context.hashCode()
         val products = catalogRepository.getProducts().first()
-        val product = products.find { prod -> prod.name.equals(request.productName, ignoreCase = true) }
+        val product = products.findBestMatchingProduct(request.productName)
         return if (product != null) {
-            catalogRepository.updateProductQuantity(product.id, request.quantity)
+            val safeQuantity = request.quantity.coerceAtLeast(1)
+            val updatedQuantity = product.quantityInCart + safeQuantity
+            catalogRepository.updateProductQuantity(product.id, updatedQuantity)
             AddProductResponse(
                 success = true,
-                message = "Adicionado ${request.quantity} de '${product.name}' ao carrinho imperial.",
+                message =
+                    "Adicionado $safeQuantity de '${product.name}' ao carrinho imperial " +
+                        "(Total: $updatedQuantity).",
             )
         } else {
+            val suggestions =
+                products
+                    .filter { prod -> prod.isCoffeeBeverage() }
+                    .ifEmpty { products }
+                    .take(MAX_CART_SUGGESTIONS)
+                    .joinToString(", ") { prod -> prod.name }
             AddProductResponse(
                 success = false,
-                message = "Produto '${request.productName}' não encontrado no cardápio.",
+                message =
+                    "Erro: Produto '${request.productName}' não encontrado no cardápio. " +
+                        "Experimente pedir: $suggestions.",
             )
         }
     }
@@ -119,12 +157,20 @@ class CartAppFunctions(
                 )
             }
         val total = cartItems.sumOf { item -> item.price * item.quantity }
+        val details =
+            if (cartItems.isEmpty()) {
+                "Seu carrinho imperial está vazio no momento."
+            } else {
+                val itemsFormatted =
+                    cartItems.joinToString("\n") { item ->
+                        "• ${item.quantity}x ${item.name} (${item.price} Dragões de Ouro)"
+                    }
+                "Carrinho imperial contém ${cartItems.size} tipo(s) de produto(s):\n$itemsFormatted"
+            }
         return CartSummaryResponse(
             items = cartItems,
             totalPrice = total,
-            message =
-                "Carrinho imperial contém ${cartItems.size} tipo(s) de produto(s) " +
-                    "com valor total de $total Dragões de Ouro.",
+            message = details,
         )
     }
 
@@ -139,5 +185,70 @@ class CartAppFunctions(
             success = true,
             message = "Carrinho imperial limpo com sucesso.",
         )
+    }
+
+    /**
+     * Remove ou diminui a quantidade de um produto específico do carrinho de compras.
+     *
+     * @param request Parâmetros contendo o nome do produto e a quantidade a diminuir.
+     */
+    @AppFunction
+    suspend fun removeProductFromCart(
+        context: AppFunctionContext,
+        request: RemoveProductRequest,
+    ): RemoveProductResponse {
+        context.hashCode()
+        val products = catalogRepository.getProducts().first()
+        val productsInCart = products.filter { prod -> prod.quantityInCart > 0 }
+        if (productsInCart.isEmpty()) {
+            return RemoveProductResponse(
+                success = false,
+                message = "Erro: Seu carrinho imperial está vazio. Nenhum item para remover.",
+            )
+        }
+
+        val normalizedQuery = request.productName.normalizeForSearch()
+        val isGenericCoffeeTarget = normalizedQuery == "cafe" || normalizedQuery == "cafes"
+        val productInCart =
+            productsInCart.findBestMatchingProduct(request.productName)
+                ?: if (isGenericCoffeeTarget) {
+                    productsInCart.firstOrNull { prod -> prod.isCoffeeBeverage() } ?: productsInCart.firstOrNull()
+                } else {
+                    null
+                }
+
+        val targetProduct = productInCart ?: products.findBestMatchingProduct(request.productName)
+
+        return when {
+            targetProduct == null -> {
+                val currentCartNames = productsInCart.joinToString(", ") { prod -> prod.name }
+                RemoveProductResponse(
+                    success = false,
+                    message =
+                        "Erro: '${request.productName}' não está no carrinho. " +
+                            "Itens atuais no carrinho: $currentCartNames.",
+                )
+            }
+            targetProduct.quantityInCart == 0 -> {
+                val currentCartNames = productsInCart.joinToString(", ") { prod -> prod.name }
+                RemoveProductResponse(
+                    success = false,
+                    message =
+                        "Erro: '${targetProduct.name}' não está no seu carrinho imperial. " +
+                            "Itens atuais no carrinho: $currentCartNames.",
+                )
+            }
+            else -> {
+                val newQty = (targetProduct.quantityInCart - request.quantity.coerceAtLeast(1)).coerceAtLeast(0)
+                catalogRepository.updateProductQuantity(targetProduct.id, newQty)
+                val msg =
+                    if (newQty == 0) {
+                        "'${targetProduct.name}' removido completamente do carrinho."
+                    } else {
+                        "Quantidade de '${targetProduct.name}' reduzida para $newQty."
+                    }
+                RemoveProductResponse(success = true, message = msg)
+            }
+        }
     }
 }

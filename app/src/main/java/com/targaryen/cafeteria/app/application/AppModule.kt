@@ -1,6 +1,7 @@
 package com.targaryen.cafeteria.app.application
 
 import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.targaryen.cafeteria.app.R
 import com.targaryen.cafeteria.core_network.di.NetworkModule
@@ -30,4 +31,7 @@ class AppModule {
 
     @Single
     fun provideFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    @Single
+    fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
 }

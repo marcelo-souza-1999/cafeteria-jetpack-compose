@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +35,7 @@ import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenWhite
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.core_designsystem.R as DesignSystemR
+import com.targaryen.cafeteria.feature_catalog.R as CatalogR
 
 private const val BRAND_LOGO_SCALE = 1.3f
 
@@ -185,7 +186,7 @@ internal fun CatalogDrawerContent(
             NavigationDrawerItem(
                 label = {
                     Text(
-                        "Simulador Gemini (Debug)",
+                        stringResource(CatalogR.string.voice_command_drawer_title),
                         color = ValyrianGold,
                     )
                 },
@@ -193,7 +194,7 @@ internal fun CatalogDrawerContent(
                 onClick = onDebugSimulatorClick,
                 icon = {
                     Icon(
-                        Icons.Default.AutoAwesome,
+                        Icons.Default.Mic,
                         contentDescription = null,
                         tint = ValyrianGold,
                     )

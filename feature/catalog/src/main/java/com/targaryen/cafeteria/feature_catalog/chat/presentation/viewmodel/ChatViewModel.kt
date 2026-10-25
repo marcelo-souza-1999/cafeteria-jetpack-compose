@@ -1,5 +1,6 @@
 package com.targaryen.cafeteria.feature_catalog.chat.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.targaryen.cafeteria.coredatabase.dao.ChatDao
@@ -9,6 +10,7 @@ import com.targaryen.cafeteria.feature_catalog.catalog.domain.usecase.GetCatalog
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.model.ProductUiModel
 import com.targaryen.cafeteria.feature_catalog.chat.data.remote.ChatRemoteDataSource
 import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatMessage
+import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatPromptConstants
 import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatSender
 import com.targaryen.cafeteria.feature_catalog.chat.domain.repository.ChatSessionProvider
 import com.targaryen.cafeteria.feature_catalog.chat.domain.usecase.SendChatMessageUseCase
@@ -106,22 +108,24 @@ class ChatViewModel(
     }
 
     private fun selectSession(sessionId: String) {
-        android.util.Log.d("ChatViewModel", "selectSession invocada para ID: $sessionId")
         uiState.update { state -> state.copy(currentSessionId = sessionId) }
         messagesJob?.cancel()
         messagesJob =
             viewModelScope.launch {
                 chatDao.getMessagesForSession(sessionId).collect { entities ->
-                    android.util.Log.d(
-                        "ChatViewModel",
-                        "Room coletou ${entities.size} mensagens para a sessão: $sessionId",
-                    )
                     val domainMessages =
                         entities.map { entity ->
                             ChatMessage(
                                 id = entity.id,
                                 text = entity.text,
-                                sender = if (entity.sender == "USER") ChatSender.USER else ChatSender.AI,
+                                sender =
+                                    if (entity.sender ==
+                                        ChatPromptConstants.SENDER_USER
+                                    ) {
+                                        ChatSender.USER
+                                    } else {
+                                        ChatSender.AI
+                                    },
                                 timestamp = entity.timestamp,
                             )
                         }
@@ -144,13 +148,11 @@ class ChatViewModel(
 
     private fun sendMessage(text: String) {
         if (text.isBlank()) return
-        android.util.Log.d("ChatViewModel", "sendMessage disparada. Texto: '$text'")
         viewModelScope.launch {
             val userId = chatSessionProvider.getCurrentUserUid()
             val sessionId = getOrCreateSessionId(text, userId)
-            android.util.Log.d("ChatViewModel", "Sessão ativa para envio: $sessionId (Usuário: $userId)")
 
-            persistAndSyncMessage(sessionId, text, "USER", userId)
+            persistAndSyncMessage(sessionId, text, ChatPromptConstants.SENDER_USER, userId)
 
             uiState.update { state ->
                 state.copy(
@@ -163,34 +165,30 @@ class ChatViewModel(
             val history = uiState.value.messages
             sendChatMessageUseCase(text, history)
                 .catch { exception ->
-                    android.util.Log.e("ChatViewModel", "Erro no fluxo do chat", exception)
+                    Log.e(TAG, ERROR_STREAM_FAILED, exception)
                     val errorReply =
                         if (exception.message?.contains("Quota") == true ||
                             exception.message?.contains("quota") == true ||
                             exception.toString().contains("Quota")
                         ) {
-                            "Nobre cliente, as chamas da API excederam os limites do Trono neste momento. " +
-                                "Por favor, aguarde alguns instantes (cerca de 1 minuto) antes de enviar uma nova mensagem."
+                            ChatPromptConstants.REPLY_QUOTA_EXCEEDED
                         } else {
-                            "As chamas da Cidadela oscilaram e não consegui responder. " +
-                                "Por favor, tente enviar novamente."
+                            ChatPromptConstants.REPLY_UNAVAILABLE_FALLBACK
                         }
-                    persistAndSyncMessage(sessionId, errorReply, "AI", userId)
+                    persistAndSyncMessage(sessionId, errorReply, ChatPromptConstants.SENDER_AI, userId)
                     uiState.update { state ->
                         state.copy(
                             isLoading = false,
-                            error = exception.message ?: "Erro desconhecido",
+                            error = exception.message ?: ChatPromptConstants.ERROR_UNKNOWN,
                         )
                     }
                 }.collect { reply ->
-                    if (reply == "[NAVIGATE_TO_CHECKOUT]") {
-                        val friendlyReply =
-                            "Com certeza, nobre cliente imperial. " +
-                                "Estou direcionando você para a página de checkout."
-                        persistAndSyncMessage(sessionId, friendlyReply, "AI", userId)
+                    if (reply == ChatPromptConstants.ACTION_NAVIGATE_TO_CHECKOUT) {
+                        val friendlyReply = ChatPromptConstants.REPLY_CHECKOUT_REDIRECT
+                        persistAndSyncMessage(sessionId, friendlyReply, ChatPromptConstants.SENDER_AI, userId)
                         _navigationEvents.send(ChatNavigationEvent.NavigateToCheckout)
                     } else {
-                        persistAndSyncMessage(sessionId, reply, "AI", userId)
+                        persistAndSyncMessage(sessionId, reply, ChatPromptConstants.SENDER_AI, userId)
                     }
                     uiState.update { state -> state.copy(isLoading = false) }
                 }
@@ -202,13 +200,8 @@ class ChatViewModel(
         userId: String?,
     ): String {
         val activeSessionId = uiState.value.currentSessionId
-        android.util.Log.d("ChatViewModel", "getOrCreateSessionId: activeSessionId do estado = $activeSessionId")
         if (activeSessionId != null) {
             val session = uiState.value.sessions.find { it.id == activeSessionId }
-            android.util.Log.d(
-                "ChatViewModel",
-                "getOrCreateSessionId: sessão encontrada na lista do estado = ${session != null}",
-            )
             if (session != null) {
                 val updatedTimestamp = System.currentTimeMillis()
                 chatDao.updateSessionTimestamp(activeSessionId, updatedTimestamp)
@@ -256,7 +249,7 @@ class ChatViewModel(
         val message =
             ChatMessage(
                 text = text,
-                sender = if (sender == "USER") ChatSender.USER else ChatSender.AI,
+                sender = if (sender == ChatPromptConstants.SENDER_USER) ChatSender.USER else ChatSender.AI,
             )
         val entity =
             ChatMessageEntity(
@@ -355,6 +348,8 @@ class ChatViewModel(
     }
 
     companion object {
+        private const val TAG = "ChatViewModel"
+        private const val ERROR_STREAM_FAILED = "Erro no fluxo do chat"
         private const val SESSION_TITLE_MAX_LENGTH = 20
     }
 }

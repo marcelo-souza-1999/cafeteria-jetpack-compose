@@ -5,7 +5,6 @@ import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.service.AppFunction
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
 
 /**
@@ -53,17 +52,22 @@ class CheckoutAppFunctions(
                 firestore
                     .collection("orders")
                     .whereEqualTo("userId", userId)
-                    .orderBy("dateMillis", Query.Direction.DESCENDING)
-                    .limit(1)
                     .get()
                     .await()
 
-            if (!querySnapshot.isEmpty) {
-                val document = querySnapshot.documents[0]
-                val status = document.getString("status") ?: "Pendente"
-                val summary = document.getString("itemsSummary") ?: ""
-                val totalPrice = document.getDouble("totalPrice") ?: 0.0
-                val dateMillis = document.getLong("dateMillis") ?: 0L
+            val latestDocument =
+                querySnapshot.documents.maxByOrNull { doc ->
+                    doc.getLong("dateMillis") ?: 0L
+                }
+
+            if (latestDocument != null) {
+                val status = latestDocument.getString("status") ?: "Pendente"
+                val summary =
+                    latestDocument.getString("itemsSummary")
+                        ?: latestDocument.getString("summary")
+                        ?: ""
+                val totalPrice = latestDocument.getDouble("totalPrice") ?: 0.0
+                val dateMillis = latestDocument.getLong("dateMillis") ?: 0L
 
                 OrderStatusResponse(
                     status = status,

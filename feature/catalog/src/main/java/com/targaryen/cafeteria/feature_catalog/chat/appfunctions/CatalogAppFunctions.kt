@@ -3,13 +3,54 @@ package com.targaryen.cafeteria.feature_catalog.chat.appfunctions
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.service.AppFunction
+import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import kotlinx.coroutines.flow.first
+import java.text.Normalizer
+import java.util.Locale
+
+private const val MAX_SUGGESTIONS_COUNT = 5
+private val DIACRITICS_REGEX = Regex("\\p{InCombiningDiacriticalMarks}+")
+private val COFFEE_SEARCH_ALIASES = setOf("cafe", "cafes", "coffee", "expresso", "espresso")
+private val COFFEE_PRODUCT_KEYWORDS =
+    listOf(
+        "cafe",
+        "expresso",
+        "mocha",
+        "capuccino",
+        "cappuccino",
+        "macchiato",
+        "latte",
+        "affogato",
+        "cold brew",
+    )
+
+internal fun String.normalizeForSearch(): String {
+    val decomposed = Normalizer.normalize(this.trim(), Normalizer.Form.NFD)
+    return DIACRITICS_REGEX.replace(decomposed, "").lowercase(Locale.ROOT)
+}
+
+internal fun List<Product>.findBestMatchingProduct(rawQuery: String): Product? {
+    val normalizedQuery = rawQuery.normalizeForSearch()
+    if (normalizedQuery.isBlank()) return null
+
+    return find { prod -> prod.name.normalizeForSearch() == normalizedQuery }
+        ?: find { prod -> prod.name.normalizeForSearch().contains(normalizedQuery) }
+        ?: find { prod -> normalizedQuery.contains(prod.name.normalizeForSearch()) }
+}
+
+internal fun Product.isCoffeeBeverage(): Boolean {
+    val normalizedName = name.normalizeForSearch()
+    val normalizedDesc = description.normalizeForSearch()
+    return COFFEE_PRODUCT_KEYWORDS.any { keyword ->
+        normalizedName.contains(keyword) || normalizedDesc.contains(keyword)
+    }
+}
 
 /**
  * Requisição para pesquisar produtos no cardápio da cafeteria.
  *
- * @property query Termo ou palavra-chave de busca (ex: "latte", "espresso", "bolo", "doce").
+ * @property query Termo ou palavra-chave de busca (ex: "café", "expresso", "mocha", "doce").
  */
 @AppFunctionSerializable
 data class SearchCatalogRequest(
@@ -23,7 +64,7 @@ data class SearchCatalogRequest(
  * @property name Nome oficial do item de cardápio.
  * @property description Descrição contendo ingredientes e características do produto.
  * @property price Preço do item em Dragões de Ouro.
- * @property category Categoria de classificação do produto (ex: "Cafés", "Bebidas Geladas", "Sobremesas").
+ * @property category Categoria de classificação do produto (ex: "bebidas", "elixires", "comidas").
  */
 @AppFunctionSerializable
 data class CatalogProductItem(
@@ -38,7 +79,7 @@ data class CatalogProductItem(
  * Resposta contendo o resultado da pesquisa de produtos no cardápio.
  *
  * @property products Lista de produtos que correspondem ao termo pesquisado.
- * @property message Mensagem informativa com a quantidade de produtos encontrados.
+ * @property message Mensagem informativa com os produtos encontrados ou sugestões do cardápio.
  */
 @AppFunctionSerializable
 data class SearchCatalogResponse(
@@ -64,26 +105,55 @@ class CatalogAppFunctions(
     ): SearchCatalogResponse {
         context.hashCode()
         val allProducts = catalogRepository.getProducts().first()
-        val filtered =
-            allProducts
-                .filter { prod ->
-                    prod.name.contains(request.query, ignoreCase = true) ||
-                        prod.description.contains(request.query, ignoreCase = true) ||
-                        prod.category.contains(request.query, ignoreCase = true)
-                }.map { item ->
-                    CatalogProductItem(
-                        id = item.id,
-                        name = item.name,
-                        description = item.description,
-                        price = item.price,
-                        category = item.category,
-                    )
-                }
+        val normalizedQuery = request.query.normalizeForSearch()
+        val isGenericCoffeeSearch = normalizedQuery in COFFEE_SEARCH_ALIASES
+
+        val matchedProducts =
+            allProducts.filter { prod ->
+                val normName = prod.name.normalizeForSearch()
+                val normDesc = prod.description.normalizeForSearch()
+                val normCat = prod.category.normalizeForSearch()
+                val directMatch =
+                    normName.contains(normalizedQuery) ||
+                        normDesc.contains(normalizedQuery) ||
+                        normCat.contains(normalizedQuery)
+                directMatch || (isGenericCoffeeSearch && prod.isCoffeeBeverage())
+            }
+
+        val mappedItems =
+            matchedProducts.map { item ->
+                CatalogProductItem(
+                    id = item.id,
+                    name = item.name,
+                    description = item.description,
+                    price = item.price,
+                    category = item.category,
+                )
+            }
+
+        val formattedMessage =
+            if (mappedItems.isNotEmpty()) {
+                val itemsListText =
+                    mappedItems.joinToString(separator = "\n") { prod ->
+                        "• ${prod.name} (${prod.price} Dragões de Ouro)"
+                    }
+                "Encontrado(s) ${mappedItems.size} produto(s) para '${request.query}':\n$itemsListText"
+            } else {
+                val suggestions =
+                    allProducts
+                        .filter { prod -> prod.isCoffeeBeverage() }
+                        .ifEmpty { allProducts }
+                        .take(MAX_SUGGESTIONS_COUNT)
+                val suggestionsText =
+                    suggestions.joinToString(separator = "\n") { prod ->
+                        "• ${prod.name} (${prod.price} Dragões de Ouro)"
+                    }
+                "Nenhum item exato para '${request.query}'. Sugestões imperiais disponíveis:\n$suggestionsText"
+            }
+
         return SearchCatalogResponse(
-            products = filtered,
-            message =
-                "Encontrado ${filtered.size} produto(s) correspondente(s) à " +
-                    "busca '${request.query}' no cardápio imperial.",
+            products = mappedItems,
+            message = formattedMessage,
         )
     }
 }
