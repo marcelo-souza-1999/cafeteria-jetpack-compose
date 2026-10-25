@@ -1,35 +1,21 @@
 package com.targaryen.cafeteria.feature_catalog.catalog.presentation.view
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.CardGiftcard
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -37,36 +23,31 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import com.targaryen.cafeteria.core_designsystem.R
 import com.targaryen.cafeteria.core_designsystem.components.CategoryFilters
 import com.targaryen.cafeteria.core_designsystem.components.TargaryenBottomBar
 import com.targaryen.cafeteria.core_designsystem.components.TargaryenTopBar
 import com.targaryen.cafeteria.core_designsystem.model.CatalogCategories
 import com.targaryen.cafeteria.core_designsystem.model.TargaryenTab
-import com.targaryen.cafeteria.core_designsystem.theme.BloodRed
-import com.targaryen.cafeteria.core_designsystem.theme.DragonScale
 import com.targaryen.cafeteria.core_designsystem.theme.Obsidian
-import com.targaryen.cafeteria.core_designsystem.theme.SilverHair
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
-import com.targaryen.cafeteria.core_designsystem.theme.TargaryenWhite
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.intent.CatalogIntent
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.model.ProductUiModel
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.state.CatalogUiState
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.CartScreen
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.CartScreenActions
+import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.CatalogDrawerContent
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.CatalogSearchBar
+import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.FavoritesScreenStub
+import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.GeminiSimulatorBottomSheet
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.LogoutConfirmationDialog
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.ProductDetailBottomSheet
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.view.components.ProductGrid
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.viewmodel.CatalogViewModel
+import com.targaryen.cafeteria.feature_catalog.chat.presentation.view.ChatScreen
 import com.targaryen.cafeteria.feature_catalog.profile.presentation.view.ProfileScreen
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -116,6 +97,8 @@ fun CatalogScreenContent(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val showLogoutConfirmation = remember { mutableStateOf(false) }
+    val showGeminiSimulator = remember { mutableStateOf(false) }
+    val simulatorSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val pagerState = rememberPagerState(initialPage = 0) { TargaryenTab.entries.size }
 
@@ -136,190 +119,27 @@ fun CatalogScreenContent(
         drawerState = drawerState,
         gesturesEnabled = true,
         drawerContent = {
-            ModalDrawerSheet(
-                drawerContainerColor = DragonScale,
-                drawerContentColor = TargaryenWhite,
-            ) {
-                Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
-
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(TargaryenTheme.dimens.spaceMedium),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(
-                        painter =
-                            painterResource(
-                                id = R.drawable.ic_logo_login_screen,
-                            ),
-                        contentDescription = null,
-                        modifier = Modifier.size(TargaryenTheme.dimens.iconSizeExtraLarge * BRAND_LOGO_SCALE),
-                    )
-                    Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
-                    Text(
-                        text = stringResource(DesignSystemR.string.drawer_brand_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = ValyrianGold,
-                    )
-                    Text(
-                        text = stringResource(DesignSystemR.string.drawer_brand_subtitle),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = SilverHair.copy(alpha = 0.7f),
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
-
-                NavigationDrawerItem(
-                    label = {
-                        Text(
-                            stringResource(DesignSystemR.string.drawer_menu_home),
-                            color = ValyrianGold,
-                        )
-                    },
-                    selected = currentTab == TargaryenTab.CATALOG,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            pagerState.animateScrollToPage(TargaryenTab.CATALOG.ordinal)
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Default.Home,
-                            contentDescription = null,
-                            tint = ValyrianGold,
-                        )
-                    },
-                    colors =
-                        NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = BloodRed.copy(alpha = 0.3f),
-                            unselectedContainerColor = Color.Transparent,
-                        ),
-                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall),
-                )
-
-                NavigationDrawerItem(
-                    label = {
-                        Text(
-                            stringResource(DesignSystemR.string.drawer_menu_favorites),
-                            color = ValyrianGold,
-                        )
-                    },
-                    selected = currentTab == TargaryenTab.FAVORITES,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            pagerState.animateScrollToPage(TargaryenTab.FAVORITES.ordinal)
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Default.Book,
-                            contentDescription = null,
-                            tint = ValyrianGold,
-                        )
-                    },
-                    colors =
-                        NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = BloodRed.copy(alpha = 0.3f),
-                            unselectedContainerColor = Color.Transparent,
-                        ),
-                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall),
-                )
-
-                NavigationDrawerItem(
-                    label = {
-                        Text(
-                            stringResource(DesignSystemR.string.drawer_menu_cart),
-                            color = ValyrianGold,
-                        )
-                    },
-                    selected = currentTab == TargaryenTab.CART,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            pagerState.animateScrollToPage(TargaryenTab.CART.ordinal)
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Default.CardGiftcard,
-                            contentDescription = null,
-                            tint = ValyrianGold,
-                        )
-                    },
-                    colors =
-                        NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = BloodRed.copy(alpha = 0.3f),
-                            unselectedContainerColor = Color.Transparent,
-                        ),
-                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall),
-                )
-
-                NavigationDrawerItem(
-                    label = {
-                        Text(
-                            stringResource(DesignSystemR.string.drawer_menu_profile),
-                            color = ValyrianGold,
-                        )
-                    },
-                    selected = currentTab == TargaryenTab.PROFILE,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            pagerState.animateScrollToPage(TargaryenTab.PROFILE.ordinal)
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            tint = ValyrianGold,
-                        )
-                    },
-                    colors =
-                        NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = BloodRed.copy(alpha = 0.3f),
-                            unselectedContainerColor = Color.Transparent,
-                        ),
-                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall),
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                NavigationDrawerItem(
-                    label = {
-                        Text(
-                            stringResource(DesignSystemR.string.drawer_menu_logout),
-                            color = BloodRed,
-                        )
-                    },
-                    selected = false,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            showLogoutConfirmation.value = true
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            Icons.AutoMirrored.Filled.Logout,
-                            contentDescription = null,
-                            tint = BloodRed,
-                        )
-                    },
-                    colors =
-                        NavigationDrawerItemDefaults.colors(
-                            selectedContainerColor = Color.Transparent,
-                            unselectedContainerColor = Color.Transparent,
-                        ),
-                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceSmall),
-                )
-                Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceLarge))
-            }
+            CatalogDrawerContent(
+                currentTab = currentTab,
+                onTabClick = { tab ->
+                    scope.launch {
+                        drawerState.close()
+                        pagerState.animateScrollToPage(tab.ordinal)
+                    }
+                },
+                onLogoutClick = {
+                    scope.launch {
+                        drawerState.close()
+                        showLogoutConfirmation.value = true
+                    }
+                },
+                onDebugSimulatorClick = {
+                    scope.launch {
+                        drawerState.close()
+                        showGeminiSimulator.value = true
+                    }
+                },
+            )
         },
     ) {
         Scaffold(
@@ -360,94 +180,27 @@ fun CatalogScreenContent(
                         .padding(paddingValues),
             ) { page ->
                 when (page) {
-                    0 -> {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
-
-                            CatalogSearchBar(
-                                query = uiState.searchQuery,
-                                onQueryChange = { text -> onIntent(CatalogIntent.Search(text)) },
-                                onClearQuery = { onIntent(CatalogIntent.ClearSearch) },
-                                modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceNormal),
-                            )
-
-                            Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
-
-                            CategoryFilters(
-                                categories = categories,
-                                selectedCategory = uiState.selectedCategory,
-                                onCategorySelected = { category ->
-                                    onIntent(
-                                        CatalogIntent.SelectCategory(
-                                            category,
-                                        ),
-                                    )
-                                },
-                            )
-
-                            Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
-
-                            ProductGrid(
-                                products = uiState.products,
-                                onProductClick = { item -> onIntent(CatalogIntent.SelectProduct(item)) },
-                                onAddToCart = { item -> onIntent(CatalogIntent.AddToCart(item)) },
-                                onIncreaseQuantity = { item -> onIntent(CatalogIntent.AddToCart(item)) },
-                                onDecreaseQuantity = { item ->
-                                    onIntent(
-                                        CatalogIntent.RemoveFromCart(
-                                            item,
-                                        ),
-                                    )
-                                },
-                                modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .weight(1f),
-                            )
-                        }
+                    TargaryenTab.CATALOG.ordinal -> {
+                        CatalogTabContent(
+                            uiState = uiState,
+                            categories = categories,
+                            onIntent = onIntent,
+                        )
                     }
 
                     TargaryenTab.FAVORITES.ordinal -> {
-                        if (uiState.favoriteProducts.isEmpty()) {
-                            FavoritesScreenStub()
-                        } else {
-                            Column(modifier = Modifier.fillMaxSize()) {
-                                Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
-                                Text(
-                                    text = stringResource(DesignSystemR.string.favorites_tab_title),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = ValyrianGold,
-                                    modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceNormal),
-                                )
-                                Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
-                                ProductGrid(
-                                    products = uiState.favoriteProducts,
-                                    onProductClick = { item ->
-                                        onIntent(
-                                            CatalogIntent.SelectProduct(
-                                                item,
-                                            ),
-                                        )
-                                    },
-                                    onAddToCart = { item -> onIntent(CatalogIntent.AddToCart(item)) },
-                                    onIncreaseQuantity = { item ->
-                                        onIntent(
-                                            CatalogIntent.AddToCart(
-                                                item,
-                                            ),
-                                        )
-                                    },
-                                    onDecreaseQuantity = { item ->
-                                        onIntent(
-                                            CatalogIntent.RemoveFromCart(
-                                                item,
-                                            ),
-                                        )
-                                    },
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                            }
-                        }
+                        FavoritesTabContent(
+                            favoriteProducts = uiState.favoriteProducts,
+                            onIntent = onIntent,
+                        )
+                    }
+
+                    TargaryenTab.CHAT.ordinal -> {
+                        ChatScreen(
+                            onNavigateToCheckout = actions.onCheckoutClick,
+                            viewModel = koinViewModel(),
+                            modifier = Modifier.fillMaxSize(),
+                        )
                     }
 
                     TargaryenTab.CART.ordinal ->
@@ -497,40 +250,115 @@ fun CatalogScreenContent(
                     onDismiss = { showLogoutConfirmation.value = false },
                 )
             }
+
+            if (showGeminiSimulator.value) {
+                GeminiSimulatorBottomSheet(
+                    sheetState = simulatorSheetState,
+                    onDismissRequest = { showGeminiSimulator.value = false },
+                )
+            }
         }
     }
 }
 
 @Composable
-fun FavoritesScreenStub() {
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(Obsidian)
-                .padding(TargaryenTheme.dimens.spaceLarge),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Icon(
-            imageVector = Icons.Default.Favorite,
-            contentDescription = null,
-            modifier = Modifier.size(TargaryenTheme.dimens.iconSizeExtraLarge),
-            tint = BloodRed,
-        )
+private fun CatalogTabContent(
+    uiState: CatalogUiState,
+    categories: List<String>,
+    onIntent: (CatalogIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
-        Text(
-            text = stringResource(DesignSystemR.string.favorites_stub_title),
-            style = MaterialTheme.typography.titleLarge,
-            color = ValyrianGold,
+
+        CatalogSearchBar(
+            query = uiState.searchQuery,
+            onQueryChange = { text -> onIntent(CatalogIntent.Search(text)) },
+            onClearQuery = { onIntent(CatalogIntent.ClearSearch) },
+            modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceNormal),
         )
-        Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
-        Text(
-            text = stringResource(DesignSystemR.string.favorites_stub_desc),
-            style = MaterialTheme.typography.bodyMedium,
-            color = SilverHair,
-            textAlign = TextAlign.Center,
+
+        Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
+
+        CategoryFilters(
+            categories = categories,
+            selectedCategory = uiState.selectedCategory,
+            onCategorySelected = { category ->
+                onIntent(
+                    CatalogIntent.SelectCategory(
+                        category,
+                    ),
+                )
+            },
         )
+
+        Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
+
+        ProductGrid(
+            products = uiState.products,
+            onProductClick = { item -> onIntent(CatalogIntent.SelectProduct(item)) },
+            onAddToCart = { item -> onIntent(CatalogIntent.AddToCart(item)) },
+            onIncreaseQuantity = { item -> onIntent(CatalogIntent.AddToCart(item)) },
+            onDecreaseQuantity = { item ->
+                onIntent(
+                    CatalogIntent.RemoveFromCart(
+                        item,
+                    ),
+                )
+            },
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun FavoritesTabContent(
+    favoriteProducts: List<ProductUiModel>,
+    onIntent: (CatalogIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (favoriteProducts.isEmpty()) {
+        FavoritesScreenStub(modifier = modifier)
+    } else {
+        Column(modifier = modifier.fillMaxSize()) {
+            Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceNormal))
+            Text(
+                text = stringResource(DesignSystemR.string.favorites_tab_title),
+                style = MaterialTheme.typography.titleMedium,
+                color = ValyrianGold,
+                modifier = Modifier.padding(horizontal = TargaryenTheme.dimens.spaceNormal),
+            )
+            Spacer(modifier = Modifier.height(TargaryenTheme.dimens.spaceSmall))
+            ProductGrid(
+                products = favoriteProducts,
+                onProductClick = { item ->
+                    onIntent(
+                        CatalogIntent.SelectProduct(
+                            item,
+                        ),
+                    )
+                },
+                onAddToCart = { item -> onIntent(CatalogIntent.AddToCart(item)) },
+                onIncreaseQuantity = { item ->
+                    onIntent(
+                        CatalogIntent.AddToCart(
+                            item,
+                        ),
+                    )
+                },
+                onDecreaseQuantity = { item ->
+                    onIntent(
+                        CatalogIntent.RemoveFromCart(
+                            item,
+                        ),
+                    )
+                },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
     }
 }
 
@@ -632,5 +460,3 @@ fun CatalogScreenPreview() {
         )
     }
 }
-
-private const val BRAND_LOGO_SCALE = 1.3f

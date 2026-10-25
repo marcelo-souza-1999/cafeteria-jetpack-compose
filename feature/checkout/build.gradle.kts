@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.koin.compiler)
+    alias(libs.plugins.google.ksp)
 }
 
 android {
@@ -43,6 +44,7 @@ android {
 dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":core:network"))
+    implementation(project(":core:database"))
     implementation(project(":feature:catalog"))
 
     implementation(libs.androidx.core.ktx)
@@ -59,6 +61,10 @@ dependencies {
     implementation(libs.bundles.coroutines)
     implementation(libs.bundles.koin)
     implementation(libs.compose.alert.dialog)
+
+    implementation(libs.androidx.appfunctions)
+    implementation(libs.androidx.appfunctions.service)
+    ksp(libs.androidx.appfunctions.compiler)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)

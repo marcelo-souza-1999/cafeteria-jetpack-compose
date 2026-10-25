@@ -34,3 +34,9 @@ app/google-services.json
 .agents/
 .antigravitycli/
 /scripts/
+
+# Blindagem de Topologia e Regras do Firebase (Repo Público)
+/firebase.json
+/firestore.rules
+/firestore.indexes.json
+/.firebaserc

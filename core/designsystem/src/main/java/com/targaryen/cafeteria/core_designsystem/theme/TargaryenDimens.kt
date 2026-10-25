@@ -44,6 +44,13 @@ data class TargaryenDimens(
     // Checkout Screen Tokens
     val buttonHeightLarge: Dp = 56.dp,
     val stateFieldWidth: Dp = 80.dp,
+    // Chat Screen Tokens
+    val chatAvatarSize: Dp = 28.dp,
+    val chatInputRadius: Dp = 24.dp,
+    val chatBubbleRadius: Dp = 16.dp,
+    val chatBubbleMaxWidth: Dp = 280.dp,
+    val chatThinkingRadius: Dp = 12.dp,
+    val chatSendButtonSize: Dp = 48.dp,
 )
 
 val LocalTargaryenDimens = staticCompositionLocalOf { TargaryenDimens() }

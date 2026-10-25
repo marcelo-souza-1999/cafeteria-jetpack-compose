@@ -6,6 +6,8 @@ import com.targaryen.cafeteria.core_network.model.MpPreferenceResponse
 import com.targaryen.cafeteria.core_network.model.ViaCepResponse
 import com.targaryen.cafeteria.core_network.tracker.PaymentStatus
 import com.targaryen.cafeteria.core_network.tracker.PaymentStatusTracker
+import com.targaryen.cafeteria.coredatabase.address.AddressProvider
+import com.targaryen.cafeteria.coredatabase.address.DeliveryAddress
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import com.targaryen.cafeteria.feature_checkout.R
@@ -36,6 +38,7 @@ class CheckoutViewModelTest {
     private val checkoutRepository: CheckoutRepository = mockk()
     private val catalogRepository: CatalogRepository = mockk()
     private val paymentStatusTracker: PaymentStatusTracker = mockk()
+    private val addressProvider: AddressProvider = mockk(relaxed = true)
 
     private val mockCartProducts =
         listOf(
@@ -64,6 +67,7 @@ class CheckoutViewModelTest {
 
         every { catalogRepository.getProducts() } returns flowOf(mockCartProducts)
         every { paymentStatusTracker.paymentStatus } returns paymentStatusFlow
+        every { addressProvider.getAddress() } returns DeliveryAddress()
 
         coEvery { checkoutRepository.fetchAddressByCep(any()) } returns Result.success(mockk(relaxed = true))
     }
@@ -76,7 +80,8 @@ class CheckoutViewModelTest {
     @Test
     fun `initialization should load cart items and start observing payment status`() =
         runTest {
-            val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
+            val viewModel =
+                CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker, addressProvider)
             val state = viewModel.uiState.value
 
             assertEquals(1, state.cartItems.size)
@@ -95,7 +100,8 @@ class CheckoutViewModelTest {
                 )
             coEvery { checkoutRepository.fetchAddressByCep("01001000") } returns Result.success(mockAddress)
 
-            val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
+            val viewModel =
+                CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker, addressProvider)
 
             viewModel.onIntent(CheckoutIntent.OnCepChanged("01001000"))
 
@@ -109,7 +115,8 @@ class CheckoutViewModelTest {
     @Test
     fun `when submit payment is clicked with invalid fields, it should show error`() =
         runTest {
-            val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
+            val viewModel =
+                CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker, addressProvider)
 
             viewModel.onIntent(CheckoutIntent.OnSubmitPayment)
 
@@ -132,7 +139,8 @@ class CheckoutViewModelTest {
             val preferenceResult = Result.success(mockPreference)
             coEvery { checkoutRepository.createPreferenceForCart(mockCartProducts) } returns preferenceResult
 
-            val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
+            val viewModel =
+                CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker, addressProvider)
 
             // Pre-fill fields
             viewModel.onIntent(CheckoutIntent.OnCepChanged("12345678"))
@@ -155,7 +163,8 @@ class CheckoutViewModelTest {
             coEvery { checkoutRepository.saveOrder("test_uid", "2x Espresso", 10.0, "Aprovado") } returns saveResult
             coEvery { catalogRepository.clearCart() } returns Unit
 
-            val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
+            val viewModel =
+                CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker, addressProvider)
 
             paymentStatusFlow.emit(PaymentStatus.SUCCESS)
 
@@ -170,7 +179,8 @@ class CheckoutViewModelTest {
     @Test
     fun `when resetState intent is received, fields should clear`() =
         runTest {
-            val viewModel = CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker)
+            val viewModel =
+                CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker, addressProvider)
 
             viewModel.onIntent(CheckoutIntent.OnCepChanged("12345678"))
             assertEquals("12345678", viewModel.uiState.value.cep)

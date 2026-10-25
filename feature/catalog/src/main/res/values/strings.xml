@@ -54,4 +54,36 @@
     <!-- Statuses -->
     <string name="status_approved">Aprovado</string>
     <string name="status_pending">Pendente</string>
+
+    <!-- Chat IA Rhaenyra -->
+    <string name="chat_welcome_message">Saudações, nobre cliente de Westeros! Eu sou a Rainha Rhaenyra Targaryen. Através deste canal conversacional, posso lhe informar os preços dos nossos produtos imperiais ou calcular quais iguarias do nosso cardápio estão ao alcance de suas posses. O que deseja saborear hoje sob o comando do Trono?</string>
+    <string name="chat_input_placeholder">Fale com a Rainha Rhaenyra...</string>
+    <string name="chat_thinking_indicator">Rhaenyra está deliberando com o conselho...</string>
+    <string name="chat_scope_restriction_message">Desculpe, nobre cliente, mas só posso ajudá-lo com dúvidas sobre o nosso cardápio, preços, compras e o que pode adquirir.</string>
+    <string name="chat_title">Conselho da Rainha</string>
+    <string name="chat_subtitle">Rhaenyra Targaryen conversando</string>
+    <string name="chat_clear_desc">Limpar Crônicas</string>
+    <string name="chat_send_desc">Enviar</string>
+
+    <!-- Voice Command / App Actions -->
+    <string name="voice_command_drawer_title">Comando por Voz</string>
+    <string name="voice_command_title">Comandos por Voz</string>
+    <string name="voice_command_subtitle">App Actions &amp; Ações Rápidas</string>
+    <string name="voice_command_placeholder">Fale ou digite o comando...</string>
+    <string name="voice_command_label">Comando de voz ou texto</string>
+    <string name="voice_command_mic_toast">Use o microfone do teclado do seu aparelho para ditar o comando.</string>
+    <string name="voice_command_mic_desc">Falar comando</string>
+    <string name="voice_command_send_desc">Executar comando</string>
+    <string name="voice_command_close_desc">Fechar painel</string>
+    <string name="voice_command_result_title">Resultado da Ação</string>
+    <string name="voice_command_status_idle">Toque em um atalho acima ou dite um comando para a Cafeteria.</string>
+    <string name="voice_command_status_processing">Interpretando comando e executando ação...</string>
+    <string name="voice_command_chip_view_cart">Ver Carrinho</string>
+    <string name="voice_command_chip_clear_cart">Limpar Carrinho</string>
+    <string name="voice_command_chip_last_order">Último Pedido</string>
+    <string name="voice_command_chip_add_coffee">Pedir Expresso Valíria</string>
+    <string name="voice_command_chip_search_coffee">Buscar Cafés</string>
+    <string name="voice_command_chip_favorites">Meus Favoritos</string>
+    <string name="voice_command_chip_remove_coffee">Remover Café</string>
+    <string name="voice_command_footer_note">🛡️ Os comandos acionam as AppFunctions locais do app simulando as ações do Google Assistant.</string>
 </resources>

@@ -36,6 +36,8 @@ class FirebaseAuthRepositoryImpl(
 
     override fun isUserLoggedIn(): Boolean = firebaseAuth.currentUser != null
 
+    override fun getCurrentUserUid(): String? = firebaseAuth.currentUser?.uid
+
     override suspend fun logout() {
         val uid = firebaseAuth.currentUser?.uid
         firebaseAuth.signOut()

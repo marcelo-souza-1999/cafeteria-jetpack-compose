@@ -1,0 +1,35 @@
+package com.targaryen.cafeteria.feature_catalog.chat.data.repository
+
+internal const val PRIMARY_MODEL_NAME = "gemini-2.5-flash"
+internal const val FALLBACK_MODEL_NAME = "gemini-2.0-flash"
+
+internal const val ERROR_GENERIC_MODEL = "Erro no modelo generativo"
+internal const val ERROR_SERIALIZATION_MODEL = "Falha no processamento de resposta da IA"
+internal const val ERROR_NETWORK_MODEL = "Falha de conexão com os servidores da IA"
+
+internal const val FN_ADD_PRODUCT_TO_CART = "addProductToCart"
+internal const val FN_ADD_PRODUCT_TO_CART_DESC = "Adiciona uma quantidade de um café ou bolo ao carrinho do cliente."
+internal const val PARAM_PRODUCT_NAME = "productName"
+internal const val PARAM_PRODUCT_NAME_DESC = "O nome aproximado ou exato do produto a ser adicionado."
+internal const val PARAM_QUANTITY = "quantity"
+internal const val PARAM_QUANTITY_DESC = "A quantidade do produto a ser inserida no carrinho."
+
+internal const val FN_NAVIGATE_TO_CHECKOUT = "navigateToCheckout"
+internal const val FN_NAVIGATE_TO_CHECKOUT_DESC = "Redireciona para a tela de finalização de compra (checkout)."
+
+internal const val FN_SAVE_DELIVERY_ADDRESS = "saveDeliveryAddress"
+internal const val FN_SAVE_DELIVERY_ADDRESS_DESC = "Salva as informações de endereço de entrega do cliente."
+internal const val PARAM_CEP = "cep"
+internal const val PARAM_CEP_DESC = "O CEP com 8 dígitos."
+internal const val PARAM_STREET = "street"
+internal const val PARAM_STREET_DESC = "O nome do logradouro ou rua. Opcional se CEP for fornecido."
+internal const val PARAM_CITY = "city"
+internal const val PARAM_CITY_DESC = "O nome da cidade. Opcional se CEP for fornecido."
+internal const val PARAM_STATE = "state"
+internal const val PARAM_STATE_DESC = "A sigla do estado (UF). Opcional se CEP for fornecido."
+internal const val PARAM_NUMBER = "number"
+internal const val PARAM_NUMBER_DESC = "O número da residência."
+internal const val PARAM_REFERENCE_POINT = "referencePoint"
+internal const val PARAM_REFERENCE_POINT_DESC = "Um ponto de referência próximo."
+internal const val PARAM_RECIPIENT_NAME = "recipientName"
+internal const val PARAM_RECIPIENT_NAME_DESC = "O nome de quem receberá o pedido."

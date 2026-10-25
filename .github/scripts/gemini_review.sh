@@ -24,15 +24,18 @@ if [ ! -s "$DIFF_FILE" ]; then
 fi
 
 RULES_FILE=".agents/code_review.md"
+TEMP_RULES=$(mktemp)
 if [ -f "$RULES_FILE" ]; then
-  RULES_CONTENT=$(cat "$RULES_FILE")
+  cp "$RULES_FILE" "$TEMP_RULES"
 else
-  RULES_CONTENT="Voce e um code reviewer especializado em Android (Kotlin, Jetpack Compose, Clean Arch, Koin). Revise o diff enviado e forneca sugestoes e criticas construtivas de alta qualidade tecnica."
+  cat <<'EOF' > "$TEMP_RULES"
+Voce e um code reviewer especializado em Android (Kotlin, Jetpack Compose, Clean Arch, Koin). Revise o diff enviado e forneca sugestoes e criticas construtivas de alta qualidade tecnica.
+EOF
 fi
 
 jq -n \
-  --arg diff "$(cat "$DIFF_FILE")" \
-  --arg rules "$RULES_CONTENT" \
+  --rawfile diff "$DIFF_FILE" \
+  --rawfile rules "$TEMP_RULES" \
   '{
     contents: [{
       parts: [{
@@ -41,25 +44,39 @@ jq -n \
     }]
   }' > gemini_request.json
 
-echo "Disparando chamada para a API do Gemini (gemini-3.5-flash)..."
-RESPONSE=$(curl -s -X POST \
-  "https://generativelanguage.googleapis.com/v1/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}" \
-  -H "Content-Type: application/json" \
-  -d @gemini_request.json)
+rm -f "$TEMP_RULES"
 
-if echo "$RESPONSE" | jq -e '.error' >/dev/null; then
-  echo "Erro retornado pela API do Gemini:"
-  echo "$RESPONSE"
-  exit 1
-fi
+echo "Disparando analise automatizada com a API do Gemini..."
+MODELS=("gemini-2.5-flash" "gemini-1.5-flash" "gemini-2.0-flash" "gemini-3.5-flash")
+REVIEW_TEXT=""
 
-REVIEW_TEXT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text')
+for MODEL in "${MODELS[@]}"; do
+  echo "Tentando modelo $MODEL..."
+  RESPONSE=$(curl -s -X POST \
+    "https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}" \
+    -H "Content-Type: application/json" \
+    -d @gemini_request.json)
+
+  if echo "$RESPONSE" | jq -e '.error' >/dev/null 2>&1; then
+    ERROR_CODE=$(echo "$RESPONSE" | jq -r '.error.code // empty' 2>/dev/null || echo "")
+    ERROR_MSG=$(echo "$RESPONSE" | jq -r '.error.message // empty' 2>/dev/null || echo "")
+    echo "Aviso: Modelo $MODEL indisponivel ($ERROR_CODE: $ERROR_MSG). Tentando fallback..."
+    sleep 2
+    continue
+  fi
+
+  CANDIDATE_TEXT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // empty' 2>/dev/null || echo "")
+  if [ -n "$CANDIDATE_TEXT" ] && [ "$CANDIDATE_TEXT" != "null" ]; then
+    REVIEW_TEXT="$CANDIDATE_TEXT"
+    echo "Revisao tecnica obtida com sucesso via $MODEL."
+    break
+  fi
+done
 
 if [ -z "$REVIEW_TEXT" ] || [ "$REVIEW_TEXT" = "null" ]; then
-  echo "Erro: Nao foi possivel obter resposta de revisao valida da API do Gemini."
-  echo "Resposta bruta da API:"
-  echo "$RESPONSE"
-  exit 1
+  echo "⚠️ [Sentinel AI] Servico do Gemini indisponivel no momento (alta demanda temporaria/quota)."
+  echo "A revisao automatica foi ignorada graciosamente para nao bloquear a esteira de entrega continua."
+  exit 0
 fi
 
 PR_NUMBER=$PR_NUMBER_ARG
@@ -69,7 +86,10 @@ fi
 
 if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
   echo "Postando revisao tecnica no Pull Request #${PR_NUMBER}..."
-  gh pr comment "$PR_NUMBER" --body "$REVIEW_TEXT"
+  TEMP_COMMENT=$(mktemp)
+  echo "$REVIEW_TEXT" > "$TEMP_COMMENT"
+  gh pr comment "$PR_NUMBER" --body-file "$TEMP_COMMENT"
+  rm -f "$TEMP_COMMENT"
   echo "Revisao postada com sucesso."
 else
   echo "Nao foi possivel identificar o numero do Pull Request. Exibindo revisao no log:"
