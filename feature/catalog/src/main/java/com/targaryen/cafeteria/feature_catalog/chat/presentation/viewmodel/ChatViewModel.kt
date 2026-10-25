@@ -270,7 +270,6 @@ class ChatViewModel(
         val userId = chatSessionProvider.getCurrentUserUid()
         viewModelScope.launch {
             chatDao.deleteSession(sessionId)
-            chatDao.deleteMessagesForSession(sessionId)
             if (userId != null) {
                 chatRemoteDataSource.deleteSession(userId, sessionId)
             }
