@@ -135,6 +135,11 @@ kover {
                     "*Dao_Impl*",
                     "*Database_Impl*",
                     "*ModuleKt*",
+                    "*AppFunction*",
+                    "*Invoker*",
+                    "*AggregatedDeps*",
+                    "*AutoValue*",
+                    "appfunctions_aggregated_deps.*",
                 )
                 annotatedBy("androidx.compose.runtime.Composable")
             }

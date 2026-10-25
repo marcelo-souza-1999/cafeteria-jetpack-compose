@@ -103,7 +103,7 @@ private const val GEMINI_SIMULATOR_PROMPT =
         "9. Favoritar ou desfavoritar produto:\n" +
         "   { \"function\": \"toggleFavoriteProduct\", \"productName\": \"...\" }"
 
-private data class VoiceShortcut(
+internal data class VoiceShortcut(
     val labelResId: Int,
     val command: String,
 )
@@ -126,7 +126,7 @@ internal data class VoiceCommandUiState(
     val executionResult: VoiceExecutionResult? = null,
 )
 
-private val VOICE_SHORTCUTS =
+internal val VOICE_SHORTCUTS =
     listOf(
         VoiceShortcut(CatalogR.string.voice_command_chip_view_cart, "Ver resumo do meu carrinho"),
         VoiceShortcut(CatalogR.string.voice_command_chip_favorites, "Ver meus banquetes favoritos"),
