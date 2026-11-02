@@ -23,10 +23,12 @@ if [ ! -s "$DIFF_FILE" ]; then
   exit 0
 fi
 
-RULES_FILE=".agents/code_review.md"
+RULES_FILE=".github/code_review.md"
 TEMP_RULES=$(mktemp)
 if [ -f "$RULES_FILE" ]; then
   cp "$RULES_FILE" "$TEMP_RULES"
+elif [ -f ".agents/code_review.md" ]; then
+  cp ".agents/code_review.md" "$TEMP_RULES"
 else
   cat <<'EOF' > "$TEMP_RULES"
 Voce e um code reviewer especializado em Android (Kotlin, Jetpack Compose, Clean Arch, Koin). Revise o diff enviado e forneca sugestoes e criticas construtivas de alta qualidade tecnica.
@@ -47,7 +49,7 @@ jq -n \
 rm -f "$TEMP_RULES"
 
 echo "Disparando analise automatizada com a API do Gemini..."
-MODELS=("gemini-2.5-flash" "gemini-1.5-flash" "gemini-2.0-flash" "gemini-3.5-flash")
+MODELS=("gemini-3.5-flash-lite" "gemini-3.5-flash" "gemini-2.5-flash" "gemini-2.0-flash")
 REVIEW_TEXT=""
 
 for MODEL in "${MODELS[@]}"; do
@@ -85,12 +87,28 @@ if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
 fi
 
 if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
-  echo "Postando revisao tecnica no Pull Request #${PR_NUMBER}..."
-  TEMP_COMMENT=$(mktemp)
-  echo "$REVIEW_TEXT" > "$TEMP_COMMENT"
-  gh pr comment "$PR_NUMBER" --body-file "$TEMP_COMMENT"
-  rm -f "$TEMP_COMMENT"
-  echo "Revisao postada com sucesso."
+  HEADER_TAG="<!-- sentinel-ai-code-review -->"
+  FINAL_BODY="${HEADER_TAG}\n${REVIEW_TEXT}"
+
+  # Busca se ja existe um comentario previo do Sentinel AI para fazer update em vez de poluir o PR
+  EXISTING_COMMENT_ID=$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+    --jq ".[] | select(.body | contains(\"${HEADER_TAG}\")) | .id" 2>/dev/null | head -n 1 || echo "")
+
+  if [ -n "$EXISTING_COMMENT_ID" ] && [ "$EXISTING_COMMENT_ID" != "null" ]; then
+    echo "Atualizando revisao existente no comentario ID $EXISTING_COMMENT_ID..."
+    TEMP_COMMENT=$(mktemp)
+    echo -e "$FINAL_BODY" > "$TEMP_COMMENT"
+    gh api -X PATCH "repos/${GITHUB_REPOSITORY}/issues/comments/${EXISTING_COMMENT_ID}" -F body=@"$TEMP_COMMENT" > /dev/null
+    rm -f "$TEMP_COMMENT"
+    echo "Revisao atualizada com sucesso."
+  else
+    echo "Postando nova revisao tecnica no Pull Request #${PR_NUMBER}..."
+    TEMP_COMMENT=$(mktemp)
+    echo -e "$FINAL_BODY" > "$TEMP_COMMENT"
+    gh pr comment "$PR_NUMBER" --body-file "$TEMP_COMMENT"
+    rm -f "$TEMP_COMMENT"
+    echo "Revisao postada com sucesso."
+  fi
 else
   echo "Nao foi possivel identificar o numero do Pull Request. Exibindo revisao no log:"
   echo "======================================================================"
