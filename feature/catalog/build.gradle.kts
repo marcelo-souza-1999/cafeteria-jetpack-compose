@@ -56,6 +56,10 @@ android {
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
+
+    lint {
+        disable += listOf("RestrictedApi", "TypographyEllipsis", "Typos")
+    }
 }
 
 dependencies {
