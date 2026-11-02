@@ -1,7 +1,7 @@
 package com.targaryen.cafeteria.feature_catalog.chat.data.repository
 
-internal const val PRIMARY_MODEL_NAME = "gemini-2.5-flash"
-internal const val FALLBACK_MODEL_NAME = "gemini-2.0-flash"
+internal const val PRIMARY_MODEL_NAME = "gemini-3.5-flash-lite"
+internal const val FALLBACK_MODEL_NAME = "gemini-3.6-flash"
 
 internal const val ERROR_GENERIC_MODEL = "Erro no modelo generativo"
 internal const val ERROR_SERIALIZATION_MODEL = "Falha no processamento de resposta da IA"

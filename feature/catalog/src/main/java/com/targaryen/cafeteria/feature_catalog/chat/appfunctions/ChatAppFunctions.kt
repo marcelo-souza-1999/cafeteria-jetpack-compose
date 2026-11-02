@@ -1,8 +1,8 @@
 package com.targaryen.cafeteria.feature_catalog.chat.appfunctions
 
 import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.service.AppFunction
 import com.targaryen.cafeteria.feature_catalog.chat.domain.usecase.SendChatMessageUseCase
 import kotlinx.coroutines.flow.first
 
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.first
  * @property query Mensagem de diálogo ou pergunta geral (ex: "Quem é você?", "Me conte uma história").
  *   Não envie comandos de carrinho ou compras neste campo.
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class ChatQueryRequest(
     val query: String,
 )
@@ -22,7 +22,7 @@ data class ChatQueryRequest(
  *
  * @property reply A resposta textual elaborada pela inteligência artificial Rhaenyra.
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class ChatQueryResponse(
     val reply: String,
 )
@@ -41,12 +41,11 @@ class ChatAppFunctions(
      *
      * @param request A mensagem contendo a pergunta ou diálogo informal.
      */
-    @AppFunction
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun askRhaenyra(
         context: AppFunctionContext,
         request: ChatQueryRequest,
     ): ChatQueryResponse {
-        context.hashCode()
         val result = sendChatMessageUseCase(request.query, emptyList()).first()
         return ChatQueryResponse(reply = result)
     }

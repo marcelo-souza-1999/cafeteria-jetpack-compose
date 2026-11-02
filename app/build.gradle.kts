@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
-    alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.google.gms.services)
     alias(libs.plugins.koin.compiler)
 }
@@ -103,7 +102,9 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
-    implementation(libs.generativeai)
+    implementation(libs.firebase.ai)
+    implementation(libs.firebase.appcheck.playintegrity)
+    implementation(libs.firebase.appcheck.debug)
 
     testImplementation(libs.bundles.koin.test)
     testImplementation(libs.junit)
@@ -125,6 +126,11 @@ dependencies {
 
 tasks.register("detektAll") {
     dependsOn(tasks.withType<io.gitlab.arturbosch.detekt.Detekt>())
+}
+
+koinCompiler {
+    compileSafety = true
+    strictSafety = true
 }
 
 kover {

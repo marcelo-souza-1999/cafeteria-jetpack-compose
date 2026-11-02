@@ -39,9 +39,16 @@ class SendChatMessageUseCase(
                 $catalogString
                 """.trimIndent()
 
+            val effectiveHistory =
+                if (history.lastOrNull()?.text == prompt && history.lastOrNull()?.sender == ChatSender.USER) {
+                    history.dropLast(1)
+                } else {
+                    history
+                }
+
             val formattedPrompt =
                 buildString {
-                    history.takeLast(ChatPromptConstants.MAX_HISTORY_LIMIT).forEach { message ->
+                    effectiveHistory.takeLast(ChatPromptConstants.MAX_HISTORY_LIMIT).forEach { message ->
                         val speaker =
                             if (message.sender == ChatSender.USER) {
                                 ChatPromptConstants.SPEAKER_USER

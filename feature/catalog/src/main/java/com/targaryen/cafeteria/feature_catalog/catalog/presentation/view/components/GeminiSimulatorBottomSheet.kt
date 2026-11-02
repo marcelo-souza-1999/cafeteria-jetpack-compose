@@ -50,8 +50,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.content
+import com.google.firebase.Firebase
+import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.FirebaseAIException
+import com.google.firebase.ai.type.ThinkingLevel
+import com.google.firebase.ai.type.content
+import com.google.firebase.ai.type.generationConfig
+import com.google.firebase.ai.type.thinkingConfig
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.targaryen.cafeteria.core_designsystem.theme.BloodRed
@@ -61,7 +66,6 @@ import com.targaryen.cafeteria.core_designsystem.theme.SilverHair
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenWhite
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
-import com.targaryen.cafeteria.feature_catalog.BuildConfig
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import com.targaryen.cafeteria.feature_catalog.chat.appfunctions.AddProductRequest
 import com.targaryen.cafeteria.feature_catalog.chat.appfunctions.CartAppFunctions
@@ -77,6 +81,8 @@ import org.koin.compose.koinInject
 import com.targaryen.cafeteria.feature_catalog.R as CatalogR
 
 private const val SIMULATOR_HEIGHT_FRACTION = 0.85f
+private const val VOICE_SIMULATOR_TEMPERATURE = 0.0f
+private const val JSON_MIME_TYPE = "application/json"
 
 private const val GEMINI_SIMULATOR_PROMPT =
     "Você é um interpretador de comandos por voz para a Cafeteria Targaryen. Sua única tarefa é " +
@@ -502,21 +508,32 @@ private fun VoiceCommandResultCard(
     }
 }
 
+private val voiceGenerativeModel by lazy {
+    val voiceConfig =
+        generationConfig {
+            temperature = VOICE_SIMULATOR_TEMPERATURE
+            responseMimeType = JSON_MIME_TYPE
+            thinkingConfig =
+                thinkingConfig {
+                    thinkingLevel = ThinkingLevel.MINIMAL
+                }
+        }
+    Firebase.ai.generativeModel(
+        modelName = "gemini-3.5-flash-lite",
+        generationConfig = voiceConfig,
+        systemInstruction =
+            content {
+                text(GEMINI_SIMULATOR_PROMPT)
+            },
+    )
+}
+
 private suspend fun executeVoiceCommand(
     command: String,
     dependencies: SimulationDependencies,
 ): VoiceExecutionResult =
     try {
-        val model =
-            GenerativeModel(
-                modelName = "gemini-2.5-flash",
-                apiKey = BuildConfig.GEMINI_API_KEY,
-                systemInstruction =
-                    content {
-                        text(GEMINI_SIMULATOR_PROMPT)
-                    },
-            )
-        val response = model.generateContent(command)
+        val response = voiceGenerativeModel.generateContent(command)
         val responseText = response.text ?: "{}"
         val json = JSONObject(responseText)
         val funcName = json.optString("function")
@@ -537,7 +554,7 @@ private suspend fun executeVoiceCommand(
             message = actionResult,
             isError = actionResult.startsWith("Erro:") || actionResult.startsWith("Falha"),
         )
-    } catch (e: com.google.ai.client.generativeai.type.GoogleGenerativeAIException) {
+    } catch (e: FirebaseAIException) {
         VoiceExecutionResult(message = "Falha na IA: ${e.localizedMessage}", isError = true)
     } catch (e: org.json.JSONException) {
         VoiceExecutionResult(message = "Falha ao interpretar comando: ${e.localizedMessage}", isError = true)

@@ -3,7 +3,6 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.koin.compiler)
     alias(libs.plugins.google.ksp)
@@ -64,7 +63,9 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:network"))
 
-    implementation(libs.generativeai)
+    implementation(libs.firebase.ai)
+    implementation(libs.kotlinx.serialization.core)
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -81,7 +82,6 @@ dependencies {
     implementation(libs.bundles.navigation)
     implementation(libs.bundles.coil)
     implementation(libs.androidx.appfunctions)
-    implementation(libs.androidx.appfunctions.service)
     ksp(libs.androidx.appfunctions.compiler)
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
@@ -101,7 +101,7 @@ dependencies {
 }
 
 koinCompiler {
-    compileSafety = false
+    compileSafety = true
 }
 
 kover {

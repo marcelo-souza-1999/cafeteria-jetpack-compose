@@ -3,7 +3,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.koin.compiler)
 }
@@ -86,5 +85,5 @@ dependencies {
 }
 
 koinCompiler {
-    compileSafety = false
+    compileSafety = true
 }

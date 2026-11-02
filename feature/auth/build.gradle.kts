@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.koin.compiler)
     alias(libs.plugins.google.ksp)
 }
@@ -41,15 +40,6 @@ android {
         targetCompatibility = javaVersion
     }
 
-    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-        compilerOptions {
-            freeCompilerArgs.addAll(
-                "-Xexplicit-backing-fields",
-                "-opt-in=kotlin.ExperimentalStdlibApi",
-            )
-        }
-    }
-
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1,INDEX.LIST}"
@@ -82,7 +72,6 @@ dependencies {
     implementation(libs.compose.alert.dialog)
 
     implementation(libs.androidx.appfunctions)
-    implementation(libs.androidx.appfunctions.service)
     ksp(libs.androidx.appfunctions.compiler)
 
     testImplementation(libs.junit)
@@ -101,7 +90,7 @@ dependencies {
 }
 
 koinCompiler {
-    compileSafety = false
+    compileSafety = true
 }
 
 kover {

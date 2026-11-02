@@ -1,8 +1,8 @@
 package com.targaryen.cafeteria.feature_catalog.chat.appfunctions
 
 import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.service.AppFunction
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import kotlinx.coroutines.flow.first
@@ -52,7 +52,7 @@ internal fun Product.isCoffeeBeverage(): Boolean {
  *
  * @property query Termo ou palavra-chave de busca (ex: "café", "expresso", "mocha", "doce").
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class SearchCatalogRequest(
     val query: String,
 )
@@ -66,7 +66,7 @@ data class SearchCatalogRequest(
  * @property price Preço do item em Dragões de Ouro.
  * @property category Categoria de classificação do produto (ex: "bebidas", "elixires", "comidas").
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class CatalogProductItem(
     val id: String,
     val name: String,
@@ -81,7 +81,7 @@ data class CatalogProductItem(
  * @property products Lista de produtos que correspondem ao termo pesquisado.
  * @property message Mensagem informativa com os produtos encontrados ou sugestões do cardápio.
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class SearchCatalogResponse(
     val products: List<CatalogProductItem>,
     val message: String,
@@ -98,12 +98,11 @@ class CatalogAppFunctions(
      *
      * @param request Parâmetros de pesquisa contendo a palavra-chave.
      */
-    @AppFunction
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun searchCatalog(
         context: AppFunctionContext,
         request: SearchCatalogRequest,
     ): SearchCatalogResponse {
-        context.hashCode()
         val allProducts = catalogRepository.getProducts().first()
         val normalizedQuery = request.query.normalizeForSearch()
         val isGenericCoffeeSearch = normalizedQuery in COFFEE_SEARCH_ALIASES

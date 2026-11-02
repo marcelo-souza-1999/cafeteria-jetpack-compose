@@ -201,7 +201,7 @@ class ChatViewModel(
     ): String {
         val activeSessionId = uiState.value.currentSessionId
         if (activeSessionId != null) {
-            val session = uiState.value.sessions.find { it.id == activeSessionId }
+            val session = uiState.value.sessions.find { item -> item.id == activeSessionId }
             if (session != null) {
                 val updatedTimestamp = System.currentTimeMillis()
                 chatDao.updateSessionTimestamp(activeSessionId, updatedTimestamp)

@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
-@OptIn(ExperimentalStdlibApi::class)
 @KoinViewModel
 class LoginViewModel(
     private val signInWithEmailUseCase: SignInWithEmailUseCase,
@@ -29,26 +28,26 @@ class LoginViewModel(
     val events = eventChannel.receiveAsFlow()
 
     fun onEmailChanged(email: String) {
-        uiState.update { it.copy(email = email) }
+        uiState.update { state -> state.copy(email = email) }
     }
 
     fun onPasswordChanged(password: String) {
-        uiState.update { it.copy(password = password) }
+        uiState.update { state -> state.copy(password = password) }
     }
 
     fun onForgotPasswordClick() {
-        uiState.update {
-            it.copy(
+        uiState.update { state ->
+            state.copy(
                 isForgotPasswordSheetOpen = true,
-                forgotPasswordEmail = it.email,
+                forgotPasswordEmail = state.email,
                 isForgotPasswordSuccess = false,
             )
         }
     }
 
     fun onForgotPasswordDismiss() {
-        uiState.update {
-            it.copy(
+        uiState.update { state ->
+            state.copy(
                 isForgotPasswordSheetOpen = false,
                 forgotPasswordEmail = "",
                 isForgotPasswordSuccess = false,
@@ -57,7 +56,7 @@ class LoginViewModel(
     }
 
     fun onForgotPasswordEmailChanged(email: String) {
-        uiState.update { it.copy(forgotPasswordEmail = email) }
+        uiState.update { state -> state.copy(forgotPasswordEmail = email) }
     }
 
     fun onSendPasswordResetClick() {
@@ -65,13 +64,13 @@ class LoginViewModel(
         if (email.isBlank() || !uiState.value.canSendPasswordReset) return
 
         viewModelScope.launch {
-            uiState.update { it.copy(isForgotPasswordLoading = true, isForgotPasswordSuccess = false) }
+            uiState.update { state -> state.copy(isForgotPasswordLoading = true, isForgotPasswordSuccess = false) }
 
             sendPasswordResetEmailUseCase(email).collect { resource ->
-                uiState.update { it.copy(isForgotPasswordLoading = false) }
+                uiState.update { state -> state.copy(isForgotPasswordLoading = false) }
                 when (resource) {
                     is Resource.Success -> {
-                        uiState.update { it.copy(isForgotPasswordSuccess = true) }
+                        uiState.update { state -> state.copy(isForgotPasswordSuccess = true) }
                         eventChannel.send(LoginEvent.ResetPasswordEmailSent)
                     }
                     is Resource.Error -> {
@@ -87,10 +86,10 @@ class LoginViewModel(
         if (currentState.email.isBlank() || currentState.password.isBlank()) return
 
         viewModelScope.launch {
-            uiState.update { it.copy(isEmailLoading = true) }
+            uiState.update { state -> state.copy(isEmailLoading = true) }
 
             signInWithEmailUseCase(currentState.email, currentState.password).collect { resource ->
-                uiState.update { it.copy(isEmailLoading = false) }
+                uiState.update { state -> state.copy(isEmailLoading = false) }
                 when (resource) {
                     is Resource.Success -> {
                         eventChannel.send(LoginEvent.LoginSuccess)
@@ -105,10 +104,10 @@ class LoginViewModel(
 
     fun onGoogleSignIn(idToken: String) {
         viewModelScope.launch {
-            uiState.update { it.copy(isGoogleLoading = true) }
+            uiState.update { state -> state.copy(isGoogleLoading = true) }
 
             signInWithGoogleUseCase(idToken).collect { resource ->
-                uiState.update { it.copy(isGoogleLoading = false) }
+                uiState.update { state -> state.copy(isGoogleLoading = false) }
                 when (resource) {
                     is Resource.Success -> {
                         eventChannel.send(LoginEvent.LoginSuccess)

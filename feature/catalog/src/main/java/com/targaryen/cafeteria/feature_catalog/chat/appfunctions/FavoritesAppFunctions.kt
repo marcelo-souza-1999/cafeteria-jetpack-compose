@@ -1,8 +1,8 @@
 package com.targaryen.cafeteria.feature_catalog.chat.appfunctions
 
 import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.service.AppFunction
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import kotlinx.coroutines.flow.first
 
@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.first
  *
  * @property productName O nome do café ou iguaria (ex: "Café Expresso Valíria").
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class ToggleFavoriteRequest(
     val productName: String,
 )
@@ -23,7 +23,7 @@ data class ToggleFavoriteRequest(
  * @property isFavorite Novo estado de favorito do produto.
  * @property message Mensagem descritiva detalhando o resultado da operação.
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class ToggleFavoriteResponse(
     val success: Boolean,
     val isFavorite: Boolean,
@@ -37,7 +37,7 @@ data class ToggleFavoriteResponse(
  * @property price Preço do produto em Dragões de Ouro.
  * @property category Categoria do produto.
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class FavoriteItem(
     val name: String,
     val price: Double,
@@ -50,7 +50,7 @@ data class FavoriteItem(
  * @property favorites Lista de itens atualmente marcados como favoritos.
  * @property message Mensagem resumida com a contagem de favoritos.
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class FavoritesListResponse(
     val favorites: List<FavoriteItem>,
     val message: String,
@@ -67,12 +67,11 @@ class FavoritesAppFunctions(
      *
      * @param request Parâmetros contendo o nome do produto.
      */
-    @AppFunction
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun toggleFavoriteProduct(
         context: AppFunctionContext,
         request: ToggleFavoriteRequest,
     ): ToggleFavoriteResponse {
-        context.hashCode()
         val products = catalogRepository.getProducts().first()
         val product = products.findBestMatchingProduct(request.productName)
 
@@ -97,9 +96,8 @@ class FavoritesAppFunctions(
     /**
      * Recupera a lista com todos os cafés e elixires marcados como favoritos pelo usuário.
      */
-    @AppFunction
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun getFavoriteProducts(context: AppFunctionContext): FavoritesListResponse {
-        context.hashCode()
         val products = catalogRepository.getProducts().first()
         val favorites =
             products.filter { prod -> prod.isFavorite }.map { item ->

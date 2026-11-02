@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.koin.compiler)
 }
@@ -57,7 +56,8 @@ dependencies {
     implementation(libs.bundles.koin)
     implementation(libs.bundles.navigation)
 
-    implementation(libs.generativeai)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.ai)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk.io)
@@ -67,5 +67,5 @@ dependencies {
 }
 
 koinCompiler {
-    compileSafety = false
+    compileSafety = true
 }

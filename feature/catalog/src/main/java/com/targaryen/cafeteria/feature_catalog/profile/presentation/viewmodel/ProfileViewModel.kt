@@ -9,7 +9,6 @@ import com.targaryen.cafeteria.feature_catalog.profile.presentation.intent.Profi
 import com.targaryen.cafeteria.feature_catalog.profile.presentation.state.ProfileState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
@@ -18,8 +17,8 @@ import org.koin.core.annotation.KoinViewModel
 class ProfileViewModel(
     private val repository: ProfileRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(ProfileState())
-    val uiState: StateFlow<ProfileState> = _uiState.asStateFlow()
+    val uiState: StateFlow<ProfileState>
+        field: MutableStateFlow<ProfileState> = MutableStateFlow(ProfileState())
 
     init {
         onIntent(ProfileIntent.FetchProfile)
@@ -47,7 +46,7 @@ class ProfileViewModel(
             -> handleNavigationAndDialogs(intent)
 
             is ProfileIntent.ClearMessages ->
-                _uiState.update { state ->
+                uiState.update { state ->
                     state.copy(
                         error = null,
                         successMessage = null,
@@ -58,29 +57,29 @@ class ProfileViewModel(
 
     private fun handleNavigationAndDialogs(intent: ProfileIntent) {
         when (intent) {
-            is ProfileIntent.ShowDeleteDialog -> _uiState.update { state -> state.copy(showDeleteConfirmation = true) }
+            is ProfileIntent.ShowDeleteDialog -> uiState.update { state -> state.copy(showDeleteConfirmation = true) }
             is ProfileIntent.DismissDeleteDialog ->
-                _uiState.update { state ->
+                uiState.update { state ->
                     state.copy(showDeleteConfirmation = false)
                 }
             is ProfileIntent.ConfirmDeleteAccount -> deleteAccount()
-            is ProfileIntent.ShowSecurityModal -> _uiState.update { state -> state.copy(showSecurityModal = true) }
-            is ProfileIntent.DismissSecurityModal -> _uiState.update { state -> state.copy(showSecurityModal = false) }
+            is ProfileIntent.ShowSecurityModal -> uiState.update { state -> state.copy(showSecurityModal = true) }
+            is ProfileIntent.DismissSecurityModal -> uiState.update { state -> state.copy(showSecurityModal = false) }
             is ProfileIntent.ShowEmailSuccessDialog ->
-                _uiState.update { state ->
+                uiState.update { state ->
                     state.copy(showEmailSuccessDialog = true)
                 }
             is ProfileIntent.DismissEmailSuccessDialog ->
-                _uiState.update { state ->
+                uiState.update { state ->
                     state.copy(showEmailSuccessDialog = false)
                 }
             is ProfileIntent.ShowPurchaseDetail ->
-                _uiState.update { state ->
+                uiState.update { state ->
                     state.copy(selectedPurchase = intent.item)
                 }
-            is ProfileIntent.DismissPurchaseDetail -> _uiState.update { state -> state.copy(selectedPurchase = null) }
+            is ProfileIntent.DismissPurchaseDetail -> uiState.update { state -> state.copy(selectedPurchase = null) }
             is ProfileIntent.ToggleHistoryExpansion ->
-                _uiState.update { state ->
+                uiState.update { state ->
                     state.copy(isHistoryExpanded = !state.isHistoryExpanded)
                 }
             else -> {}
@@ -88,12 +87,12 @@ class ProfileViewModel(
     }
 
     private fun fetchProfile() {
-        _uiState.update { state -> state.copy(isLoading = true) }
+        uiState.update { state -> state.copy(isLoading = true) }
         viewModelScope.launch {
             repository.getProfile().collect { resource ->
                 when (resource) {
                     is Resource.Success -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isLoading = false,
                                 name = resource.data.name,
@@ -104,7 +103,7 @@ class ProfileViewModel(
                         fetchPurchaseHistory()
                     }
                     is Resource.Error -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isLoading = false,
                                 error = resource.error.toFormattedString(),
@@ -120,19 +119,19 @@ class ProfileViewModel(
         viewModelScope.launch {
             repository.getPurchaseHistory().collect { resource ->
                 if (resource is Resource.Success) {
-                    _uiState.update { state -> state.copy(purchaseHistory = resource.data) }
+                    uiState.update { state -> state.copy(purchaseHistory = resource.data) }
                 }
             }
         }
     }
 
     private fun updatePhoto(url: String) {
-        _uiState.update { state -> state.copy(isUpdatingPhoto = true) }
+        uiState.update { state -> state.copy(isUpdatingPhoto = true) }
         viewModelScope.launch {
             repository.updateProfilePhoto(url).collect { resource ->
                 when (resource) {
                     is Resource.Success -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isUpdatingPhoto = false,
                                 photoUrl = url,
@@ -141,7 +140,7 @@ class ProfileViewModel(
                         }
                     }
                     is Resource.Error -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isUpdatingPhoto = false,
                                 error = resource.error.toFormattedString(),
@@ -154,7 +153,7 @@ class ProfileViewModel(
     }
 
     private fun uploadPhoto(intent: ProfileIntent.UploadPhoto) {
-        _uiState.update { state -> state.copy(isUpdatingPhoto = true) }
+        uiState.update { state -> state.copy(isUpdatingPhoto = true) }
         viewModelScope.launch {
             repository.uploadProfilePhoto(intent.uri).collect { resource ->
                 when (resource) {
@@ -163,7 +162,7 @@ class ProfileViewModel(
                         updatePhoto(uploadedUrl)
                     }
                     is Resource.Error -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isUpdatingPhoto = false,
                                 error = resource.error.toFormattedString(),
@@ -179,12 +178,12 @@ class ProfileViewModel(
         currentPass: String,
         newPass: String,
     ) {
-        _uiState.update { state -> state.copy(isLoading = true, showSecurityModal = false) }
+        uiState.update { state -> state.copy(isLoading = true, showSecurityModal = false) }
         viewModelScope.launch {
             repository.updatePassword(currentPass, newPass).collect { resource ->
                 when (resource) {
                     is Resource.Success -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isLoading = false,
                                 successMessage = "Segredos alterados com glória. Suas defesas estão renovadas.",
@@ -192,7 +191,7 @@ class ProfileViewModel(
                         }
                     }
                     is Resource.Error -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isLoading = false,
                                 error = resource.error.toFormattedString(),
@@ -205,12 +204,12 @@ class ProfileViewModel(
     }
 
     private fun changeName(name: String) {
-        _uiState.update { state -> state.copy(isLoading = true) }
+        uiState.update { state -> state.copy(isLoading = true) }
         viewModelScope.launch {
             repository.updateProfileName(name).collect { resource ->
                 when (resource) {
                     is Resource.Success -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isLoading = false,
                                 name = name,
@@ -219,7 +218,7 @@ class ProfileViewModel(
                         }
                     }
                     is Resource.Error -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isLoading = false,
                                 error = resource.error.toFormattedString(),
@@ -232,12 +231,12 @@ class ProfileViewModel(
     }
 
     private fun changeEmail(email: String) {
-        _uiState.update { state -> state.copy(isLoading = true) }
+        uiState.update { state -> state.copy(isLoading = true) }
         viewModelScope.launch {
             repository.updateEmail(email).collect { resource ->
                 when (resource) {
                     is Resource.Success -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isLoading = false,
                                 showEmailSuccessDialog = true,
@@ -245,7 +244,7 @@ class ProfileViewModel(
                         }
                     }
                     is Resource.Error -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isLoading = false,
                                 error = resource.error.toFormattedString(),
@@ -258,15 +257,15 @@ class ProfileViewModel(
     }
 
     private fun deleteAccount() {
-        _uiState.update { state -> state.copy(isLoading = true, showDeleteConfirmation = false) }
+        uiState.update { state -> state.copy(isLoading = true, showDeleteConfirmation = false) }
         viewModelScope.launch {
             repository.deleteAccount().collect { resource ->
                 when (resource) {
                     is Resource.Success -> {
-                        _uiState.update { state -> state.copy(isLoading = false, isAccountDeleted = true) }
+                        uiState.update { state -> state.copy(isLoading = false, isAccountDeleted = true) }
                     }
                     is Resource.Error -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isLoading = false,
                                 error = resource.error.toFormattedString(),

@@ -13,7 +13,6 @@ import com.targaryen.cafeteria.feature_checkout.presentation.intent.CheckoutInte
 import com.targaryen.cafeteria.feature_checkout.presentation.state.CheckoutState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -29,8 +28,8 @@ class CheckoutViewModel(
     private val paymentStatusTracker: PaymentStatusTracker,
     private val addressProvider: AddressProvider,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(CheckoutState())
-    val uiState: StateFlow<CheckoutState> = _uiState.asStateFlow()
+    val uiState: StateFlow<CheckoutState>
+        field: MutableStateFlow<CheckoutState> = MutableStateFlow(CheckoutState())
 
     private var isPaymentCompleted = false
     private var fetchAddressJob: kotlinx.coroutines.Job? = null
@@ -51,7 +50,7 @@ class CheckoutViewModel(
 
                         val currentUser = FirebaseAuth.getInstance().currentUser
                         val userId = currentUser?.uid
-                        val cartItems = _uiState.value.cartItems
+                        val cartItems = uiState.value.cartItems
                         if (userId != null && cartItems.isNotEmpty()) {
                             val itemsSummary =
                                 cartItems.joinToString { product ->
@@ -77,17 +76,17 @@ class CheckoutViewModel(
                             catalogRepository.clearCart()
                         }
 
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(isRedirecting = false, showSuccessNotice = true)
                         }
                     }
                     PaymentStatus.FAILURE -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(isRedirecting = false, errorResId = R.string.error_checkout_payment_failed)
                         }
                     }
                     PaymentStatus.CANCELLED -> {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(isRedirecting = false, showCancelNotice = true)
                         }
                     }
@@ -104,39 +103,39 @@ class CheckoutViewModel(
     private fun handleSimpleIntent(intent: CheckoutIntent): Boolean =
         when (intent) {
             is CheckoutIntent.OnNumberChanged -> {
-                _uiState.update { state -> state.copy(number = intent.number) }
+                uiState.update { state -> state.copy(number = intent.number) }
                 true
             }
             is CheckoutIntent.OnReferencePointChanged -> {
-                _uiState.update { state -> state.copy(referencePoint = intent.reference) }
+                uiState.update { state -> state.copy(referencePoint = intent.reference) }
                 true
             }
             is CheckoutIntent.OnRecipientNameChanged -> {
-                _uiState.update { state -> state.copy(recipientName = intent.name) }
+                uiState.update { state -> state.copy(recipientName = intent.name) }
                 true
             }
             is CheckoutIntent.OnSearchAddressClicked -> {
-                _uiState.update { state -> state.copy(showCepModal = true) }
+                uiState.update { state -> state.copy(showCepModal = true) }
                 true
             }
             is CheckoutIntent.OnDismissCepModal -> {
-                _uiState.update { state -> state.copy(showCepModal = false) }
+                uiState.update { state -> state.copy(showCepModal = false) }
                 true
             }
             is CheckoutIntent.OnDismissError -> {
-                _uiState.update { state -> state.copy(errorResId = null) }
+                uiState.update { state -> state.copy(errorResId = null) }
                 true
             }
             is CheckoutIntent.OnDismissCancelNotice -> {
-                _uiState.update { state -> state.copy(showCancelNotice = false) }
+                uiState.update { state -> state.copy(showCancelNotice = false) }
                 true
             }
             is CheckoutIntent.OnDismissSuccessNotice -> {
-                _uiState.update { state -> state.copy(showSuccessNotice = false) }
+                uiState.update { state -> state.copy(showSuccessNotice = false) }
                 true
             }
             is CheckoutIntent.OnDisabledFieldClick -> {
-                _uiState.update { state -> state.copy(showAddressFieldsError = true) }
+                uiState.update { state -> state.copy(showAddressFieldsError = true) }
                 true
             }
             else -> false
@@ -150,15 +149,15 @@ class CheckoutViewModel(
             is CheckoutIntent.OnSubmitPayment -> submitPayment()
             is CheckoutIntent.OnSearchReverseCep -> searchReverseCep(intent.state, intent.city, intent.street)
             is CheckoutIntent.OnPaymentInitiated -> {
-                _uiState.update { state ->
+                uiState.update { state ->
                     state.copy(preferenceId = null, sandboxInitPoint = null, initPoint = null, isRedirecting = true)
                 }
             }
             is CheckoutIntent.OnCancelCheckout -> {
                 if (!isPaymentCompleted) {
-                    _uiState.update { state -> state.copy(isRedirecting = false, showCancelNotice = true) }
+                    uiState.update { state -> state.copy(isRedirecting = false, showCancelNotice = true) }
                 } else {
-                    _uiState.update { state -> state.copy(isRedirecting = false) }
+                    uiState.update { state -> state.copy(isRedirecting = false) }
                 }
             }
             else -> Unit
@@ -169,7 +168,7 @@ class CheckoutViewModel(
         val savedAddress = addressProvider.getAddress()
         if (savedAddress.cep.isNotBlank()) {
             val cleanCep = savedAddress.cep.filter { char -> char.isDigit() }
-            _uiState.update { state ->
+            uiState.update { state ->
                 state.copy(
                     cep = cleanCep,
                     street = savedAddress.street,
@@ -186,7 +185,7 @@ class CheckoutViewModel(
             isPaymentCompleted = false
             return
         }
-        _uiState.update { state ->
+        uiState.update { state ->
             state.copy(
                 cep = "",
                 street = "",
@@ -215,22 +214,22 @@ class CheckoutViewModel(
         viewModelScope.launch {
             catalogRepository
                 .getProducts()
-                .map { products -> products.filter { it.quantityInCart > 0 } }
+                .map { products -> products.filter { product -> product.quantityInCart > 0 } }
                 .collectLatest { cartItems ->
-                    _uiState.update { it.copy(cartItems = cartItems) }
+                    uiState.update { state -> state.copy(cartItems = cartItems) }
                 }
         }
     }
 
     private fun handleCepChange(newCep: String) {
-        val digitsOnly = newCep.filter { it.isDigit() }
+        val digitsOnly = newCep.filter { char -> char.isDigit() }
         if (digitsOnly.length <= CEP_LENGTH) {
-            _uiState.update { state -> state.copy(cep = digitsOnly, showAddressFieldsError = false) }
+            uiState.update { state -> state.copy(cep = digitsOnly, showAddressFieldsError = false) }
 
             if (digitsOnly.length == CEP_LENGTH) {
                 fetchAddress(digitsOnly)
             } else {
-                _uiState.update { state -> state.copy(street = "", city = "", state = "", errorResId = null) }
+                uiState.update { state -> state.copy(street = "", city = "", state = "", errorResId = null) }
             }
         }
     }
@@ -239,11 +238,11 @@ class CheckoutViewModel(
         fetchAddressJob?.cancel()
         fetchAddressJob =
             viewModelScope.launch {
-                _uiState.update { state -> state.copy(isLoadingAddress = true, errorResId = null) }
+                uiState.update { state -> state.copy(isLoadingAddress = true, errorResId = null) }
                 checkoutRepository
                     .fetchAddressByCep(cep)
                     .onSuccess { response ->
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isLoadingAddress = false,
                                 street = response.logradouro ?: "",
@@ -259,7 +258,7 @@ class CheckoutViewModel(
                             } else {
                                 R.string.error_checkout_cep_failed
                             }
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isLoadingAddress = false,
                                 errorResId = errorId,
@@ -277,14 +276,14 @@ class CheckoutViewModel(
         fetchAddressJob?.cancel()
         fetchAddressJob =
             viewModelScope.launch {
-                _uiState.update { state ->
+                uiState.update { state ->
                     state.copy(isLoadingAddress = true, showCepModal = false, errorResId = null)
                 }
                 checkoutRepository
                     .searchCepByAddress(state, city, street)
                     .onSuccess { results ->
                         if (results.isEmpty()) {
-                            _uiState.update { state ->
+                            uiState.update { state ->
                                 state.copy(
                                     isLoadingAddress = false,
                                     errorResId = R.string.error_checkout_cep_not_found,
@@ -292,7 +291,7 @@ class CheckoutViewModel(
                             }
                         } else {
                             val firstMatch = results.first()
-                            _uiState.update { state ->
+                            uiState.update { state ->
                                 state.copy(
                                     isLoadingAddress = false,
                                     cep = firstMatch.cep?.filter { char -> char.isDigit() } ?: "",
@@ -304,7 +303,7 @@ class CheckoutViewModel(
                             }
                         }
                     }.onFailure {
-                        _uiState.update { state ->
+                        uiState.update { state ->
                             state.copy(
                                 isLoadingAddress = false,
                                 errorResId = R.string.error_checkout_cep_failed,
@@ -315,25 +314,25 @@ class CheckoutViewModel(
     }
 
     private fun submitPayment() {
-        val currentState = _uiState.value
+        val currentState = uiState.value
 
         if (currentState.cep.length != CEP_LENGTH ||
             currentState.number.isBlank() ||
             currentState.referencePoint.isBlank()
         ) {
-            _uiState.update { state -> state.copy(errorResId = R.string.error_checkout_required_fields) }
+            uiState.update { state -> state.copy(errorResId = R.string.error_checkout_required_fields) }
             return
         }
 
         isPaymentCompleted = false
 
         viewModelScope.launch {
-            _uiState.update { state -> state.copy(isCreatingPreference = true, errorResId = null) }
+            uiState.update { state -> state.copy(isCreatingPreference = true, errorResId = null) }
 
             checkoutRepository
                 .createPreferenceForCart(currentState.cartItems)
                 .onSuccess { response ->
-                    _uiState.update { state ->
+                    uiState.update { state ->
                         state.copy(
                             isCreatingPreference = false,
                             preferenceId = response.id,
@@ -342,7 +341,7 @@ class CheckoutViewModel(
                         )
                     }
                 }.onFailure {
-                    _uiState.update { state ->
+                    uiState.update { state ->
                         state.copy(
                             isCreatingPreference = false,
                             errorResId = R.string.error_checkout_payment_failed,

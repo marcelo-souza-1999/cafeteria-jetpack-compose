@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
-@OptIn(ExperimentalStdlibApi::class)
 @KoinViewModel
 class RegisterViewModel(
     private val signUpWithEmailUseCase: SignUpWithEmailUseCase,
@@ -30,8 +29,8 @@ class RegisterViewModel(
     private val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$".toRegex()
 
     fun onNameChanged(name: String) {
-        uiState.update {
-            it.copy(
+        uiState.update { state ->
+            state.copy(
                 name = name,
                 nameError = name.isBlank(),
             )
@@ -39,8 +38,8 @@ class RegisterViewModel(
     }
 
     fun onEmailChanged(email: String) {
-        uiState.update {
-            it.copy(
+        uiState.update { state ->
+            state.copy(
                 email = email,
                 emailError = !emailRegex.matches(email),
             )
@@ -48,20 +47,20 @@ class RegisterViewModel(
     }
 
     fun onPasswordChanged(password: String) {
-        uiState.update {
-            it.copy(
+        uiState.update { state ->
+            state.copy(
                 password = password,
                 passwordError = password.length < PASSWORD_MIN_LENGTH,
-                confirmPasswordError = it.confirmPassword.isNotEmpty() && password != it.confirmPassword,
+                confirmPasswordError = state.confirmPassword.isNotEmpty() && password != state.confirmPassword,
             )
         }
     }
 
     fun onConfirmPasswordChanged(confirmPassword: String) {
-        uiState.update {
-            it.copy(
+        uiState.update { state ->
+            state.copy(
                 confirmPassword = confirmPassword,
-                confirmPasswordError = confirmPassword != it.password,
+                confirmPasswordError = confirmPassword != state.password,
             )
         }
     }
@@ -71,14 +70,14 @@ class RegisterViewModel(
         if (!currentState.canRegister) return
 
         viewModelScope.launch {
-            uiState.update { it.copy(isEmailLoading = true) }
+            uiState.update { state -> state.copy(isEmailLoading = true) }
 
             signUpWithEmailUseCase(
                 name = currentState.name,
                 email = currentState.email,
                 pass = currentState.password,
             ).collect { resource ->
-                uiState.update { it.copy(isEmailLoading = false) }
+                uiState.update { state -> state.copy(isEmailLoading = false) }
                 when (resource) {
                     is Resource.Success -> {
                         eventChannel.send(RegisterEvent.RegisterSuccess)
@@ -93,10 +92,10 @@ class RegisterViewModel(
 
     fun onGoogleSignIn(idToken: String) {
         viewModelScope.launch {
-            uiState.update { it.copy(isGoogleLoading = true) }
+            uiState.update { state -> state.copy(isGoogleLoading = true) }
 
             signInWithGoogleUseCase(idToken).collect { resource ->
-                uiState.update { it.copy(isGoogleLoading = false) }
+                uiState.update { state -> state.copy(isGoogleLoading = false) }
                 when (resource) {
                     is Resource.Success -> {
                         eventChannel.send(RegisterEvent.RegisterSuccess)

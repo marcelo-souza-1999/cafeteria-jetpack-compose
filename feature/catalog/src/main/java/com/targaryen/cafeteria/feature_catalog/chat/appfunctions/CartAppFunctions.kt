@@ -1,8 +1,8 @@
 package com.targaryen.cafeteria.feature_catalog.chat.appfunctions
 
 import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.service.AppFunction
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import kotlinx.coroutines.flow.first
 
@@ -14,7 +14,7 @@ private const val MAX_CART_SUGGESTIONS = 3
  * @property productName O nome do café, doce ou produto a ser adicionado (ex: "Café Expresso Valíria", "Mocha Fogo de Dragão").
  * @property quantity A quantidade do produto selecionado a ser inserida no carrinho (ex: 1, 2, 5).
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class AddProductRequest(
     val productName: String,
     val quantity: Int,
@@ -26,7 +26,7 @@ data class AddProductRequest(
  * @property success Indica se o produto foi adicionado com sucesso ao carrinho.
  * @property message Mensagem textual informativa detalhando o resultado da operação.
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class AddProductResponse(
     val success: Boolean,
     val message: String,
@@ -39,7 +39,7 @@ data class AddProductResponse(
  * @property quantity Quantidade do produto selecionada no carrinho.
  * @property price Preço unitário do produto em Dragões de Ouro.
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class CartItem(
     val name: String,
     val quantity: Int,
@@ -53,7 +53,7 @@ data class CartItem(
  * @property totalPrice Preço total somado de todos os itens em Dragões de Ouro.
  * @property message Resumo formatado e descritivo do carrinho para exibição.
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class CartSummaryResponse(
     val items: List<CartItem>,
     val totalPrice: Double,
@@ -66,7 +66,7 @@ data class CartSummaryResponse(
  * @property success Indica se a limpeza do carrinho foi executada com sucesso.
  * @property message Mensagem descritiva do resultado da limpeza.
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class ClearCartResponse(
     val success: Boolean,
     val message: String,
@@ -78,7 +78,7 @@ data class ClearCartResponse(
  * @property productName O nome do café ou iguaria a ser removido (ex: "Café Expresso Valíria").
  * @property quantity Quantidade a ser removida (se omitido ou maior/igual ao atual, remove o item).
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class RemoveProductRequest(
     val productName: String,
     val quantity: Int = 1,
@@ -90,7 +90,7 @@ data class RemoveProductRequest(
  * @property success Indica se a remoção ou redução foi executada com sucesso.
  * @property message Mensagem descritiva detalhando o resultado da operação.
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class RemoveProductResponse(
     val success: Boolean,
     val message: String,
@@ -107,12 +107,11 @@ class CartAppFunctions(
      *
      * @param request Parâmetros contendo o nome do produto e a quantidade desejada.
      */
-    @AppFunction
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun addProductToCart(
         context: AppFunctionContext,
         request: AddProductRequest,
     ): AddProductResponse {
-        context.hashCode()
         val products = catalogRepository.getProducts().first()
         val product = products.findBestMatchingProduct(request.productName)
         return if (product != null) {
@@ -144,9 +143,8 @@ class CartAppFunctions(
     /**
      * Retorna o resumo completo de todos os produtos do carrinho de compras e seu valor total.
      */
-    @AppFunction
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun getCartSummary(context: AppFunctionContext): CartSummaryResponse {
-        context.hashCode()
         val products = catalogRepository.getProducts().first()
         val cartItems =
             products.filter { prod -> prod.quantityInCart > 0 }.map { item ->
@@ -177,9 +175,8 @@ class CartAppFunctions(
     /**
      * Limpa completamente todos os itens que estão atualmente no carrinho de compras.
      */
-    @AppFunction
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun clearCart(context: AppFunctionContext): ClearCartResponse {
-        context.hashCode()
         catalogRepository.clearCart()
         return ClearCartResponse(
             success = true,
@@ -192,12 +189,11 @@ class CartAppFunctions(
      *
      * @param request Parâmetros contendo o nome do produto e a quantidade a diminuir.
      */
-    @AppFunction
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun removeProductFromCart(
         context: AppFunctionContext,
         request: RemoveProductRequest,
     ): RemoveProductResponse {
-        context.hashCode()
         val products = catalogRepository.getProducts().first()
         val productsInCart = products.filter { prod -> prod.quantityInCart > 0 }
         if (productsInCart.isEmpty()) {

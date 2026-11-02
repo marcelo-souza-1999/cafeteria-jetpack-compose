@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
-@OptIn(ExperimentalStdlibApi::class)
 @KoinViewModel
 class CatalogViewModel(
     getCatalogUseCase: GetCatalogUseCase,
@@ -124,12 +123,12 @@ class CatalogViewModel(
                 matchesCategory && matchesQuery
             }
 
-        val totalBadgeCount = currentAllUiProducts.sumOf { it.quantityInCart }
-        val favorites = currentAllUiProducts.filter { it.isFavorite }
+        val totalBadgeCount = currentAllUiProducts.sumOf { product -> product.quantityInCart }
+        val favorites = currentAllUiProducts.filter { product -> product.isFavorite }
 
         val updatedSelected =
             uiState.value.selectedProduct?.let { sel ->
-                currentAllUiProducts.find { it.id == sel.id } ?: sel
+                currentAllUiProducts.find { product -> product.id == sel.id } ?: sel
             }
 
         uiState.update { state ->
