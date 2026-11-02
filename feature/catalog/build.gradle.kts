@@ -58,7 +58,8 @@ android {
     }
 
     lint {
-        disable += listOf("RestrictedApi", "TypographyEllipsis", "Typos")
+        // Necessário exclusivamente para isolamento de AppFunctionContext no AndroidX
+        disable += "RestrictedApi"
     }
 }
 
