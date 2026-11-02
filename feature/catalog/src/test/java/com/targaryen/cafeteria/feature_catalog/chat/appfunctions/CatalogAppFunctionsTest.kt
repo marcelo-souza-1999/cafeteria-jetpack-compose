@@ -16,8 +16,8 @@ import org.junit.Before
 import org.junit.Test
 
 class CatalogAppFunctionsTest {
-    private val catalogRepository: CatalogRepository = mockk(relaxed = true)
-    private val appFunctionContext: AppFunctionContext = mockk(relaxed = true)
+    private val catalogRepository: CatalogRepository = mockk()
+    private val appFunctionContext: AppFunctionContext = mockk()
     private lateinit var catalogAppFunctions: CatalogAppFunctions
 
     private val mockProducts =

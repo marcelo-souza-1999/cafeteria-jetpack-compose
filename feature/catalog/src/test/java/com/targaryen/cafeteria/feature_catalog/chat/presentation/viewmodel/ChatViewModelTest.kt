@@ -1,5 +1,6 @@
 package com.targaryen.cafeteria.feature_catalog.chat.presentation.viewmodel
 
+import com.targaryen.cafeteria.core_network.util.AppLogger
 import com.targaryen.cafeteria.coredatabase.dao.ChatDao
 import com.targaryen.cafeteria.coredatabase.model.ChatMessageEntity
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.usecase.GetCatalogUseCase
@@ -11,15 +12,14 @@ import com.targaryen.cafeteria.feature_catalog.chat.domain.usecase.SendChatMessa
 import com.targaryen.cafeteria.feature_catalog.chat.presentation.intent.ChatIntent
 import com.targaryen.cafeteria.feature_catalog.util.MainDispatcherRule
 import io.mockk.coEvery
+import io.mockk.coJustRun
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
-import io.mockk.mockkStatic
-import io.mockk.unmockkStatic
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Before
@@ -30,26 +30,28 @@ class ChatViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val sendChatMessageUseCase: SendChatMessageUseCase = mockk(relaxed = true)
-    private val getCatalogUseCase: GetCatalogUseCase = mockk(relaxed = true)
-    private val chatDao: ChatDao = mockk(relaxed = true)
-    private val chatRemoteDataSource: ChatRemoteDataSource = mockk(relaxed = true)
-    private val chatSessionProvider: ChatSessionProvider = mockk(relaxed = true)
+    private val sendChatMessageUseCase: SendChatMessageUseCase = mockk()
+    private val getCatalogUseCase: GetCatalogUseCase = mockk()
+    private val chatDao: ChatDao = mockk()
+    private val chatRemoteDataSource: ChatRemoteDataSource = mockk()
+    private val chatSessionProvider: ChatSessionProvider = mockk()
+    private val appLogger: AppLogger = mockk()
 
     private lateinit var viewModel: ChatViewModel
 
     @Before
     fun setUp() {
-        mockkStatic(android.util.Log::class)
-        every { android.util.Log.e(any(), any(), any()) } returns 0
-        every { android.util.Log.e(any(), any()) } returns 0
-        every { android.util.Log.d(any(), any()) } returns 0
-        every { android.util.Log.i(any(), any()) } returns 0
-
         every { chatSessionProvider.getCurrentUserUid() } returns "user_imperial_1"
         every { chatDao.getAllSessions(any()) } returns flowOf(emptyList())
         every { chatDao.getMessagesForSession(any()) } returns flowOf(emptyList())
+        coJustRun { chatDao.insertSession(any()) }
+        coJustRun { chatDao.insertMessage(any()) }
+        coJustRun { chatRemoteDataSource.saveSession(any(), any()) }
+        coJustRun { chatRemoteDataSource.saveMessage(any(), any(), any()) }
+        coEvery { chatRemoteDataSource.fetchSessions(any()) } returns emptyList()
+        coEvery { chatRemoteDataSource.fetchMessagesForSession(any(), any()) } returns emptyList()
         every { getCatalogUseCase() } returns flowOf(emptyList())
+        justRun { appLogger.e(any(), any(), any()) }
 
         viewModel =
             ChatViewModel(
@@ -58,12 +60,8 @@ class ChatViewModelTest {
                 chatDao = chatDao,
                 chatRemoteDataSource = chatRemoteDataSource,
                 chatSessionProvider = chatSessionProvider,
+                appLogger = appLogger,
             )
-    }
-
-    @After
-    fun tearDown() {
-        unmockkStatic(android.util.Log::class)
     }
 
     @Test

@@ -16,7 +16,7 @@ class ProfileUseCasesTest {
     private val repository: ProfileRepository = mockk()
 
     @Test
-    fun `GetProfileUseCase should delegate to repository`() =
+    fun getProfileUseCase_invoke_delegatesToRepository() =
         runTest {
             every { repository.getProfile() } returns flowOf(Resource.Success(mockk()))
 
@@ -26,7 +26,7 @@ class ProfileUseCasesTest {
         }
 
     @Test
-    fun `DeleteAccountUseCase should delegate to repository`() =
+    fun deleteAccountUseCase_invoke_delegatesToRepository() =
         runTest {
             every { repository.deleteAccount() } returns flowOf(Resource.Success(Unit))
 
@@ -36,7 +36,7 @@ class ProfileUseCasesTest {
         }
 
     @Test
-    fun `GetPurchaseHistoryUseCase should delegate to repository`() =
+    fun getPurchaseHistoryUseCase_invoke_delegatesToRepository() =
         runTest {
             val mockHistory = listOf<PurchaseHistoryItem>()
             every { repository.getPurchaseHistory() } returns flowOf(Resource.Success(mockHistory))
@@ -47,7 +47,7 @@ class ProfileUseCasesTest {
         }
 
     @Test
-    fun `UpdateEmailUseCase should delegate to repository`() =
+    fun updateEmailUseCase_invoke_delegatesToRepository() =
         runTest {
             val email = "new@test.com"
             every { repository.updateEmail(email) } returns flowOf(Resource.Success(Unit))
@@ -58,7 +58,7 @@ class ProfileUseCasesTest {
         }
 
     @Test
-    fun `UpdatePasswordUseCase should delegate to repository`() =
+    fun updatePasswordUseCase_invoke_delegatesToRepository() =
         runTest {
             val currentPass = "current"
             val newPass = "new"
@@ -70,7 +70,7 @@ class ProfileUseCasesTest {
         }
 
     @Test
-    fun `UpdateProfileNameUseCase should delegate to repository`() =
+    fun updateProfileNameUseCase_invoke_delegatesToRepository() =
         runTest {
             val newName = "New Name"
             every { repository.updateProfileName(newName) } returns flowOf(Resource.Success(Unit))
@@ -81,7 +81,7 @@ class ProfileUseCasesTest {
         }
 
     @Test
-    fun `UpdateProfilePhotoUseCase should delegate to repository`() =
+    fun updateProfilePhotoUseCase_invoke_delegatesToRepository() =
         runTest {
             val photoUrl = "http://test.com/photo.jpg"
             every { repository.updateProfilePhoto(photoUrl) } returns flowOf(Resource.Success(Unit))
@@ -92,7 +92,7 @@ class ProfileUseCasesTest {
         }
 
     @Test
-    fun `UploadProfilePhotoUseCase should delegate to repository`() =
+    fun uploadProfilePhotoUseCase_invoke_delegatesToRepository() =
         runTest {
             val mockUri = mockk<Uri>()
             every { repository.uploadProfilePhoto(mockUri) } returns flowOf(Resource.Success("http://photo.url"))

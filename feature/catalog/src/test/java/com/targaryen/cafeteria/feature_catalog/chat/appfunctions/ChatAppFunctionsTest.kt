@@ -12,8 +12,8 @@ import org.junit.Before
 import org.junit.Test
 
 class ChatAppFunctionsTest {
-    private val sendChatMessageUseCase: SendChatMessageUseCase = mockk(relaxed = true)
-    private val appFunctionContext: AppFunctionContext = mockk(relaxed = true)
+    private val sendChatMessageUseCase: SendChatMessageUseCase = mockk()
+    private val appFunctionContext: AppFunctionContext = mockk()
     private lateinit var chatAppFunctions: ChatAppFunctions
 
     @Before

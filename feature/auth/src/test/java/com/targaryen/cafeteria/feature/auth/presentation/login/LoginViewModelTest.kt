@@ -39,7 +39,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `when email is changed, uiState should reflect the new value`() =
+    fun onEmailChanged_withValidEmail_updatesUiState() =
         runTest {
             val email = "rhaenyra@targaryen.com"
             viewModel.onEmailChanged(email)
@@ -47,7 +47,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `when password is changed, uiState should reflect the new value`() =
+    fun onPasswordChanged_withValidPassword_updatesUiState() =
         runTest {
             val password = "Dracarys123"
             viewModel.onPasswordChanged(password)
@@ -55,7 +55,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `when forgot password is clicked, it should open the sheet and fill the recovery email`() =
+    fun onForgotPasswordClick_opensSheetAndFillsRecoveryEmail() =
         runTest {
             val email = "viserys@targaryen.com"
             viewModel.onEmailChanged(email)
@@ -69,7 +69,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `when forgot password sheet is dismissed, it should clear the recovery states`() =
+    fun onForgotPasswordDismiss_clearsRecoveryStates() =
         runTest {
             viewModel.onForgotPasswordClick()
             viewModel.onForgotPasswordDismiss()
@@ -81,7 +81,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `when recovery email is changed, uiState should be updated`() =
+    fun onForgotPasswordEmailChanged_updatesUiState() =
         runTest {
             val email = "aegon@targaryen.com"
             viewModel.onForgotPasswordEmailChanged(email)
@@ -89,7 +89,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `when email login is successful, it should emit success event`() =
+    fun onLoginClick_whenEmailLoginSucceeds_emitsSuccessEvent() =
         runTest {
             val email = "queen@dragonstone.com"
             val password = "password"
@@ -105,7 +105,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `when email login fails, it should emit error dialog event`() =
+    fun onLoginClick_whenEmailLoginFails_emitsErrorDialogEvent() =
         runTest {
             val email = "hightower@kinglanding.com"
             val password = "wrong"
@@ -124,7 +124,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `when google login is successful, it should emit success event`() =
+    fun onGoogleSignIn_whenSuccessful_emitsSuccessEvent() =
         runTest {
             val idToken = "google_token"
             every { signInWithGoogleUseCase(idToken) } returns flowOf(Resource.Success(Unit))
@@ -136,7 +136,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `when google sign-in returns error, it should emit error event`() =
+    fun onGoogleSignInError_emitsErrorDialogEvent() =
         runTest {
             val message = "Google Play Services error"
 
@@ -150,7 +150,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `when password recovery email is sent successfully, it should update state and emit event`() =
+    fun onSendPasswordResetClick_whenSuccessful_updatesStateAndEmitsEvent() =
         runTest {
             val email = "alicent@targaryen.com"
             every { sendPasswordResetEmailUseCase(email) } returns flowOf(Resource.Success(Unit))
@@ -166,7 +166,7 @@ class LoginViewModelTest {
         }
 
     @Test
-    fun `when password recovery email fails, it should emit error event`() =
+    fun onSendPasswordResetClick_whenFails_emitsErrorDialogEvent() =
         runTest {
             val email = "otto@hightower.com"
             val error = AuthError.UserNotFound

@@ -19,9 +19,9 @@ import org.junit.Before
 import org.junit.Test
 
 class SendChatMessageUseCaseTest {
-    private val catalogRepository: CatalogRepository = mockk(relaxed = true)
-    private val chatRepository: ChatRepository = mockk(relaxed = true)
-    private val addressProvider: AddressProvider = mockk(relaxed = true)
+    private val catalogRepository: CatalogRepository = mockk()
+    private val chatRepository: ChatRepository = mockk()
+    private val addressProvider: AddressProvider = mockk()
 
     private lateinit var useCase: SendChatMessageUseCase
 

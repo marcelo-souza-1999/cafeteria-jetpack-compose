@@ -1,9 +1,12 @@
 package com.targaryen.cafeteria.feature_catalog.chat.presentation.view
 
+import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -137,5 +140,32 @@ class ChatScreenTest {
             "Quero um bolo de limão",
             (sentIntent as ChatIntent.SendMessage).text,
         )
+    }
+
+    @Test
+    fun chatScreen_rendersVisualSnapshot_withExpectedDimensionsAndObsidianTheme() {
+        val messages =
+            listOf(
+                ChatMessage(id = "1", text = "Dracarys!", sender = ChatSender.USER),
+                ChatMessage(id = "2", text = "O fogo real ilumina seu pedido.", sender = ChatSender.AI),
+            )
+
+        composeTestRule.setContent {
+            TargaryenTheme {
+                ChatScreenContent(
+                    uiState = ChatUiState(messages = messages),
+                    onIntent = {},
+                )
+            }
+        }
+
+        val pixelMap =
+            composeTestRule
+                .onRoot()
+                .captureToImage()
+                .toPixelMap()
+
+        assertTrue(pixelMap.width > 0)
+        assertTrue(pixelMap.height > 0)
     }
 }

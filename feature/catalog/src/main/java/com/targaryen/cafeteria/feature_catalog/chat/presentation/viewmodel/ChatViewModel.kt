@@ -1,8 +1,8 @@
 package com.targaryen.cafeteria.feature_catalog.chat.presentation.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.targaryen.cafeteria.core_network.util.AppLogger
 import com.targaryen.cafeteria.coredatabase.dao.ChatDao
 import com.targaryen.cafeteria.coredatabase.model.ChatMessageEntity
 import com.targaryen.cafeteria.coredatabase.model.ChatSessionEntity
@@ -35,6 +35,7 @@ class ChatViewModel(
     private val chatRemoteDataSource: ChatRemoteDataSource,
     private val chatSessionProvider: ChatSessionProvider,
     private val getCatalogUseCase: GetCatalogUseCase,
+    private val appLogger: AppLogger,
 ) : ViewModel() {
     val uiState: StateFlow<ChatUiState>
         field: MutableStateFlow<ChatUiState> = MutableStateFlow(ChatUiState())
@@ -165,7 +166,7 @@ class ChatViewModel(
             val history = uiState.value.messages
             sendChatMessageUseCase(text, history)
                 .catch { exception ->
-                    Log.e(TAG, ERROR_STREAM_FAILED, exception)
+                    appLogger.e(TAG, ERROR_STREAM_FAILED, exception)
                     val errorReply =
                         if (exception.message?.contains("Quota") == true ||
                             exception.message?.contains("quota") == true ||

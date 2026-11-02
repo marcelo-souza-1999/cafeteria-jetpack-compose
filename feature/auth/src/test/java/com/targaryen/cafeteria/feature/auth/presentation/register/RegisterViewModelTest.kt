@@ -38,7 +38,7 @@ class RegisterViewModelTest {
     }
 
     @Test
-    fun `when name is changed, uiState should reflect the new value and validity`() =
+    fun onNameChanged_updatesUiStateAndValidity() =
         runTest {
             viewModel.onNameChanged("Rhaenyra")
             assertEquals("Rhaenyra", viewModel.uiState.value.name)
@@ -49,7 +49,7 @@ class RegisterViewModelTest {
         }
 
     @Test
-    fun `when email is changed, uiState should reflect the new value and validity`() =
+    fun onEmailChanged_updatesUiStateAndValidity() =
         runTest {
             val validEmail = "queen@dragonstone.com"
             viewModel.onEmailChanged(validEmail)
@@ -61,7 +61,7 @@ class RegisterViewModelTest {
         }
 
     @Test
-    fun `when password is changed, uiState should reflect the new value and validity`() =
+    fun onPasswordChanged_updatesUiStateAndValidity() =
         runTest {
             val validPassword = "password123"
             viewModel.onPasswordChanged(validPassword)
@@ -73,7 +73,7 @@ class RegisterViewModelTest {
         }
 
     @Test
-    fun `when confirm password is changed, uiState should reflect the new value and validity`() =
+    fun onConfirmPasswordChanged_updatesUiStateAndValidity() =
         runTest {
             viewModel.onPasswordChanged("password123")
 
@@ -86,7 +86,7 @@ class RegisterViewModelTest {
         }
 
     @Test
-    fun `when all fields are valid, canRegister should be true`() =
+    fun canRegister_whenAllFieldsAreValid_returnsTrue() =
         runTest {
             viewModel.onNameChanged("Aegon")
             viewModel.onEmailChanged("aegon@targaryen.com")
@@ -97,7 +97,7 @@ class RegisterViewModelTest {
         }
 
     @Test
-    fun `when email registration is successful, it should emit success event`() =
+    fun onRegisterClick_whenEmailRegistrationSucceeds_emitsSuccessEvent() =
         runTest {
             val name = "Daemon"
             val email = "daemon@targaryen.com"
@@ -117,7 +117,7 @@ class RegisterViewModelTest {
         }
 
     @Test
-    fun `when email registration fails, it should emit error dialog event`() =
+    fun onRegisterClick_whenEmailRegistrationFails_emitsErrorDialogEvent() =
         runTest {
             val name = "Criston Cole"
             val email = "kingmaker@hightower.com"
@@ -140,7 +140,7 @@ class RegisterViewModelTest {
         }
 
     @Test
-    fun `when google login is successful, it should emit success event`() =
+    fun onGoogleSignIn_whenSuccessful_emitsSuccessEvent() =
         runTest {
             val idToken = "google_token"
             every { signInWithGoogleUseCase(idToken) } returns flowOf(Resource.Success(Unit))
@@ -152,7 +152,7 @@ class RegisterViewModelTest {
         }
 
     @Test
-    fun `when google sign-in returns error, it should emit error event`() =
+    fun onGoogleSignInError_emitsErrorDialogEvent() =
         runTest {
             val message = "Google Play Services error"
 

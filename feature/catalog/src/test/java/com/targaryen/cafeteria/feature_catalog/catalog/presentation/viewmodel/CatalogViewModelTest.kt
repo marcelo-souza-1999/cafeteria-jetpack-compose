@@ -59,7 +59,7 @@ class CatalogViewModelTest {
     }
 
     @Test
-    fun `initialization should fetch products and update uiState`() =
+    fun init_fetchesProductsAndUpdatesUiState() =
         runTest {
             val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
             val state = viewModel.uiState.value
@@ -72,7 +72,7 @@ class CatalogViewModelTest {
         }
 
     @Test
-    fun `when Search intent is received, uiState should filter products`() =
+    fun onIntent_search_filtersProductsInUiState() =
         runTest {
             val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
 
@@ -85,7 +85,7 @@ class CatalogViewModelTest {
         }
 
     @Test
-    fun `when SelectCategory intent is received, uiState should filter products by category`() =
+    fun onIntent_selectCategory_filtersProductsByCategory() =
         runTest {
             val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
 
@@ -98,7 +98,7 @@ class CatalogViewModelTest {
         }
 
     @Test
-    fun `when ClearSearch intent is received, searchQuery should be cleared`() =
+    fun onIntent_clearSearch_clearsSearchQuery() =
         runTest {
             val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
 
@@ -112,7 +112,7 @@ class CatalogViewModelTest {
         }
 
     @Test
-    fun `when SelectProduct intent is received, selectedProduct should be updated`() =
+    fun onIntent_selectProduct_updatesSelectedProduct() =
         runTest {
             val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
             val productUi =
@@ -135,7 +135,7 @@ class CatalogViewModelTest {
         }
 
     @Test
-    fun `when ToggleFavorite intent is received, it should delegate to ToggleFavoriteUseCase`() =
+    fun onIntent_toggleFavorite_delegatesToToggleFavoriteUseCase() =
         runTest {
             val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
             val productUi =
@@ -157,7 +157,7 @@ class CatalogViewModelTest {
         }
 
     @Test
-    fun `when UpdateProductQuantity intent is received, it should call repository`() =
+    fun onIntent_updateProductQuantity_callsRepository() =
         runTest {
             val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
             coEvery { repository.updateProductQuantity("1", 5) } returns Unit
@@ -168,7 +168,7 @@ class CatalogViewModelTest {
         }
 
     @Test
-    fun `when AddToCart intent is received, it should call repository with incremented quantity`() =
+    fun onIntent_addToCart_callsRepositoryWithIncrementedQuantity() =
         runTest {
             val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
             val productUi =
@@ -190,7 +190,7 @@ class CatalogViewModelTest {
         }
 
     @Test
-    fun `when RemoveFromCart intent is received, it should call repository with decremented quantity`() =
+    fun onIntent_removeFromCart_callsRepositoryWithDecrementedQuantity() =
         runTest {
             val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
             val productUi =

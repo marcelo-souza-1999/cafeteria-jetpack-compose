@@ -53,7 +53,7 @@ class ProfileViewModelTest {
     }
 
     @Test
-    fun `initialization should fetch profile and purchase history`() =
+    fun init_fetchesProfileAndPurchaseHistory() =
         runTest {
             val viewModel = ProfileViewModel(repository)
             val state = viewModel.uiState.value
@@ -67,7 +67,7 @@ class ProfileViewModelTest {
         }
 
     @Test
-    fun `when fetchProfile fails, uiState should contain formatted error`() =
+    fun init_whenFetchProfileFails_updatesUiStateWithFormattedError() =
         runTest {
             every { repository.getProfile() } returns flowOf(Resource.Error(ProfileError.NetworkError))
 
@@ -79,7 +79,7 @@ class ProfileViewModelTest {
         }
 
     @Test
-    fun `when update photo intent is received, it should delegate to repository`() =
+    fun onIntent_updatePhoto_delegatesToRepository() =
         runTest {
             val photoUrl = "preset_crown"
             every { repository.updateProfilePhoto(photoUrl) } returns flowOf(Resource.Success(Unit))
@@ -91,7 +91,7 @@ class ProfileViewModelTest {
         }
 
     @Test
-    fun `when change password intent is received, it should delegate to repository`() =
+    fun onIntent_changePassword_delegatesToRepository() =
         runTest {
             every { repository.updatePassword("old", "new") } returns flowOf(Resource.Success(Unit))
             val viewModel = ProfileViewModel(repository)
@@ -102,7 +102,7 @@ class ProfileViewModelTest {
         }
 
     @Test
-    fun `when change name intent is received, it should delegate to repository`() =
+    fun onIntent_changeName_delegatesToRepository() =
         runTest {
             every { repository.updateProfileName("New Name") } returns flowOf(Resource.Success(Unit))
             val viewModel = ProfileViewModel(repository)
@@ -113,7 +113,7 @@ class ProfileViewModelTest {
         }
 
     @Test
-    fun `when change email intent is received, it should delegate to repository`() =
+    fun onIntent_changeEmail_delegatesToRepository() =
         runTest {
             every { repository.updateEmail("new@email.com") } returns flowOf(Resource.Success(Unit))
             val viewModel = ProfileViewModel(repository)
@@ -124,7 +124,7 @@ class ProfileViewModelTest {
         }
 
     @Test
-    fun `when dialog actions intents are received, state should update accordingly`() =
+    fun onIntent_dialogActions_updatesStateAccordingly() =
         runTest {
             val viewModel = ProfileViewModel(repository)
 
@@ -153,7 +153,7 @@ class ProfileViewModelTest {
         }
 
     @Test
-    fun `when confirm delete account intent is received, it should delete account`() =
+    fun onIntent_confirmDeleteAccount_deletesAccount() =
         runTest {
             every { repository.deleteAccount() } returns flowOf(Resource.Success(Unit))
             val viewModel = ProfileViewModel(repository)
@@ -164,7 +164,7 @@ class ProfileViewModelTest {
         }
 
     @Test
-    fun `when clear messages intent is received, it should reset error and success messages`() =
+    fun onIntent_clearMessages_resetsErrorAndSuccessMessages() =
         runTest {
             every { repository.getProfile() } returns flowOf(Resource.Error(ProfileError.NetworkError))
             val viewModel = ProfileViewModel(repository)

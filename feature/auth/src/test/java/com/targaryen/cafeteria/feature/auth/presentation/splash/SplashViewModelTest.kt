@@ -22,7 +22,7 @@ class SplashViewModelTest {
     private val checkAuthSessionUseCase: CheckAuthSessionUseCase = mockk()
 
     @Test
-    fun `when user is logged in, it should emit NavigateToMain event after delay`() =
+    fun init_whenUserIsLoggedIn_emitsNavigateToMainEventAfterDelay() =
         runTest {
             coEvery { checkAuthSessionUseCase() } returns true
 
@@ -35,7 +35,7 @@ class SplashViewModelTest {
         }
 
     @Test
-    fun `when user is not logged in, it should emit NavigateToLogin event after delay`() =
+    fun init_whenUserIsNotLoggedIn_emitsNavigateToLoginEventAfterDelay() =
         runTest {
             coEvery { checkAuthSessionUseCase() } returns false
 

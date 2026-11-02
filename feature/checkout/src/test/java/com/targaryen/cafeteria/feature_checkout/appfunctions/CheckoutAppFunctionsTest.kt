@@ -17,13 +17,13 @@ import org.junit.Before
 import org.junit.Test
 
 class CheckoutAppFunctionsTest {
-    private val firestore: FirebaseFirestore = mockk(relaxed = true)
-    private val firebaseAuth: FirebaseAuth = mockk(relaxed = true)
-    private val appFunctionContext: AppFunctionContext = mockk(relaxed = true)
-    private val collectionRef: CollectionReference = mockk(relaxed = true)
-    private val queryTask: Task<QuerySnapshot> = mockk(relaxed = true)
-    private val querySnapshot: QuerySnapshot = mockk(relaxed = true)
-    private val mockUser: FirebaseUser = mockk(relaxed = true)
+    private val firestore: FirebaseFirestore = mockk()
+    private val firebaseAuth: FirebaseAuth = mockk()
+    private val appFunctionContext: AppFunctionContext = mockk()
+    private val collectionRef: CollectionReference = mockk()
+    private val queryTask: Task<QuerySnapshot> = mockk()
+    private val querySnapshot: QuerySnapshot = mockk()
+    private val mockUser: FirebaseUser = mockk()
 
     private lateinit var checkoutAppFunctions: CheckoutAppFunctions
 
@@ -34,6 +34,7 @@ class CheckoutAppFunctionsTest {
         every { collectionRef.get() } returns queryTask
         every { queryTask.isComplete } returns true
         every { queryTask.isSuccessful } returns true
+        every { queryTask.isCanceled } returns false
         every { queryTask.result } returns querySnapshot
         every { queryTask.exception } returns null
 
@@ -70,13 +71,13 @@ class CheckoutAppFunctionsTest {
             every { firebaseAuth.currentUser } returns mockUser
             every { mockUser.uid } returns "user_123"
 
-            val olderDoc: DocumentSnapshot = mockk(relaxed = true)
+            val olderDoc: DocumentSnapshot = mockk()
             every { olderDoc.getString("status") } returns "Entregue"
             every { olderDoc.getString("itemsSummary") } returns "1x Capuccino Porto Real"
             every { olderDoc.getDouble("totalPrice") } returns 13.9
             every { olderDoc.getLong("dateMillis") } returns 1000L
 
-            val recentDoc: DocumentSnapshot = mockk(relaxed = true)
+            val recentDoc: DocumentSnapshot = mockk()
             every { recentDoc.getString("status") } returns "Preparando"
             every { recentDoc.getString("itemsSummary") } returns "2x Café Expresso Valíria"
             every { recentDoc.getDouble("totalPrice") } returns 17.0
