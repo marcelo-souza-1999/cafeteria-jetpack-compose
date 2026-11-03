@@ -16,7 +16,7 @@ class CatalogUseCasesTest {
     private val repository: CatalogRepository = mockk()
 
     @Test
-    fun `GetCatalogUseCase should delegate to repository getProducts`() =
+    fun getCatalogUseCase_invoke_delegatesToRepositoryGetProducts() =
         runTest {
             val mockProducts =
                 listOf(
@@ -39,7 +39,7 @@ class CatalogUseCasesTest {
         }
 
     @Test
-    fun `ToggleFavoriteUseCase should delegate to repository toggleFavorite`() =
+    fun toggleFavoriteUseCase_invoke_delegatesToRepositoryToggleFavorite() =
         runTest {
             val productId = "1"
             coEvery { repository.toggleFavorite(productId) } returns Unit

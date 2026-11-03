@@ -1,55 +1,81 @@
 package com.targaryen.cafeteria.feature_catalog.chat.data.repository
 
-import com.google.ai.client.generativeai.GenerativeModel
-import com.google.ai.client.generativeai.type.GoogleGenerativeAIException
-import com.google.ai.client.generativeai.type.Schema
-import com.google.ai.client.generativeai.type.Tool
-import com.google.ai.client.generativeai.type.content
-import com.google.ai.client.generativeai.type.defineFunction
-import com.targaryen.cafeteria.feature_catalog.BuildConfig
+import com.google.firebase.Firebase
+import com.google.firebase.ai.GenerativeModel
+import com.google.firebase.ai.ai
+import com.google.firebase.ai.type.FirebaseAIException
+import com.google.firebase.ai.type.FunctionDeclaration
+import com.google.firebase.ai.type.Schema
+import com.google.firebase.ai.type.ThinkingLevel
+import com.google.firebase.ai.type.Tool
+import com.google.firebase.ai.type.content
+import com.google.firebase.ai.type.generationConfig
+import com.google.firebase.ai.type.thinkingConfig
+import com.targaryen.cafeteria.coredatabase.dao.ChatDao
+import com.targaryen.cafeteria.coredatabase.model.ChatMessageEntity
+import com.targaryen.cafeteria.coredatabase.model.ChatSessionEntity
+import com.targaryen.cafeteria.feature_catalog.chat.data.remote.ChatRemoteDataSource
+import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatMessage
+import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatPromptConstants
+import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatSender
 import com.targaryen.cafeteria.feature_catalog.chat.domain.repository.ChatRepository
+import com.targaryen.cafeteria.feature_catalog.chat.domain.repository.ChatSessionProvider
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerializationException
 import org.koin.core.annotation.Single
 import java.io.IOException
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+
+private const val CHAT_TEMPERATURE = 0.2f
 
 @Single
-class ChatRepositoryImpl : ChatRepository {
+class ChatRepositoryImpl(
+    private val chatDao: ChatDao,
+    private val chatRemoteDataSource: ChatRemoteDataSource,
+    private val chatSessionProvider: ChatSessionProvider,
+) : ChatRepository {
     private val addProductToCartTool =
-        defineFunction(
+        FunctionDeclaration(
             name = FN_ADD_PRODUCT_TO_CART,
             description = FN_ADD_PRODUCT_TO_CART_DESC,
             parameters =
-                listOf(
-                    Schema.str(PARAM_PRODUCT_NAME, PARAM_PRODUCT_NAME_DESC),
-                    Schema.int(PARAM_QUANTITY, PARAM_QUANTITY_DESC),
+                mapOf(
+                    PARAM_PRODUCT_NAME to Schema.string(PARAM_PRODUCT_NAME_DESC),
+                    PARAM_QUANTITY to Schema.integer(PARAM_QUANTITY_DESC),
                 ),
-            requiredParameters = listOf(PARAM_PRODUCT_NAME, PARAM_QUANTITY),
+            optionalParameters = emptyList(),
         )
 
     private val saveDeliveryAddressTool =
-        defineFunction(
+        FunctionDeclaration(
             name = FN_SAVE_DELIVERY_ADDRESS,
             description = FN_SAVE_DELIVERY_ADDRESS_DESC,
             parameters =
-                listOf(
-                    Schema.str(PARAM_CEP, PARAM_CEP_DESC),
-                    Schema.str(PARAM_STREET, PARAM_STREET_DESC),
-                    Schema.str(PARAM_CITY, PARAM_CITY_DESC),
-                    Schema.str(PARAM_STATE, PARAM_STATE_DESC),
-                    Schema.str(PARAM_NUMBER, PARAM_NUMBER_DESC),
-                    Schema.str(PARAM_REFERENCE_POINT, PARAM_REFERENCE_POINT_DESC),
-                    Schema.str(PARAM_RECIPIENT_NAME, PARAM_RECIPIENT_NAME_DESC),
+                mapOf(
+                    PARAM_CEP to Schema.string(PARAM_CEP_DESC),
+                    PARAM_STREET to Schema.string(PARAM_STREET_DESC),
+                    PARAM_CITY to Schema.string(PARAM_CITY_DESC),
+                    PARAM_STATE to Schema.string(PARAM_STATE_DESC),
+                    PARAM_NUMBER to Schema.string(PARAM_NUMBER_DESC),
+                    PARAM_REFERENCE_POINT to Schema.string(PARAM_REFERENCE_POINT_DESC),
+                    PARAM_RECIPIENT_NAME to Schema.string(PARAM_RECIPIENT_NAME_DESC),
                 ),
-            requiredParameters = listOf(PARAM_CEP, PARAM_NUMBER, PARAM_REFERENCE_POINT, PARAM_RECIPIENT_NAME),
+            optionalParameters = listOf(PARAM_STREET, PARAM_CITY, PARAM_STATE),
         )
 
     private val navigateToCheckoutTool =
-        defineFunction(
+        FunctionDeclaration(
             name = FN_NAVIGATE_TO_CHECKOUT,
             description = FN_NAVIGATE_TO_CHECKOUT_DESC,
+            parameters = emptyMap(),
+            optionalParameters = emptyList(),
         )
+
+    private val modelCache = ConcurrentHashMap<String, GenerativeModel>()
 
     override fun sendMessage(
         prompt: String,
@@ -61,10 +87,10 @@ class ChatRepositoryImpl : ChatRepository {
                 emit("")
                 return@flow
             }
-            val primaryModel = createGenerativeModel(PRIMARY_MODEL_NAME, systemInstruction)
+            val primaryModel = getOrCreateGenerativeModel(PRIMARY_MODEL_NAME, systemInstruction)
             try {
                 emit(generateContentWithModel(primaryModel, prompt, onFunctionCall))
-            } catch (primaryException: GoogleGenerativeAIException) {
+            } catch (primaryException: FirebaseAIException) {
                 emit(tryFallbackOrThrow(primaryException, systemInstruction, prompt, onFunctionCall))
             } catch (primaryException: SerializationException) {
                 emit(tryFallbackOrThrow(primaryException, systemInstruction, prompt, onFunctionCall))
@@ -72,6 +98,123 @@ class ChatRepositoryImpl : ChatRepository {
                 emit(tryFallbackOrThrow(primaryException, systemInstruction, prompt, onFunctionCall))
             }
         }
+
+    override fun observeSessions(): Flow<List<ChatSessionEntity>> {
+        val userId = chatSessionProvider.getCurrentUserUid().orEmpty()
+        return chatDao.getAllSessions(userId)
+    }
+
+    override fun observeMessages(sessionId: String): Flow<List<ChatMessage>> =
+        chatDao.getMessagesForSession(sessionId).map { entities ->
+            entities.map { entity ->
+                ChatMessage(
+                    id = entity.id,
+                    text = entity.text,
+                    sender =
+                        if (entity.sender == ChatPromptConstants.SENDER_USER) {
+                            ChatSender.USER
+                        } else {
+                            ChatSender.AI
+                        },
+                    timestamp = entity.timestamp,
+                )
+            }
+        }
+
+    override suspend fun syncSessions() {
+        val userId = chatSessionProvider.getCurrentUserUid().orEmpty()
+        if (userId.isNotBlank()) {
+            val remoteSessions = chatRemoteDataSource.fetchSessions(userId)
+            remoteSessions.forEach { session ->
+                chatDao.insertSession(session)
+            }
+        }
+    }
+
+    override suspend fun syncMessages(sessionId: String) {
+        val userId = chatSessionProvider.getCurrentUserUid()
+        if (userId != null) {
+            val remoteMessages = chatRemoteDataSource.fetchMessagesForSession(userId, sessionId)
+            remoteMessages.forEach { msg ->
+                chatDao.insertMessage(msg)
+            }
+        }
+    }
+
+    override suspend fun getOrCreateSession(
+        activeSessionId: String?,
+        firstMessageText: String,
+    ): String {
+        val userId = chatSessionProvider.getCurrentUserUid()
+        if (activeSessionId != null) {
+            val updatedTimestamp = System.currentTimeMillis()
+            chatDao.updateSessionTimestamp(activeSessionId, updatedTimestamp)
+            if (userId != null) {
+                val existingSession =
+                    chatDao.getAllSessions(userId).first().find { item -> item.id == activeSessionId }
+                if (existingSession != null) {
+                    chatRemoteDataSource.saveSession(userId, existingSession.copy(lastUpdated = updatedTimestamp))
+                }
+            }
+            return activeSessionId
+        }
+
+        val newSessionId = UUID.randomUUID().toString()
+        val title =
+            if (firstMessageText.length > SESSION_TITLE_MAX_LENGTH) {
+                firstMessageText.take(SESSION_TITLE_MAX_LENGTH) + "..."
+            } else {
+                firstMessageText
+            }
+        val session =
+            ChatSessionEntity(
+                id = newSessionId,
+                title = title,
+                userId = userId,
+                lastUpdated = System.currentTimeMillis(),
+            )
+        chatDao.insertSession(session)
+        if (userId != null) {
+            chatRemoteDataSource.saveSession(userId, session)
+        }
+        return newSessionId
+    }
+
+    override suspend fun saveMessage(
+        sessionId: String,
+        text: String,
+        sender: String,
+    ): ChatMessage {
+        val userId = chatSessionProvider.getCurrentUserUid()
+        val message =
+            ChatMessage(
+                text = text,
+                sender = if (sender == ChatPromptConstants.SENDER_USER) ChatSender.USER else ChatSender.AI,
+            )
+        val entity =
+            ChatMessageEntity(
+                id = message.id,
+                sessionId = sessionId,
+                text = message.text,
+                sender = sender,
+                timestamp = message.timestamp,
+            )
+        chatDao.insertMessage(entity)
+        if (userId != null) {
+            chatRemoteDataSource.saveMessage(userId, sessionId, entity)
+        }
+        return message
+    }
+
+    override suspend fun deleteSession(sessionId: String): String? {
+        val userId = chatSessionProvider.getCurrentUserUid()
+        chatDao.deleteSession(sessionId)
+        if (userId != null) {
+            chatRemoteDataSource.deleteSession(userId, sessionId)
+        }
+        val remainingSessions = chatDao.getAllSessions(userId.orEmpty()).first()
+        return remainingSessions.firstOrNull()?.id
+    }
 
     private suspend fun tryFallbackOrThrow(
         primaryException: Exception,
@@ -82,10 +225,10 @@ class ChatRepositoryImpl : ChatRepository {
         if (!shouldFallback(primaryException)) {
             handleModelException(primaryException)
         }
-        val fallbackModel = createGenerativeModel(FALLBACK_MODEL_NAME, systemInstruction)
+        val fallbackModel = getOrCreateGenerativeModel(FALLBACK_MODEL_NAME, systemInstruction)
         return try {
             generateContentWithModel(fallbackModel, prompt, onFunctionCall)
-        } catch (fallbackException: GoogleGenerativeAIException) {
+        } catch (fallbackException: FirebaseAIException) {
             handleModelException(fallbackException)
         } catch (fallbackException: SerializationException) {
             handleModelException(fallbackException)
@@ -94,115 +237,33 @@ class ChatRepositoryImpl : ChatRepository {
         }
     }
 
-    private fun createGenerativeModel(
+    private fun getOrCreateGenerativeModel(
         modelName: String,
         systemInstruction: String,
-    ): GenerativeModel =
-        GenerativeModel(
-            modelName = modelName,
-            apiKey = BuildConfig.GEMINI_API_KEY,
-            systemInstruction =
-                content {
-                    text(systemInstruction)
-                },
-            tools =
-                listOf(
-                    Tool(listOf(addProductToCartTool, saveDeliveryAddressTool, navigateToCheckoutTool)),
-                ),
-        )
-
-    private suspend fun generateContentWithModel(
-        model: GenerativeModel,
-        prompt: String,
-        onFunctionCall: suspend (name: String, arguments: Map<String, Any?>) -> String,
-    ): String {
-        val response = model.generateContent(prompt)
-        val calls = response.functionCalls
-        return if (calls.isNotEmpty()) {
-            processFunctionCalls(calls, onFunctionCall)
-        } else {
-            response.text ?: ""
+    ): GenerativeModel {
+        val cacheKey = "$modelName:${systemInstruction.hashCode()}"
+        return modelCache.computeIfAbsent(cacheKey) {
+            Firebase.ai.generativeModel(
+                modelName = modelName,
+                generationConfig =
+                    generationConfig {
+                        temperature = CHAT_TEMPERATURE
+                        thinkingConfig =
+                            thinkingConfig {
+                                thinkingLevel = ThinkingLevel.MINIMAL
+                            }
+                    },
+                systemInstruction =
+                    content {
+                        text(systemInstruction)
+                    },
+                tools =
+                    listOf(
+                        Tool.functionDeclarations(
+                            listOf(addProductToCartTool, saveDeliveryAddressTool, navigateToCheckoutTool),
+                        ),
+                    ),
+            )
         }
     }
-
-    private fun shouldFallback(exception: Exception): Boolean {
-        val msg = exception.message.orEmpty()
-        val causeMsg = exception.cause?.message.orEmpty()
-        return msg.contains("503") ||
-            msg.contains("high demand", ignoreCase = true) ||
-            msg.contains("UNAVAILABLE", ignoreCase = true) ||
-            causeMsg.contains("503") ||
-            causeMsg.contains("high demand", ignoreCase = true) ||
-            exception is SerializationException
-    }
-
-    private fun handleModelException(exception: Exception): Nothing =
-        when (exception) {
-            is GoogleGenerativeAIException -> throw IllegalStateException(
-                exception.message ?: ERROR_GENERIC_MODEL,
-                exception,
-            )
-            is SerializationException -> throw IllegalStateException(
-                "$ERROR_SERIALIZATION_MODEL: ${exception.message}",
-                exception,
-            )
-            is IOException -> throw IllegalStateException(ERROR_NETWORK_MODEL, exception)
-            else -> throw exception
-        }
-
-    private suspend fun processFunctionCalls(
-        calls: List<com.google.ai.client.generativeai.type.FunctionCallPart>,
-        onFunctionCall: suspend (name: String, arguments: Map<String, Any?>) -> String,
-    ): String {
-        val addedItems = mutableListOf<String>()
-        val notFoundItems = mutableListOf<String>()
-        val otherReplies = mutableListOf<String>()
-        var shouldNavigateToCheckout = false
-
-        for (call in calls) {
-            val reply = onFunctionCall(call.name, call.args)
-            when {
-                reply == "[NAVIGATE_TO_CHECKOUT]" -> {
-                    shouldNavigateToCheckout = true
-                }
-                reply.startsWith("[ADDED_ITEM]:") -> {
-                    addedItems.add(reply.removePrefix("[ADDED_ITEM]:"))
-                }
-                reply.startsWith("[NOT_FOUND_ITEM]:") -> {
-                    notFoundItems.add(reply.removePrefix("[NOT_FOUND_ITEM]:"))
-                }
-                else -> {
-                    otherReplies.add(reply)
-                }
-            }
-        }
-
-        if (shouldNavigateToCheckout) {
-            return "[NAVIGATE_TO_CHECKOUT]"
-        }
-
-        val messageParts = mutableListOf<String>()
-        if (addedItems.isNotEmpty()) {
-            val formattedItems = formatListToNaturalLanguage(addedItems)
-            messageParts.add(
-                "Com prazer, nobre cliente! Adicionei $formattedItems ao seu carrinho imperial.",
-            )
-        }
-        if (notFoundItems.isNotEmpty()) {
-            val formattedMissing = formatListToNaturalLanguage(notFoundItems)
-            messageParts.add(
-                "Peço desculpas, mas não encontrei $formattedMissing em nosso cardápio imperial.",
-            )
-        }
-        messageParts.addAll(otherReplies)
-
-        return messageParts.joinToString(separator = "\n")
-    }
-
-    private fun formatListToNaturalLanguage(items: List<String>): String =
-        when (items.size) {
-            0 -> ""
-            1 -> items.first()
-            else -> items.dropLast(1).joinToString(", ") + " e " + items.last()
-        }
 }

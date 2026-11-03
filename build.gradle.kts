@@ -14,7 +14,6 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.detekt)
     alias(libs.plugins.kotlin.serialization) apply false
-    alias(libs.plugins.hotswan.compiler) apply false
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.koin.compiler) apply false
 }
@@ -50,7 +49,7 @@ allprojects {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
             freeCompilerArgs.addAll(
-                "-Xexplicit-backing-fields",
+                "-opt-in=kotlin.RequiresOptIn",
                 "-opt-in=kotlin.ExperimentalStdlibApi",
             )
         }

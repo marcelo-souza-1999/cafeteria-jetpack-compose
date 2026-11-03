@@ -17,6 +17,7 @@ import com.targaryen.cafeteria.feature_checkout.util.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
@@ -38,7 +39,7 @@ class CheckoutViewModelTest {
     private val checkoutRepository: CheckoutRepository = mockk()
     private val catalogRepository: CatalogRepository = mockk()
     private val paymentStatusTracker: PaymentStatusTracker = mockk()
-    private val addressProvider: AddressProvider = mockk(relaxed = true)
+    private val addressProvider: AddressProvider = mockk()
 
     private val mockCartProducts =
         listOf(
@@ -68,8 +69,17 @@ class CheckoutViewModelTest {
         every { catalogRepository.getProducts() } returns flowOf(mockCartProducts)
         every { paymentStatusTracker.paymentStatus } returns paymentStatusFlow
         every { addressProvider.getAddress() } returns DeliveryAddress()
+        justRun { addressProvider.clearAddress() }
 
-        coEvery { checkoutRepository.fetchAddressByCep(any()) } returns Result.success(mockk(relaxed = true))
+        coEvery { checkoutRepository.fetchAddressByCep(any()) } returns
+            Result.success(
+                ViaCepResponse(
+                    cep = "12345-678",
+                    logradouro = "Dragonstone Way",
+                    localidade = "Westeros",
+                    uf = "WS",
+                ),
+            )
     }
 
     @After
@@ -78,7 +88,7 @@ class CheckoutViewModelTest {
     }
 
     @Test
-    fun `initialization should load cart items and start observing payment status`() =
+    fun init_loadsCartItemsAndObservesPaymentStatus() =
         runTest {
             val viewModel =
                 CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker, addressProvider)
@@ -89,7 +99,7 @@ class CheckoutViewModelTest {
         }
 
     @Test
-    fun `when CEP changes and reaches 8 digits, it should fetch address`() =
+    fun onIntent_onCepChanged_whenReaches8Digits_fetchesAddress() =
         runTest {
             val mockAddress =
                 ViaCepResponse(
@@ -113,7 +123,7 @@ class CheckoutViewModelTest {
         }
 
     @Test
-    fun `when submit payment is clicked with invalid fields, it should show error`() =
+    fun onIntent_onSubmitPayment_withInvalidFields_showsError() =
         runTest {
             val viewModel =
                 CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker, addressProvider)
@@ -128,7 +138,7 @@ class CheckoutViewModelTest {
         }
 
     @Test
-    fun `when submit payment is clicked with valid fields, it should create preference`() =
+    fun onIntent_onSubmitPayment_withValidFields_createsPreference() =
         runTest {
             val mockPreference =
                 MpPreferenceResponse(
@@ -157,7 +167,7 @@ class CheckoutViewModelTest {
         }
 
     @Test
-    fun `when payment status becomes success, it should save order and clear cart`() =
+    fun paymentStatus_whenSuccess_savesOrderAndClearsCart() =
         runTest {
             val saveResult = Result.success(Unit)
             coEvery { checkoutRepository.saveOrder("test_uid", "2x Espresso", 10.0, "Aprovado") } returns saveResult
@@ -177,7 +187,7 @@ class CheckoutViewModelTest {
         }
 
     @Test
-    fun `when resetState intent is received, fields should clear`() =
+    fun onIntent_onResetState_clearsFields() =
         runTest {
             val viewModel =
                 CheckoutViewModel(checkoutRepository, catalogRepository, paymentStatusTracker, addressProvider)

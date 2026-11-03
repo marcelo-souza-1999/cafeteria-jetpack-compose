@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.hotswan.compiler)
     alias(libs.plugins.koin.compiler)
     alias(libs.plugins.google.ksp)
 }
@@ -39,6 +38,10 @@ android {
     buildFeatures {
         compose = true
     }
+
+    lint {
+        disable += "RestrictedApi"
+    }
 }
 
 dependencies {
@@ -63,7 +66,6 @@ dependencies {
     implementation(libs.compose.alert.dialog)
 
     implementation(libs.androidx.appfunctions)
-    implementation(libs.androidx.appfunctions.service)
     ksp(libs.androidx.appfunctions.compiler)
 
     implementation(platform(libs.firebase.bom))
@@ -84,7 +86,7 @@ dependencies {
 }
 
 koinCompiler {
-    compileSafety = false
+    compileSafety = true
 }
 
 kover {

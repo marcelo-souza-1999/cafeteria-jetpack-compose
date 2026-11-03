@@ -17,7 +17,7 @@ class UseCasesTest {
     private val repository: AuthRepository = mockk()
 
     @Test
-    fun `LogoutUseCase should delegate to repository`() =
+    fun logoutUseCase_invoke_delegatesToRepository() =
         runTest {
             coEvery { repository.logout() } returns Unit
 
@@ -27,7 +27,7 @@ class UseCasesTest {
         }
 
     @Test
-    fun `SignInWithEmailUseCase should delegate to repository`() =
+    fun signInWithEmailUseCase_invoke_delegatesToRepository() =
         runTest {
             val email = "test@test.com"
             val password = "pass"
@@ -39,7 +39,7 @@ class UseCasesTest {
         }
 
     @Test
-    fun `SignInWithGoogleUseCase should delegate to repository`() =
+    fun signInWithGoogleUseCase_invoke_delegatesToRepository() =
         runTest {
             val token = "token"
             every { repository.signInWithGoogle(token) } returns flowOf(Resource.Success(Unit))
@@ -50,7 +50,7 @@ class UseCasesTest {
         }
 
     @Test
-    fun `CheckAuthSessionUseCase should delegate to repository`() =
+    fun checkAuthSessionUseCase_invoke_delegatesToRepository() =
         runTest {
             coEvery { repository.isUserLoggedIn() } returns true
 
@@ -61,7 +61,7 @@ class UseCasesTest {
         }
 
     @Test
-    fun `SendPasswordResetEmailUseCase should delegate to repository`() =
+    fun sendPasswordResetEmailUseCase_invoke_delegatesToRepository() =
         runTest {
             val email = "reset@test.com"
             every { repository.sendPasswordResetEmail(email) } returns flowOf(Resource.Success(Unit))
@@ -72,7 +72,7 @@ class UseCasesTest {
         }
 
     @Test
-    fun `SignUpWithEmailUseCase should delegate to repository`() =
+    fun signUpWithEmailUseCase_invoke_delegatesToRepository() =
         runTest {
             val name = "Test User"
             val email = "test@test.com"

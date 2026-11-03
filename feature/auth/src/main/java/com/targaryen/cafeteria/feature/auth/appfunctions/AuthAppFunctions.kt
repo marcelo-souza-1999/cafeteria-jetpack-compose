@@ -1,8 +1,8 @@
 package com.targaryen.cafeteria.feature.auth.appfunctions
 
 import androidx.appfunctions.AppFunctionContext
+import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionSerializable
-import androidx.appfunctions.service.AppFunction
 import com.targaryen.cafeteria.feature.auth.domain.repository.AuthRepository
 
 /**
@@ -12,7 +12,7 @@ import com.targaryen.cafeteria.feature.auth.domain.repository.AuthRepository
  * @property userUid O identificador único de usuário (UID) do Firebase Auth, ou nulo se não logado.
  * @property message Mensagem descritiva detalhando o status atual da autenticação.
  */
-@AppFunctionSerializable
+@AppFunctionSerializable(isDescribedByKDoc = true)
 data class AuthSessionResponse(
     val isLoggedIn: Boolean,
     val userUid: String?,
@@ -29,9 +29,8 @@ class AuthAppFunctions(
      * Verifica o status de autenticação da sessão do usuário imperial.
      * Retorna se o usuário está logado e, em caso positivo, o UID correspondente.
      */
-    @AppFunction
+    @AppFunctionDeclaration(isDescribedByKDoc = true)
     fun checkAuthSession(context: AppFunctionContext): AuthSessionResponse {
-        context.hashCode()
         val isLoggedIn = authRepository.isUserLoggedIn()
         val uid = authRepository.getCurrentUserUid()
         val msg =

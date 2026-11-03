@@ -3,6 +3,7 @@ package com.targaryen.cafeteria.feature_catalog.chat.appfunctions
 import androidx.appfunctions.AppFunctionContext
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
+import io.mockk.coJustRun
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -15,8 +16,8 @@ import org.junit.Before
 import org.junit.Test
 
 class CartAppFunctionsTest {
-    private val catalogRepository: CatalogRepository = mockk(relaxed = true)
-    private val appFunctionContext: AppFunctionContext = mockk(relaxed = true)
+    private val catalogRepository: CatalogRepository = mockk()
+    private val appFunctionContext: AppFunctionContext = mockk()
     private lateinit var cartAppFunctions: CartAppFunctions
 
     private val mockProducts =
@@ -46,6 +47,8 @@ class CartAppFunctionsTest {
     @Before
     fun setUp() {
         every { catalogRepository.getProducts() } returns flowOf(mockProducts)
+        coJustRun { catalogRepository.updateProductQuantity(any(), any()) }
+        coJustRun { catalogRepository.clearCart() }
         cartAppFunctions = CartAppFunctions(catalogRepository)
     }
 

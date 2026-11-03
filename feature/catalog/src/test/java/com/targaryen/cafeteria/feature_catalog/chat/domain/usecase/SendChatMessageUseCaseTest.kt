@@ -19,9 +19,9 @@ import org.junit.Before
 import org.junit.Test
 
 class SendChatMessageUseCaseTest {
-    private val catalogRepository: CatalogRepository = mockk(relaxed = true)
-    private val chatRepository: ChatRepository = mockk(relaxed = true)
-    private val addressProvider: AddressProvider = mockk(relaxed = true)
+    private val catalogRepository: CatalogRepository = mockk()
+    private val chatRepository: ChatRepository = mockk()
+    private val addressProvider: AddressProvider = mockk()
 
     private lateinit var useCase: SendChatMessageUseCase
 
@@ -96,5 +96,48 @@ class SendChatMessageUseCaseTest {
                 "Prompt formatado deve conter o novo comando",
                 promptSlot.captured.contains("${ChatPromptConstants.SPEAKER_USER}: Me dê um!"),
             )
+        }
+
+    @Test
+    fun invoke_deduplicatesLastUserMessageWhenMatchingPrompt() =
+        runTest {
+            val promptSlot = slot<String>()
+
+            every {
+                chatRepository.sendMessage(
+                    prompt = capture(promptSlot),
+                    systemInstruction = any(),
+                    onFunctionCall = any(),
+                )
+            } returns flowOf("Resposta da IA")
+
+            val history =
+                listOf(
+                    ChatMessage(
+                        id = "msg1",
+                        text = "Qual o melhor café?",
+                        sender = ChatSender.USER,
+                        timestamp = 1000L,
+                    ),
+                    ChatMessage(
+                        id = "msg2",
+                        text = "O Expresso Valíria!",
+                        sender = ChatSender.AI,
+                        timestamp = 2000L,
+                    ),
+                    ChatMessage(
+                        id = "msg3",
+                        text = "Qual o melhor café?",
+                        sender = ChatSender.USER,
+                        timestamp = 3000L,
+                    ),
+                )
+
+            val result = useCase("Qual o melhor café?", history).first()
+
+            assertEquals("Resposta da IA", result)
+            val capturedPrompt = promptSlot.captured
+            val occurrences = capturedPrompt.split("${ChatPromptConstants.SPEAKER_USER}: Qual o melhor café?").size - 1
+            assertEquals(2, occurrences)
         }
 }
