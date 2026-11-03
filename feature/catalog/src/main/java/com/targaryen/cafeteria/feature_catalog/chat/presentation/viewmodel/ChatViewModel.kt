@@ -3,16 +3,11 @@ package com.targaryen.cafeteria.feature_catalog.chat.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.targaryen.cafeteria.core_network.util.AppLogger
-import com.targaryen.cafeteria.coredatabase.dao.ChatDao
-import com.targaryen.cafeteria.coredatabase.model.ChatMessageEntity
-import com.targaryen.cafeteria.coredatabase.model.ChatSessionEntity
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.usecase.GetCatalogUseCase
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.model.ProductUiModel
-import com.targaryen.cafeteria.feature_catalog.chat.data.remote.ChatRemoteDataSource
-import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatMessage
 import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatPromptConstants
-import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatSender
-import com.targaryen.cafeteria.feature_catalog.chat.domain.repository.ChatSessionProvider
+import com.targaryen.cafeteria.feature_catalog.chat.domain.usecase.GetChatMessagesUseCase
+import com.targaryen.cafeteria.feature_catalog.chat.domain.usecase.GetChatSessionsUseCase
 import com.targaryen.cafeteria.feature_catalog.chat.domain.usecase.SendChatMessageUseCase
 import com.targaryen.cafeteria.feature_catalog.chat.presentation.intent.ChatIntent
 import com.targaryen.cafeteria.feature_catalog.chat.presentation.state.ChatUiState
@@ -21,19 +16,16 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
-import java.util.UUID
 
 @KoinViewModel
 class ChatViewModel(
     private val sendChatMessageUseCase: SendChatMessageUseCase,
-    private val chatDao: ChatDao,
-    private val chatRemoteDataSource: ChatRemoteDataSource,
-    private val chatSessionProvider: ChatSessionProvider,
+    private val getChatSessionsUseCase: GetChatSessionsUseCase,
+    private val getChatMessagesUseCase: GetChatMessagesUseCase,
     private val getCatalogUseCase: GetCatalogUseCase,
     private val appLogger: AppLogger,
 ) : ViewModel() {
@@ -57,9 +49,8 @@ class ChatViewModel(
     }
 
     private fun loadSessions() {
-        val userId = chatSessionProvider.getCurrentUserUid() ?: ""
         viewModelScope.launch {
-            chatDao.getAllSessions(userId).collect { sessionsList ->
+            getChatSessionsUseCase().collect { sessionsList ->
                 uiState.update { state -> state.copy(sessions = sessionsList) }
                 if (uiState.value.currentSessionId == null && sessionsList.isNotEmpty()) {
                     selectSession(sessionsList.first().id)
@@ -67,13 +58,8 @@ class ChatViewModel(
             }
         }
 
-        if (userId.isNotBlank()) {
-            viewModelScope.launch {
-                val remoteSessions = chatRemoteDataSource.fetchSessions(userId)
-                remoteSessions.forEach { session ->
-                    chatDao.insertSession(session)
-                }
-            }
+        viewModelScope.launch {
+            getChatSessionsUseCase.sync()
         }
     }
 
@@ -113,47 +99,28 @@ class ChatViewModel(
         messagesJob?.cancel()
         messagesJob =
             viewModelScope.launch {
-                chatDao.getMessagesForSession(sessionId).collect { entities ->
-                    val domainMessages =
-                        entities.map { entity ->
-                            ChatMessage(
-                                id = entity.id,
-                                text = entity.text,
-                                sender =
-                                    if (entity.sender ==
-                                        ChatPromptConstants.SENDER_USER
-                                    ) {
-                                        ChatSender.USER
-                                    } else {
-                                        ChatSender.AI
-                                    },
-                                timestamp = entity.timestamp,
-                            )
-                        }
+                getChatMessagesUseCase(sessionId).collect { domainMessages ->
                     uiState.update { state ->
                         state.copy(messages = domainMessages, currentSessionId = sessionId)
                     }
                 }
             }
 
-        val userId = chatSessionProvider.getCurrentUserUid()
-        if (userId != null) {
-            viewModelScope.launch {
-                val remoteMessages = chatRemoteDataSource.fetchMessagesForSession(userId, sessionId)
-                remoteMessages.forEach { msg ->
-                    chatDao.insertMessage(msg)
-                }
-            }
+        viewModelScope.launch {
+            getChatMessagesUseCase.sync(sessionId)
         }
     }
 
     private fun sendMessage(text: String) {
         if (text.isBlank()) return
         viewModelScope.launch {
-            val userId = chatSessionProvider.getCurrentUserUid()
-            val sessionId = getOrCreateSessionId(text, userId)
+            val previousSessionId = uiState.value.currentSessionId
+            val sessionId = getChatSessionsUseCase.getOrCreateSession(previousSessionId, text)
+            if (previousSessionId == null) {
+                selectSession(sessionId)
+            }
 
-            persistAndSyncMessage(sessionId, text, ChatPromptConstants.SENDER_USER, userId)
+            getChatMessagesUseCase.saveMessage(sessionId, text, ChatPromptConstants.SENDER_USER)
 
             uiState.update { state ->
                 state.copy(
@@ -176,7 +143,7 @@ class ChatViewModel(
                         } else {
                             ChatPromptConstants.REPLY_UNAVAILABLE_FALLBACK
                         }
-                    persistAndSyncMessage(sessionId, errorReply, ChatPromptConstants.SENDER_AI, userId)
+                    getChatMessagesUseCase.saveMessage(sessionId, errorReply, ChatPromptConstants.SENDER_AI)
                     uiState.update { state ->
                         state.copy(
                             isLoading = false,
@@ -186,94 +153,19 @@ class ChatViewModel(
                 }.collect { reply ->
                     if (reply == ChatPromptConstants.ACTION_NAVIGATE_TO_CHECKOUT) {
                         val friendlyReply = ChatPromptConstants.REPLY_CHECKOUT_REDIRECT
-                        persistAndSyncMessage(sessionId, friendlyReply, ChatPromptConstants.SENDER_AI, userId)
+                        getChatMessagesUseCase.saveMessage(sessionId, friendlyReply, ChatPromptConstants.SENDER_AI)
                         _navigationEvents.send(ChatNavigationEvent.NavigateToCheckout)
                     } else {
-                        persistAndSyncMessage(sessionId, reply, ChatPromptConstants.SENDER_AI, userId)
+                        getChatMessagesUseCase.saveMessage(sessionId, reply, ChatPromptConstants.SENDER_AI)
                     }
                     uiState.update { state -> state.copy(isLoading = false) }
                 }
         }
     }
 
-    private suspend fun getOrCreateSessionId(
-        firstMessageText: String,
-        userId: String?,
-    ): String {
-        val activeSessionId = uiState.value.currentSessionId
-        if (activeSessionId != null) {
-            val session = uiState.value.sessions.find { item -> item.id == activeSessionId }
-            if (session != null) {
-                val updatedTimestamp = System.currentTimeMillis()
-                chatDao.updateSessionTimestamp(activeSessionId, updatedTimestamp)
-                if (userId != null) {
-                    val updatedSession = session.copy(lastUpdated = updatedTimestamp)
-                    chatRemoteDataSource.saveSession(userId, updatedSession)
-                }
-            }
-            return activeSessionId
-        }
-
-        val newSessionId =
-            UUID
-                .randomUUID()
-                .toString()
-        val title =
-            if (firstMessageText.length > SESSION_TITLE_MAX_LENGTH) {
-                firstMessageText.take(SESSION_TITLE_MAX_LENGTH) + "..."
-            } else {
-                firstMessageText
-            }
-        val session =
-            ChatSessionEntity(
-                id = newSessionId,
-                title = title,
-                userId = userId,
-                lastUpdated = System.currentTimeMillis(),
-            )
-        uiState.update { state -> state.copy(currentSessionId = newSessionId) }
-        selectSession(newSessionId)
-
-        chatDao.insertSession(session)
-        if (userId != null) {
-            chatRemoteDataSource.saveSession(userId, session)
-        }
-        return newSessionId
-    }
-
-    private suspend fun persistAndSyncMessage(
-        sessionId: String,
-        text: String,
-        sender: String,
-        userId: String?,
-    ): ChatMessage {
-        val message =
-            ChatMessage(
-                text = text,
-                sender = if (sender == ChatPromptConstants.SENDER_USER) ChatSender.USER else ChatSender.AI,
-            )
-        val entity =
-            ChatMessageEntity(
-                id = message.id,
-                sessionId = sessionId,
-                text = message.text,
-                sender = sender,
-                timestamp = message.timestamp,
-            )
-        chatDao.insertMessage(entity)
-        if (userId != null) {
-            chatRemoteDataSource.saveMessage(userId, sessionId, entity)
-        }
-        return message
-    }
-
     private fun deleteSession(sessionId: String) {
-        val userId = chatSessionProvider.getCurrentUserUid()
         viewModelScope.launch {
-            chatDao.deleteSession(sessionId)
-            if (userId != null) {
-                chatRemoteDataSource.deleteSession(userId, sessionId)
-            }
+            val nextSessionId = getChatSessionsUseCase.deleteSession(sessionId)
 
             if (uiState.value.currentSessionId == sessionId) {
                 messagesJob?.cancel()
@@ -283,9 +175,8 @@ class ChatViewModel(
                         currentSessionId = null,
                     )
                 }
-                val remainingSessions = chatDao.getAllSessions(userId ?: "").first()
-                if (remainingSessions.isNotEmpty()) {
-                    selectSession(remainingSessions.first().id)
+                if (nextSessionId != null) {
+                    selectSession(nextSessionId)
                 }
             }
         }
@@ -350,6 +241,5 @@ class ChatViewModel(
     companion object {
         private const val TAG = "ChatViewModel"
         private const val ERROR_STREAM_FAILED = "Erro no fluxo do chat"
-        private const val SESSION_TITLE_MAX_LENGTH = 20
     }
 }

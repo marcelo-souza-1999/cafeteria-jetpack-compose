@@ -4,7 +4,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.ai.GenerativeModel
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.FirebaseAIException
-import com.google.firebase.ai.type.FunctionCallPart
 import com.google.firebase.ai.type.FunctionDeclaration
 import com.google.firebase.ai.type.Schema
 import com.google.firebase.ai.type.ThinkingLevel
@@ -12,23 +11,33 @@ import com.google.firebase.ai.type.Tool
 import com.google.firebase.ai.type.content
 import com.google.firebase.ai.type.generationConfig
 import com.google.firebase.ai.type.thinkingConfig
+import com.targaryen.cafeteria.coredatabase.dao.ChatDao
+import com.targaryen.cafeteria.coredatabase.model.ChatMessageEntity
+import com.targaryen.cafeteria.coredatabase.model.ChatSessionEntity
+import com.targaryen.cafeteria.feature_catalog.chat.data.remote.ChatRemoteDataSource
+import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatMessage
+import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatPromptConstants
+import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatSender
 import com.targaryen.cafeteria.feature_catalog.chat.domain.repository.ChatRepository
+import com.targaryen.cafeteria.feature_catalog.chat.domain.repository.ChatSessionProvider
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.booleanOrNull
-import kotlinx.serialization.json.doubleOrNull
-import kotlinx.serialization.json.intOrNull
 import org.koin.core.annotation.Single
 import java.io.IOException
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
 private const val CHAT_TEMPERATURE = 0.2f
 
 @Single
-class ChatRepositoryImpl : ChatRepository {
+class ChatRepositoryImpl(
+    private val chatDao: ChatDao,
+    private val chatRemoteDataSource: ChatRemoteDataSource,
+    private val chatSessionProvider: ChatSessionProvider,
+) : ChatRepository {
     private val addProductToCartTool =
         FunctionDeclaration(
             name = FN_ADD_PRODUCT_TO_CART,
@@ -90,6 +99,123 @@ class ChatRepositoryImpl : ChatRepository {
             }
         }
 
+    override fun observeSessions(): Flow<List<ChatSessionEntity>> {
+        val userId = chatSessionProvider.getCurrentUserUid().orEmpty()
+        return chatDao.getAllSessions(userId)
+    }
+
+    override fun observeMessages(sessionId: String): Flow<List<ChatMessage>> =
+        chatDao.getMessagesForSession(sessionId).map { entities ->
+            entities.map { entity ->
+                ChatMessage(
+                    id = entity.id,
+                    text = entity.text,
+                    sender =
+                        if (entity.sender == ChatPromptConstants.SENDER_USER) {
+                            ChatSender.USER
+                        } else {
+                            ChatSender.AI
+                        },
+                    timestamp = entity.timestamp,
+                )
+            }
+        }
+
+    override suspend fun syncSessions() {
+        val userId = chatSessionProvider.getCurrentUserUid().orEmpty()
+        if (userId.isNotBlank()) {
+            val remoteSessions = chatRemoteDataSource.fetchSessions(userId)
+            remoteSessions.forEach { session ->
+                chatDao.insertSession(session)
+            }
+        }
+    }
+
+    override suspend fun syncMessages(sessionId: String) {
+        val userId = chatSessionProvider.getCurrentUserUid()
+        if (userId != null) {
+            val remoteMessages = chatRemoteDataSource.fetchMessagesForSession(userId, sessionId)
+            remoteMessages.forEach { msg ->
+                chatDao.insertMessage(msg)
+            }
+        }
+    }
+
+    override suspend fun getOrCreateSession(
+        activeSessionId: String?,
+        firstMessageText: String,
+    ): String {
+        val userId = chatSessionProvider.getCurrentUserUid()
+        if (activeSessionId != null) {
+            val updatedTimestamp = System.currentTimeMillis()
+            chatDao.updateSessionTimestamp(activeSessionId, updatedTimestamp)
+            if (userId != null) {
+                val existingSession =
+                    chatDao.getAllSessions(userId).first().find { item -> item.id == activeSessionId }
+                if (existingSession != null) {
+                    chatRemoteDataSource.saveSession(userId, existingSession.copy(lastUpdated = updatedTimestamp))
+                }
+            }
+            return activeSessionId
+        }
+
+        val newSessionId = UUID.randomUUID().toString()
+        val title =
+            if (firstMessageText.length > SESSION_TITLE_MAX_LENGTH) {
+                firstMessageText.take(SESSION_TITLE_MAX_LENGTH) + "..."
+            } else {
+                firstMessageText
+            }
+        val session =
+            ChatSessionEntity(
+                id = newSessionId,
+                title = title,
+                userId = userId,
+                lastUpdated = System.currentTimeMillis(),
+            )
+        chatDao.insertSession(session)
+        if (userId != null) {
+            chatRemoteDataSource.saveSession(userId, session)
+        }
+        return newSessionId
+    }
+
+    override suspend fun saveMessage(
+        sessionId: String,
+        text: String,
+        sender: String,
+    ): ChatMessage {
+        val userId = chatSessionProvider.getCurrentUserUid()
+        val message =
+            ChatMessage(
+                text = text,
+                sender = if (sender == ChatPromptConstants.SENDER_USER) ChatSender.USER else ChatSender.AI,
+            )
+        val entity =
+            ChatMessageEntity(
+                id = message.id,
+                sessionId = sessionId,
+                text = message.text,
+                sender = sender,
+                timestamp = message.timestamp,
+            )
+        chatDao.insertMessage(entity)
+        if (userId != null) {
+            chatRemoteDataSource.saveMessage(userId, sessionId, entity)
+        }
+        return message
+    }
+
+    override suspend fun deleteSession(sessionId: String): String? {
+        val userId = chatSessionProvider.getCurrentUserUid()
+        chatDao.deleteSession(sessionId)
+        if (userId != null) {
+            chatRemoteDataSource.deleteSession(userId, sessionId)
+        }
+        val remainingSessions = chatDao.getAllSessions(userId.orEmpty()).first()
+        return remainingSessions.firstOrNull()?.id
+    }
+
     private suspend fun tryFallbackOrThrow(
         primaryException: Exception,
         systemInstruction: String,
@@ -140,113 +266,4 @@ class ChatRepositoryImpl : ChatRepository {
             )
         }
     }
-
-    private suspend fun generateContentWithModel(
-        model: GenerativeModel,
-        prompt: String,
-        onFunctionCall: suspend (name: String, arguments: Map<String, Any?>) -> String,
-    ): String {
-        val response = model.generateContent(prompt)
-        val calls = response.functionCalls
-        return if (calls.isNotEmpty()) {
-            processFunctionCalls(calls, onFunctionCall)
-        } else {
-            response.text ?: ""
-        }
-    }
-
-    private fun shouldFallback(exception: Exception): Boolean {
-        val msg = exception.message.orEmpty()
-        val causeMsg = exception.cause?.message.orEmpty()
-        return msg.contains("503") ||
-            msg.contains("high demand", ignoreCase = true) ||
-            msg.contains("UNAVAILABLE", ignoreCase = true) ||
-            causeMsg.contains("503") ||
-            causeMsg.contains("high demand", ignoreCase = true) ||
-            exception is SerializationException
-    }
-
-    private fun handleModelException(exception: Exception): Nothing =
-        when (exception) {
-            is FirebaseAIException -> throw IllegalStateException(
-                exception.message ?: ERROR_GENERIC_MODEL,
-                exception,
-            )
-            is SerializationException -> throw IllegalStateException(
-                "$ERROR_SERIALIZATION_MODEL: ${exception.message}",
-                exception,
-            )
-            is IOException -> throw IllegalStateException(ERROR_NETWORK_MODEL, exception)
-            else -> throw exception
-        }
-
-    private suspend fun processFunctionCalls(
-        calls: List<FunctionCallPart>,
-        onFunctionCall: suspend (name: String, arguments: Map<String, Any?>) -> String,
-    ): String {
-        val addedItems = mutableListOf<String>()
-        val notFoundItems = mutableListOf<String>()
-        val otherReplies = mutableListOf<String>()
-        var shouldNavigateToCheckout = false
-
-        for (call in calls) {
-            val convertedArgs = call.args.mapValues { entry -> entry.value.toAnyValue() }
-            val reply = onFunctionCall(call.name, convertedArgs)
-            when {
-                reply == "[NAVIGATE_TO_CHECKOUT]" -> {
-                    shouldNavigateToCheckout = true
-                }
-                reply.startsWith("[ADDED_ITEM]:") -> {
-                    addedItems.add(reply.removePrefix("[ADDED_ITEM]:"))
-                }
-                reply.startsWith("[NOT_FOUND_ITEM]:") -> {
-                    notFoundItems.add(reply.removePrefix("[NOT_FOUND_ITEM]:"))
-                }
-                else -> {
-                    otherReplies.add(reply)
-                }
-            }
-        }
-
-        if (shouldNavigateToCheckout) {
-            return "[NAVIGATE_TO_CHECKOUT]"
-        }
-
-        val messageParts = mutableListOf<String>()
-        if (addedItems.isNotEmpty()) {
-            val formattedItems = formatListToNaturalLanguage(addedItems)
-            messageParts.add(
-                "Com prazer, nobre cliente! Adicionei $formattedItems ao seu carrinho imperial.",
-            )
-        }
-        if (notFoundItems.isNotEmpty()) {
-            val formattedMissing = formatListToNaturalLanguage(notFoundItems)
-            messageParts.add(
-                "Peço desculpas, mas não encontrei $formattedMissing em nosso cardápio imperial.",
-            )
-        }
-        messageParts.addAll(otherReplies)
-
-        return messageParts.joinToString(separator = "\n")
-    }
-
-    private fun formatListToNaturalLanguage(items: List<String>): String =
-        when (items.size) {
-            0 -> ""
-            1 -> items.first()
-            else -> items.dropLast(1).joinToString(", ") + " e " + items.last()
-        }
-
-    private fun JsonElement.toAnyValue(): Any? =
-        when (this) {
-            is JsonPrimitive ->
-                when {
-                    isString -> content
-                    booleanOrNull != null -> booleanOrNull
-                    intOrNull != null -> intOrNull
-                    doubleOrNull != null -> doubleOrNull
-                    else -> content
-                }
-            else -> toString()
-        }
 }

@@ -1,13 +1,12 @@
 package com.targaryen.cafeteria.feature_catalog.chat.presentation.viewmodel
 
 import com.targaryen.cafeteria.core_network.util.AppLogger
-import com.targaryen.cafeteria.coredatabase.dao.ChatDao
-import com.targaryen.cafeteria.coredatabase.model.ChatMessageEntity
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.usecase.GetCatalogUseCase
-import com.targaryen.cafeteria.feature_catalog.chat.data.remote.ChatRemoteDataSource
+import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatMessage
 import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatPromptConstants
 import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatSender
-import com.targaryen.cafeteria.feature_catalog.chat.domain.repository.ChatSessionProvider
+import com.targaryen.cafeteria.feature_catalog.chat.domain.usecase.GetChatMessagesUseCase
+import com.targaryen.cafeteria.feature_catalog.chat.domain.usecase.GetChatSessionsUseCase
 import com.targaryen.cafeteria.feature_catalog.chat.domain.usecase.SendChatMessageUseCase
 import com.targaryen.cafeteria.feature_catalog.chat.presentation.intent.ChatIntent
 import com.targaryen.cafeteria.feature_catalog.util.MainDispatcherRule
@@ -31,35 +30,36 @@ class ChatViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val sendChatMessageUseCase: SendChatMessageUseCase = mockk()
+    private val getChatSessionsUseCase: GetChatSessionsUseCase = mockk()
+    private val getChatMessagesUseCase: GetChatMessagesUseCase = mockk()
     private val getCatalogUseCase: GetCatalogUseCase = mockk()
-    private val chatDao: ChatDao = mockk()
-    private val chatRemoteDataSource: ChatRemoteDataSource = mockk()
-    private val chatSessionProvider: ChatSessionProvider = mockk()
     private val appLogger: AppLogger = mockk()
 
     private lateinit var viewModel: ChatViewModel
 
     @Before
     fun setUp() {
-        every { chatSessionProvider.getCurrentUserUid() } returns "user_imperial_1"
-        every { chatDao.getAllSessions(any()) } returns flowOf(emptyList())
-        every { chatDao.getMessagesForSession(any()) } returns flowOf(emptyList())
-        coJustRun { chatDao.insertSession(any()) }
-        coJustRun { chatDao.insertMessage(any()) }
-        coJustRun { chatRemoteDataSource.saveSession(any(), any()) }
-        coJustRun { chatRemoteDataSource.saveMessage(any(), any(), any()) }
-        coEvery { chatRemoteDataSource.fetchSessions(any()) } returns emptyList()
-        coEvery { chatRemoteDataSource.fetchMessagesForSession(any(), any()) } returns emptyList()
+        every { getChatSessionsUseCase() } returns flowOf(emptyList())
+        coJustRun { getChatSessionsUseCase.sync() }
+        coEvery { getChatSessionsUseCase.getOrCreateSession(any(), any()) } returns "session_1"
+        coEvery { getChatSessionsUseCase.deleteSession(any()) } returns null
+        every { getChatMessagesUseCase(any()) } returns flowOf(emptyList())
+        coJustRun { getChatMessagesUseCase.sync(any()) }
+        coEvery { getChatMessagesUseCase.saveMessage(any(), any(), any()) } answers {
+            ChatMessage(
+                text = secondArg(),
+                sender = if (thirdArg<String>() == ChatPromptConstants.SENDER_USER) ChatSender.USER else ChatSender.AI,
+            )
+        }
         every { getCatalogUseCase() } returns flowOf(emptyList())
         justRun { appLogger.e(any(), any(), any()) }
 
         viewModel =
             ChatViewModel(
                 sendChatMessageUseCase = sendChatMessageUseCase,
+                getChatSessionsUseCase = getChatSessionsUseCase,
+                getChatMessagesUseCase = getChatMessagesUseCase,
                 getCatalogUseCase = getCatalogUseCase,
-                chatDao = chatDao,
-                chatRemoteDataSource = chatRemoteDataSource,
-                chatSessionProvider = chatSessionProvider,
                 appLogger = appLogger,
             )
     }
@@ -72,17 +72,17 @@ class ChatViewModelTest {
             viewModel.onIntent(ChatIntent.SendMessage("Quais os cafés?"))
 
             coVerify {
-                chatDao.insertMessage(
-                    match { entity ->
-                        entity.sender == ChatPromptConstants.SENDER_USER && entity.text == "Quais os cafés?"
-                    },
+                getChatMessagesUseCase.saveMessage(
+                    sessionId = "session_1",
+                    text = "Quais os cafés?",
+                    sender = ChatPromptConstants.SENDER_USER,
                 )
             }
             coVerify {
-                chatDao.insertMessage(
-                    match { entity ->
-                        entity.sender == ChatPromptConstants.SENDER_AI && entity.text == "Olá nobre cliente!"
-                    },
+                getChatMessagesUseCase.saveMessage(
+                    sessionId = "session_1",
+                    text = "Olá nobre cliente!",
+                    sender = ChatPromptConstants.SENDER_AI,
                 )
             }
             assertFalse(viewModel.uiState.value.isLoading)
@@ -99,11 +99,10 @@ class ChatViewModelTest {
             viewModel.onIntent(ChatIntent.SendMessage("Mensagem pesada"))
 
             coVerify {
-                chatDao.insertMessage(
-                    match { entity ->
-                        entity.sender == ChatPromptConstants.SENDER_AI &&
-                            entity.text == ChatPromptConstants.REPLY_QUOTA_EXCEEDED
-                    },
+                getChatMessagesUseCase.saveMessage(
+                    sessionId = "session_1",
+                    text = ChatPromptConstants.REPLY_QUOTA_EXCEEDED,
+                    sender = ChatPromptConstants.SENDER_AI,
                 )
             }
             assertFalse(viewModel.uiState.value.isLoading)
@@ -118,37 +117,34 @@ class ChatViewModelTest {
             viewModel.onIntent(ChatIntent.SendMessage("Finalizar compra"))
 
             coVerify {
-                chatDao.insertMessage(
-                    match { entity ->
-                        entity.sender == ChatPromptConstants.SENDER_AI &&
-                            entity.text == ChatPromptConstants.REPLY_CHECKOUT_REDIRECT
-                    },
+                getChatMessagesUseCase.saveMessage(
+                    sessionId = "session_1",
+                    text = ChatPromptConstants.REPLY_CHECKOUT_REDIRECT,
+                    sender = ChatPromptConstants.SENDER_AI,
                 )
             }
             assertFalse(viewModel.uiState.value.isLoading)
         }
 
     @Test
-    fun onIntent_selectSession_loadsMessagesAndMapsSendersCorrectly() =
+    fun onIntent_selectSession_loadsMessagesAndUpdatesState() =
         runTest {
-            val mockEntities =
+            val mockMessages =
                 listOf(
-                    ChatMessageEntity(
+                    ChatMessage(
                         id = "msg_1",
-                        sessionId = "sess_1",
-                        sender = ChatPromptConstants.SENDER_USER,
+                        sender = ChatSender.USER,
                         text = "Mensagem do usuário",
                         timestamp = 1000L,
                     ),
-                    ChatMessageEntity(
+                    ChatMessage(
                         id = "msg_2",
-                        sessionId = "sess_1",
-                        sender = ChatPromptConstants.SENDER_AI,
+                        sender = ChatSender.AI,
                         text = "Resposta de Rhaenyra",
                         timestamp = 2000L,
                     ),
                 )
-            every { chatDao.getMessagesForSession("sess_1") } returns flowOf(mockEntities)
+            every { getChatMessagesUseCase("sess_1") } returns flowOf(mockMessages)
 
             viewModel.onIntent(ChatIntent.SelectSession("sess_1"))
 
@@ -157,5 +153,6 @@ class ChatViewModelTest {
             assertEquals(2, messages.size)
             assertEquals(ChatSender.USER, messages[0].sender)
             assertEquals(ChatSender.AI, messages[1].sender)
+            coVerify { getChatMessagesUseCase.sync("sess_1") }
         }
 }
