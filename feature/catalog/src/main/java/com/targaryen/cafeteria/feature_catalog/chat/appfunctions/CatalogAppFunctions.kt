@@ -1,6 +1,5 @@
 package com.targaryen.cafeteria.feature_catalog.chat.appfunctions
 
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionSerializable
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
@@ -25,12 +24,12 @@ private val COFFEE_PRODUCT_KEYWORDS =
         "cold brew",
     )
 
-internal fun String.normalizeForSearch(): String {
+fun String.normalizeForSearch(): String {
     val decomposed = Normalizer.normalize(this.trim(), Normalizer.Form.NFD)
     return DIACRITICS_REGEX.replace(decomposed, "").lowercase(Locale.ROOT)
 }
 
-internal fun List<Product>.findBestMatchingProduct(rawQuery: String): Product? {
+fun List<Product>.findBestMatchingProduct(rawQuery: String): Product? {
     val normalizedQuery = rawQuery.normalizeForSearch()
     if (normalizedQuery.isBlank()) return null
 
@@ -49,41 +48,38 @@ internal fun Product.isCoffeeBeverage(): Boolean {
 
 /**
  * Requisição para pesquisar produtos no cardápio da cafeteria.
- *
- * @property query Termo ou palavra-chave de busca (ex: "café", "expresso", "mocha", "doce").
  */
 @AppFunctionSerializable(isDescribedByKDoc = true)
 data class SearchCatalogRequest(
+    /** Termo ou palavra-chave de busca (ex: "café", "expresso", "mocha", "doce"). */
     val query: String,
 )
 
 /**
  * Representação de um produto encontrado no cardápio imperial.
- *
- * @property id Identificador único e interno do produto.
- * @property name Nome oficial do item de cardápio.
- * @property description Descrição contendo ingredientes e características do produto.
- * @property price Preço do item em Dragões de Ouro.
- * @property category Categoria de classificação do produto (ex: "bebidas", "elixires", "comidas").
  */
 @AppFunctionSerializable(isDescribedByKDoc = true)
 data class CatalogProductItem(
+    /** Identificador único e interno do produto. */
     val id: String,
+    /** Nome oficial do item de cardápio. */
     val name: String,
+    /** Descrição contendo ingredientes e características do produto. */
     val description: String,
+    /** Preço do item em Dragões de Ouro. */
     val price: Double,
+    /** Categoria de classificação do produto (ex: "bebidas", "elixires", "comidas"). */
     val category: String,
 )
 
 /**
  * Resposta contendo o resultado da pesquisa de produtos no cardápio.
- *
- * @property products Lista de produtos que correspondem ao termo pesquisado.
- * @property message Mensagem informativa com os produtos encontrados ou sugestões do cardápio.
  */
 @AppFunctionSerializable(isDescribedByKDoc = true)
 data class SearchCatalogResponse(
+    /** Lista de produtos que correspondem ao termo pesquisado. */
     val products: List<CatalogProductItem>,
+    /** Mensagem informativa com os produtos encontrados ou sugestões do cardápio. */
     val message: String,
 )
 
@@ -99,10 +95,7 @@ class CatalogAppFunctions(
      * @param request Parâmetros de pesquisa contendo a palavra-chave.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    suspend fun searchCatalog(
-        context: AppFunctionContext,
-        request: SearchCatalogRequest,
-    ): SearchCatalogResponse {
+    suspend fun searchCatalog(request: SearchCatalogRequest): SearchCatalogResponse {
         val allProducts = catalogRepository.getProducts().first()
         val normalizedQuery = request.query.normalizeForSearch()
         val isGenericCoffeeSearch = normalizedQuery in COFFEE_SEARCH_ALIASES

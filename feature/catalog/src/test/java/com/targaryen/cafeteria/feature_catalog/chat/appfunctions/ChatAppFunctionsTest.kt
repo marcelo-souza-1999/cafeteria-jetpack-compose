@@ -1,6 +1,5 @@
 package com.targaryen.cafeteria.feature_catalog.chat.appfunctions
 
-import androidx.appfunctions.AppFunctionContext
 import com.targaryen.cafeteria.feature_catalog.chat.domain.usecase.SendChatMessageUseCase
 import io.mockk.every
 import io.mockk.mockk
@@ -13,7 +12,6 @@ import org.junit.Test
 
 class ChatAppFunctionsTest {
     private val sendChatMessageUseCase: SendChatMessageUseCase = mockk()
-    private val appFunctionContext: AppFunctionContext = mockk()
     private lateinit var chatAppFunctions: ChatAppFunctions
 
     @Before
@@ -32,7 +30,7 @@ class ChatAppFunctionsTest {
             } returns flowOf(expectedReply)
 
             val request = ChatQueryRequest(query = query)
-            val response = chatAppFunctions.askRhaenyra(appFunctionContext, request)
+            val response = chatAppFunctions.askRhaenyra(request)
 
             assertEquals(expectedReply, response.reply)
             verify(exactly = 1) {

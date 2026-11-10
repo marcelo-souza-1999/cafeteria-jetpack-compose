@@ -1,6 +1,5 @@
 package com.targaryen.cafeteria.feature_catalog.chat.appfunctions
 
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionSerializable
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
@@ -8,51 +7,47 @@ import kotlinx.coroutines.flow.first
 
 /**
  * Requisição para alternar o status de favorito de um produto.
- *
- * @property productName O nome do café ou iguaria (ex: "Café Expresso Valíria").
  */
 @AppFunctionSerializable(isDescribedByKDoc = true)
 data class ToggleFavoriteRequest(
+    /** O nome do café ou iguaria (ex: "Café Expresso Valíria"). */
     val productName: String,
 )
 
 /**
  * Resposta resultante da alteração de favorito.
- *
- * @property success Indica se a operação foi concluída com sucesso.
- * @property isFavorite Novo estado de favorito do produto.
- * @property message Mensagem descritiva detalhando o resultado da operação.
  */
 @AppFunctionSerializable(isDescribedByKDoc = true)
 data class ToggleFavoriteResponse(
+    /** Indica se a operação foi concluída com sucesso. */
     val success: Boolean,
+    /** Novo estado de favorito do produto. */
     val isFavorite: Boolean,
+    /** Mensagem descritiva detalhando o resultado da operação. */
     val message: String,
 )
 
 /**
  * Representa um item favorito da cafeteria.
- *
- * @property name Nome oficial do produto favorito.
- * @property price Preço do produto em Dragões de Ouro.
- * @property category Categoria do produto.
  */
 @AppFunctionSerializable(isDescribedByKDoc = true)
 data class FavoriteItem(
+    /** Nome oficial do produto favorito. */
     val name: String,
+    /** Preço do produto em Dragões de Ouro. */
     val price: Double,
+    /** Categoria do produto. */
     val category: String,
 )
 
 /**
  * Resposta contendo a lista de banquetes e cafés favoritos do usuário.
- *
- * @property favorites Lista de itens atualmente marcados como favoritos.
- * @property message Mensagem resumida com a contagem de favoritos.
  */
 @AppFunctionSerializable(isDescribedByKDoc = true)
 data class FavoritesListResponse(
+    /** Lista de itens atualmente marcados como favoritos. */
     val favorites: List<FavoriteItem>,
+    /** Mensagem resumida com a contagem de favoritos. */
     val message: String,
 )
 
@@ -68,10 +63,7 @@ class FavoritesAppFunctions(
      * @param request Parâmetros contendo o nome do produto.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    suspend fun toggleFavoriteProduct(
-        context: AppFunctionContext,
-        request: ToggleFavoriteRequest,
-    ): ToggleFavoriteResponse {
+    suspend fun toggleFavoriteProduct(request: ToggleFavoriteRequest): ToggleFavoriteResponse {
         val products = catalogRepository.getProducts().first()
         val product = products.findBestMatchingProduct(request.productName)
 
@@ -97,7 +89,7 @@ class FavoritesAppFunctions(
      * Recupera a lista com todos os cafés e elixires marcados como favoritos pelo usuário.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    suspend fun getFavoriteProducts(context: AppFunctionContext): FavoritesListResponse {
+    suspend fun getFavoriteProducts(): FavoritesListResponse {
         val products = catalogRepository.getProducts().first()
         val favorites =
             products.filter { prod -> prod.isFavorite }.map { item ->

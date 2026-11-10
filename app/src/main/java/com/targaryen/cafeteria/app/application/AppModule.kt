@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.targaryen.cafeteria.app.R
+import com.targaryen.cafeteria.core_designsystem.di.DesignSystemModule
 import com.targaryen.cafeteria.core_network.di.NetworkModule
 import com.targaryen.cafeteria.coredatabase.di.DatabaseModule
 import com.targaryen.cafeteria.feature.auth.di.AuthModule
@@ -21,6 +22,7 @@ import org.koin.core.annotation.Single
         CatalogModule::class,
         NetworkModule::class,
         CheckoutModule::class,
+        DesignSystemModule::class,
     ],
 )
 @ComponentScan("com.targaryen.cafeteria.app")

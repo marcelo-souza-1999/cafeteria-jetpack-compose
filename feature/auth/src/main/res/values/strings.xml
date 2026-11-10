@@ -29,7 +29,8 @@
     <string name="error_auth_user_not_found">Usuário não encontrado em nossos registros.</string>
     <string name="error_auth_network">Falha de rede. Os corvos não puderam voar. Cheque sua conexão</string>
     <string name="error_auth_too_many_requests">Muitas tentativas falhas. Aguarde um momento.</string>
-    <string name="error_auth_unknown">Um erro desconhecido ocorreu: %1$s</string>
+    <string name="error_auth_security_verification">Não foi possível validar a autenticidade com segurança. Verifique sua conexão e tente novamente.</string>
+    <string name="error_auth_unknown">Ocorreu uma instabilidade na conexão. Por favor, tente novamente em instantes.</string>
     <string name="dialog_error_title">Acesso Negado</string>
     <string name="dialog_error_button_retry">Tentar Novamente</string>
     <string name="dialog_error_button_cancel">Cancelar</string>

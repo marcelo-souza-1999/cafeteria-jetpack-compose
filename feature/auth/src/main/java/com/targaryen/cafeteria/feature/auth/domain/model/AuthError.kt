@@ -11,6 +11,8 @@ sealed interface AuthError {
 
     data object NetworkError : AuthError
 
+    data object SecurityVerificationFailed : AuthError
+
     data class Unknown(
         val message: String?,
     ) : AuthError

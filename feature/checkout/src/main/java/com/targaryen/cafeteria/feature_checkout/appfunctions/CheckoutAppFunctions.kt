@@ -1,6 +1,5 @@
 package com.targaryen.cafeteria.feature_checkout.appfunctions
 
-import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionSerializable
 import com.google.firebase.auth.FirebaseAuth
@@ -9,19 +8,18 @@ import kotlinx.coroutines.tasks.await
 
 /**
  * Informações e status do último pedido realizado pelo usuário imperial.
- *
- * @property status O status atual do pedido no sistema (ex: "Pendente", "Preparando", "Finalizado", "Cancelado").
- * @property summary O resumo textual legível dos produtos inclusos no pedido.
- * @property totalPrice O valor total cobrado pelo pedido em Dragões de Ouro.
- * @property dateMillis O timestamp em milissegundos da realização do pedido.
- * @property message Mensagem legível resumida com as informações do pedido.
  */
 @AppFunctionSerializable(isDescribedByKDoc = true)
 data class OrderStatusResponse(
+    /** O status atual do pedido no sistema (ex: "Pendente", "Preparando", "Finalizado", "Cancelado"). */
     val status: String,
+    /** O resumo textual legível dos produtos inclusos no pedido. */
     val summary: String,
+    /** O valor total cobrado pelo pedido em Dragões de Ouro. */
     val totalPrice: Double,
+    /** O timestamp em milissegundos da realização do pedido. */
     val dateMillis: Long,
+    /** Mensagem legível resumida com as informações do pedido. */
     val message: String,
 )
 
@@ -36,7 +34,7 @@ class CheckoutAppFunctions(
      * Recupera o status e os detalhes do último pedido realizado pelo usuário imperial autenticado.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
-    suspend fun getLastOrderStatus(context: AppFunctionContext): OrderStatusResponse {
+    suspend fun getLastOrderStatus(): OrderStatusResponse {
         val userId =
             firebaseAuth.currentUser?.uid ?: return OrderStatusResponse(
                 status = "Não Autenticado",

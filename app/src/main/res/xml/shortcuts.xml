@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 1. Pedir / Adicionar Item ao Carrinho por Voz -->
+    <capability android:name="actions.intent.ORDER_MENU_ITEM">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.targaryen.cafeteria.app"
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
+            android:data="cafeteria://action/order">
+            <parameter
+                android:name="menuItem.name"
+                android:key="productName" />
+        </intent>
+    </capability>
+
+    <!-- 2. Pesquisar no Cardápio por Voz -->
+    <capability android:name="actions.intent.GET_THING">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.targaryen.cafeteria.app"
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
+            android:data="cafeteria://action/search">
+            <parameter
+                android:name="thing.name"
+                android:key="query" />
+        </intent>
+    </capability>
+
+    <!-- 3. Consultar Status do Último Pedido por Voz -->
+    <capability android:name="actions.intent.GET_ORDER">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.targaryen.cafeteria.app"
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
+            android:data="cafeteria://action/status" />
+    </capability>
+
+    <!-- 4. Falar com a Assistente Rhaenyra por Voz -->
+    <capability android:name="actions.intent.CREATE_MESSAGE">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.targaryen.cafeteria.app"
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
+            android:data="cafeteria://action/chat">
+            <parameter
+                android:name="message.text"
+                android:key="query" />
+        </intent>
+    </capability>
+
+    <!-- 5. Ações e Telas Específicas do App (Carrinho, Favoritos, Cardápio, Limpeza) -->
+    <capability android:name="actions.intent.OPEN_APP_FEATURE">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.targaryen.cafeteria.app"
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
+            android:data="cafeteria://action/feature">
+            <parameter
+                android:name="feature"
+                android:key="feature" />
+        </intent>
+    </capability>
+
+    <!-- Atalho Estático 1: Pedir Café Expresso Valíria -->
+    <shortcut
+        android:shortcutId="shortcut_order_coffee"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_order_short_label"
+        android:shortcutLongLabel="@string/shortcut_order_long_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.targaryen.cafeteria.app"
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
+            android:data="cafeteria://action/order?productName=Café%20Expresso%20Valíria">
+            <extra
+                android:name="action"
+                android:value="order" />
+            <extra
+                android:name="productName"
+                android:value="Café Expresso Valíria" />
+            <extra
+                android:name="quantity"
+                android:value="1" />
+        </intent>
+        <capability-binding android:key="actions.intent.ORDER_MENU_ITEM" />
+    </shortcut>
+
+    <!-- Atalho Estático 2: Ver Resumo do Carrinho -->
+    <shortcut
+        android:shortcutId="shortcut_view_cart"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_cart_short_label"
+        android:shortcutLongLabel="@string/shortcut_cart_long_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.targaryen.cafeteria.app"
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
+            android:data="cafeteria://action/cart_summary">
+            <extra
+                android:name="action"
+                android:value="cart_summary" />
+        </intent>
+        <capability-binding android:key="actions.intent.OPEN_APP_FEATURE" />
+    </shortcut>
+
+    <!-- Atalho Estático 3: Consultar Último Pedido -->
+    <shortcut
+        android:shortcutId="shortcut_order_status"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_status_short_label"
+        android:shortcutLongLabel="@string/shortcut_status_long_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.targaryen.cafeteria.app"
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
+            android:data="cafeteria://action/status">
+            <extra
+                android:name="action"
+                android:value="status" />
+        </intent>
+        <capability-binding android:key="actions.intent.GET_ORDER" />
+    </shortcut>
+
+    <!-- Atalho Estático 4: Meus Banquetes Favoritos -->
+    <shortcut
+        android:shortcutId="shortcut_view_favorites"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_favorites_short_label"
+        android:shortcutLongLabel="@string/shortcut_favorites_long_label">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.targaryen.cafeteria.app"
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
+            android:data="cafeteria://action/favorites">
+            <extra
+                android:name="action"
+                android:value="favorites" />
+        </intent>
+        <capability-binding android:key="actions.intent.OPEN_APP_FEATURE" />
+    </shortcut>
+
+</shortcuts>

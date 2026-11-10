@@ -176,7 +176,8 @@ private fun getErrorMessage(error: AuthError): String =
         is AuthError.EmailAlreadyInUse -> stringResource(id = R.string.error_auth_email_already_in_use)
         is AuthError.NetworkError -> stringResource(id = R.string.error_auth_network)
         is AuthError.TooManyRequests -> stringResource(id = R.string.error_auth_too_many_requests)
-        is AuthError.Unknown -> stringResource(id = R.string.error_auth_unknown, error.message ?: "")
+        is AuthError.SecurityVerificationFailed -> stringResource(id = R.string.error_auth_security_verification)
+        is AuthError.Unknown -> stringResource(id = R.string.error_auth_unknown)
     }
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

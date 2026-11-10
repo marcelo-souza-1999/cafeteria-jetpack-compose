@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">Cafeteria Targaryen</string>
+
+    <!-- AppFunctions Metadata & Voice Descriptions -->
+    <string name="appfunctions_display_description">Permite que assistentes de IA gerenciem seu carrinho, pesquisem cafés e consultem pedidos na Cafeteria Targaryen.</string>
+    <string name="appfunctions_instructions">O app Cafeteria Targaryen gerencia pedidos de cafés, doces e banquetes imperiais. Padrões operacionais: Utilize addProductToCart para incluir itens pelo nome e quantidade; getCartSummary para verificar valores e itens atuais; clearCart para esvaziar o carrinho; removeProductFromCart para reduzir itens; searchCatalog para pesquisar no cardápio; getFavoriteProducts e toggleFavoriteProduct para gerenciar favoritos; getLastOrderStatus para consultar o último pedido; e askRhaenyra para dúvidas gerais da casa Targaryen.</string>
+
+    <!-- Shortcuts & App Actions Labels -->
+    <string name="shortcut_order_short_label">Pedir Café</string>
+    <string name="shortcut_order_long_label">Pedir um café na Cafeteria Targaryen</string>
+    <string name="shortcut_cart_short_label">Ver Carrinho</string>
+    <string name="shortcut_cart_long_label">Ver o resumo do seu carrinho imperial</string>
+    <string name="shortcut_status_short_label">Último Pedido</string>
+    <string name="shortcut_status_long_label">Consultar o status do seu último pedido</string>
+    <string name="shortcut_menu_short_label">Cardápio Imperial</string>
+    <string name="shortcut_menu_long_label">Explorar todos os cafés e elixires do cardápio</string>
+    <string name="shortcut_favorites_short_label">Meus Favoritos</string>
+    <string name="shortcut_favorites_long_label">Ver seus banquetes e elixires favoritos</string>
 </resources>
