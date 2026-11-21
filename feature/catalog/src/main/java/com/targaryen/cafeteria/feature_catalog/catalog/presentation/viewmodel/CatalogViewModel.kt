@@ -3,6 +3,7 @@ package com.targaryen.cafeteria.feature_catalog.catalog.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.targaryen.cafeteria.core_designsystem.model.CatalogCategories
+import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.usecase.GetCatalogUseCase
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.usecase.ToggleFavoriteUseCase
@@ -22,6 +23,7 @@ class CatalogViewModel(
     getCatalogUseCase: GetCatalogUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val repository: CatalogRepository,
+    private val navigationTracker: AppActionNavigationTracker,
 ) : ViewModel() {
     val uiState: StateFlow<CatalogUiState>
         field: MutableStateFlow<CatalogUiState> =
@@ -49,6 +51,14 @@ class CatalogViewModel(
                     }
                 currentAllUiProducts = uiProducts
                 updateFilteredProducts()
+            }.launchIn(viewModelScope)
+
+        navigationTracker.pendingSearchQuery
+            .onEach { query ->
+                if (!query.isNullOrBlank()) {
+                    onIntent(CatalogIntent.Search(query))
+                    navigationTracker.consumeCatalogSearch()
+                }
             }.launchIn(viewModelScope)
     }
 

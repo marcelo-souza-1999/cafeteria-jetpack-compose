@@ -1,5 +1,6 @@
 package com.targaryen.cafeteria.feature_catalog.catalog.presentation.viewmodel
 
+import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.usecase.GetCatalogUseCase
@@ -26,6 +27,7 @@ class CatalogViewModelTest {
     private val getCatalogUseCase: GetCatalogUseCase = mockk()
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase = mockk()
     private val repository: CatalogRepository = mockk()
+    private val navigationTracker = AppActionNavigationTracker()
 
     private val mockProducts =
         listOf(
@@ -61,7 +63,7 @@ class CatalogViewModelTest {
     @Test
     fun init_fetchesProductsAndUpdatesUiState() =
         runTest {
-            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
+            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository, navigationTracker)
             val state = viewModel.uiState.value
 
             assertEquals(2, state.products.size)
@@ -74,7 +76,7 @@ class CatalogViewModelTest {
     @Test
     fun onIntent_search_filtersProductsInUiState() =
         runTest {
-            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
+            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository, navigationTracker)
 
             viewModel.onIntent(CatalogIntent.Search("iced"))
 
@@ -87,7 +89,7 @@ class CatalogViewModelTest {
     @Test
     fun onIntent_selectCategory_filtersProductsByCategory() =
         runTest {
-            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
+            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository, navigationTracker)
 
             viewModel.onIntent(CatalogIntent.SelectCategory("DRAGON_FIRE"))
 
@@ -100,7 +102,7 @@ class CatalogViewModelTest {
     @Test
     fun onIntent_clearSearch_clearsSearchQuery() =
         runTest {
-            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
+            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository, navigationTracker)
 
             viewModel.onIntent(CatalogIntent.Search("iced"))
             assertEquals("iced", viewModel.uiState.value.searchQuery)
@@ -114,7 +116,7 @@ class CatalogViewModelTest {
     @Test
     fun onIntent_selectProduct_updatesSelectedProduct() =
         runTest {
-            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
+            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository, navigationTracker)
             val productUi =
                 ProductUiModel(
                     id = "1",
@@ -137,7 +139,7 @@ class CatalogViewModelTest {
     @Test
     fun onIntent_toggleFavorite_delegatesToToggleFavoriteUseCase() =
         runTest {
-            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
+            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository, navigationTracker)
             val productUi =
                 ProductUiModel(
                     id = "1",
@@ -159,7 +161,7 @@ class CatalogViewModelTest {
     @Test
     fun onIntent_updateProductQuantity_callsRepository() =
         runTest {
-            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
+            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository, navigationTracker)
             coEvery { repository.updateProductQuantity("1", 5) } returns Unit
 
             viewModel.onIntent(CatalogIntent.UpdateProductQuantity("1", 5))
@@ -170,7 +172,7 @@ class CatalogViewModelTest {
     @Test
     fun onIntent_addToCart_callsRepositoryWithIncrementedQuantity() =
         runTest {
-            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
+            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository, navigationTracker)
             val productUi =
                 ProductUiModel(
                     id = "1",
@@ -192,7 +194,7 @@ class CatalogViewModelTest {
     @Test
     fun onIntent_removeFromCart_callsRepositoryWithDecrementedQuantity() =
         runTest {
-            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository)
+            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository, navigationTracker)
             val productUi =
                 ProductUiModel(
                     id = "1",
@@ -209,5 +211,19 @@ class CatalogViewModelTest {
             viewModel.onIntent(CatalogIntent.RemoveFromCart(productUi))
 
             coVerify { repository.updateProductQuantity("1", 1) }
+        }
+
+    @Test
+    fun pendingSearchQuery_updatesSearchQueryAndFiltersProducts() =
+        runTest {
+            val viewModel = CatalogViewModel(getCatalogUseCase, toggleFavoriteUseCase, repository, navigationTracker)
+
+            navigationTracker.requestCatalogSearch("iced")
+
+            val state = viewModel.uiState.value
+            assertEquals("iced", state.searchQuery)
+            assertEquals(1, state.products.size)
+            assertEquals("Iced Latte", state.products[0].name)
+            assertNull(navigationTracker.pendingSearchQuery.value)
         }
 }

@@ -37,6 +37,29 @@ private fun resolveTabByKeyword(rawText: String?): TargaryenTab? {
         ?.second
 }
 
+private fun decodeParam(rawValue: String): String =
+    runCatching {
+        URLDecoder.decode(rawValue, StandardCharsets.UTF_8.name())
+    }.getOrDefault(rawValue)
+
+private fun forwardChatQuery(
+    tracker: AppActionNavigationTracker,
+    rawQuery: String,
+) {
+    if (rawQuery.isNotBlank()) {
+        tracker.requestChatMessage(decodeParam(rawQuery).trim())
+    }
+    tracker.navigateToTab(TargaryenTab.CHAT)
+}
+
+private fun extractSearchQuery(
+    data: Uri,
+    intent: Intent,
+): String =
+    data.getQueryParameter(AppActionConstants.Param.QUERY)
+        ?: intent.getStringExtra(AppActionConstants.Extra.QUERY)
+        ?: intent.getStringExtra(SearchManager.QUERY).orEmpty()
+
 @Single
 class CafeteriaIntentRouter(
     private val paymentStatusTracker: PaymentStatusTracker,
@@ -68,20 +91,22 @@ class CafeteriaIntentRouter(
 
     private fun routeQueryOrCatalog(
         rawQuery: String,
-        scope: CoroutineScope,
+        @Suppress("UNUSED_PARAMETER") scope: CoroutineScope,
     ) {
         if (rawQuery.isBlank()) {
             appActionNavigationTracker.navigateToTab(TargaryenTab.CATALOG)
             return
         }
-        val matchedTab = resolveTabByKeyword(rawQuery)
+        val decodedQuery = decodeParam(rawQuery).trim()
+        val matchedTab = resolveTabByKeyword(decodedQuery)
         if (matchedTab != null) {
             if (matchedTab == TargaryenTab.PROFILE) {
                 appActionNavigationTracker.requestOpenLatestOrder()
             }
             appActionNavigationTracker.navigateToTab(matchedTab)
         } else {
-            handleOrderActionByName(rawQuery, 1, scope)
+            appActionNavigationTracker.requestCatalogSearch(decodedQuery)
+            appActionNavigationTracker.navigateToTab(TargaryenTab.CATALOG)
         }
     }
 
@@ -101,7 +126,11 @@ class CafeteriaIntentRouter(
             AppActionConstants.Action.CART,
             -> appActionNavigationTracker.navigateToTab(TargaryenTab.CART)
             AppActionConstants.Action.FAVORITES -> appActionNavigationTracker.navigateToTab(TargaryenTab.FAVORITES)
-            AppActionConstants.Action.CHAT -> appActionNavigationTracker.navigateToTab(TargaryenTab.CHAT)
+            AppActionConstants.Action.CHAT ->
+                forwardChatQuery(
+                    appActionNavigationTracker,
+                    intent.getStringExtra(AppActionConstants.Extra.QUERY).orEmpty(),
+                )
             AppActionConstants.Action.STATUS -> {
                 appActionNavigationTracker.requestOpenLatestOrder()
                 appActionNavigationTracker.navigateToTab(TargaryenTab.PROFILE)
@@ -146,18 +175,17 @@ class CafeteriaIntentRouter(
             AppActionConstants.Action.CART,
             -> appActionNavigationTracker.navigateToTab(TargaryenTab.CART)
             AppActionConstants.Action.FAVORITES -> appActionNavigationTracker.navigateToTab(TargaryenTab.FAVORITES)
-            AppActionConstants.Action.CHAT -> appActionNavigationTracker.navigateToTab(TargaryenTab.CHAT)
+            AppActionConstants.Action.CHAT ->
+                forwardChatQuery(
+                    appActionNavigationTracker,
+                    data.getQueryParameter(AppActionConstants.Param.QUERY)
+                        ?: intent.getStringExtra(AppActionConstants.Extra.QUERY).orEmpty(),
+                )
             AppActionConstants.Action.STATUS -> {
                 appActionNavigationTracker.requestOpenLatestOrder()
                 appActionNavigationTracker.navigateToTab(TargaryenTab.PROFILE)
             }
-            AppActionConstants.Action.SEARCH -> {
-                val query =
-                    data.getQueryParameter(AppActionConstants.Param.QUERY)
-                        ?: intent.getStringExtra(AppActionConstants.Extra.QUERY)
-                        ?: intent.getStringExtra(SearchManager.QUERY).orEmpty()
-                routeQueryOrCatalog(query, scope)
-            }
+            AppActionConstants.Action.SEARCH -> routeQueryOrCatalog(extractSearchQuery(data, intent), scope)
             AppActionConstants.Action.FEATURE -> handleFeatureAction(intent, data)
             else -> appActionNavigationTracker.navigateToTab(TargaryenTab.CATALOG)
         }

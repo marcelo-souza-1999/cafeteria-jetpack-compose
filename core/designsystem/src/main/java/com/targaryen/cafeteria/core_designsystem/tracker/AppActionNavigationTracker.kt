@@ -15,6 +15,12 @@ class AppActionNavigationTracker {
     val openLatestOrderRequest: StateFlow<Boolean>
         field: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
+    val pendingSearchQuery: StateFlow<String?>
+        field: MutableStateFlow<String?> = MutableStateFlow(null)
+
+    val pendingChatMessage: StateFlow<String?>
+        field: MutableStateFlow<String?> = MutableStateFlow(null)
+
     fun navigateToTab(tab: TargaryenTab) {
         navigationEvents.tryEmit(tab)
     }
@@ -25,6 +31,22 @@ class AppActionNavigationTracker {
 
     fun consumeOpenLatestOrder() {
         openLatestOrderRequest.value = false
+    }
+
+    fun requestCatalogSearch(query: String) {
+        pendingSearchQuery.value = query
+    }
+
+    fun consumeCatalogSearch() {
+        pendingSearchQuery.value = null
+    }
+
+    fun requestChatMessage(message: String) {
+        pendingChatMessage.value = message
+    }
+
+    fun consumeChatMessage() {
+        pendingChatMessage.value = null
     }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)

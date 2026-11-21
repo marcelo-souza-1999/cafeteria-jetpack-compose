@@ -1,5 +1,6 @@
 package com.targaryen.cafeteria.feature_catalog.chat.presentation.viewmodel
 
+import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
 import com.targaryen.cafeteria.core_network.util.AppLogger
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.usecase.GetCatalogUseCase
 import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatMessage
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -34,6 +36,7 @@ class ChatViewModelTest {
     private val getChatMessagesUseCase: GetChatMessagesUseCase = mockk()
     private val getCatalogUseCase: GetCatalogUseCase = mockk()
     private val appLogger: AppLogger = mockk()
+    private val navigationTracker = AppActionNavigationTracker()
 
     private lateinit var viewModel: ChatViewModel
 
@@ -61,6 +64,7 @@ class ChatViewModelTest {
                 getChatMessagesUseCase = getChatMessagesUseCase,
                 getCatalogUseCase = getCatalogUseCase,
                 appLogger = appLogger,
+                navigationTracker = navigationTracker,
             )
     }
 
@@ -154,5 +158,22 @@ class ChatViewModelTest {
             assertEquals(ChatSender.USER, messages[0].sender)
             assertEquals(ChatSender.AI, messages[1].sender)
             coVerify { getChatMessagesUseCase.sync("sess_1") }
+        }
+
+    @Test
+    fun pendingChatMessage_sendsMessageAndConsumesTracker() =
+        runTest {
+            coEvery { sendChatMessageUseCase(any(), any()) } returns flowOf("Fogo e Sangue!")
+
+            navigationTracker.requestChatMessage("Qual o melhor café?")
+
+            coVerify {
+                getChatMessagesUseCase.saveMessage(
+                    sessionId = "session_1",
+                    text = "Qual o melhor café?",
+                    sender = ChatPromptConstants.SENDER_USER,
+                )
+            }
+            assertNull(navigationTracker.pendingChatMessage.value)
         }
 }

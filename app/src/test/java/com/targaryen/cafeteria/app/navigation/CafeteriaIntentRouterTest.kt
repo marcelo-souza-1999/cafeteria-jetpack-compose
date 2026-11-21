@@ -7,6 +7,7 @@ import com.targaryen.cafeteria.core_designsystem.model.TargaryenTab
 import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
 import com.targaryen.cafeteria.core_network.tracker.PaymentStatusTracker
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -120,5 +121,36 @@ class CafeteriaIntentRouterTest {
             val navigatedTab = navigationTracker.navigationEvents.first()
             assertEquals(TargaryenTab.PROFILE, navigatedTab)
             assertTrue(navigationTracker.openLatestOrderRequest.value)
+        }
+
+    @Test
+    fun `routeIntent with search query filters catalog without mutating cart`() =
+        runTest {
+            val intent =
+                Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("cafeteria://action/search?query=balerion")
+                }
+
+            router.routeIntent(intent, this)
+
+            val navigatedTab = navigationTracker.navigationEvents.first()
+            assertEquals(TargaryenTab.CATALOG, navigatedTab)
+            assertEquals("balerion", navigationTracker.pendingSearchQuery.value)
+            coVerify(exactly = 0) { catalogRepository.updateProductQuantity(any(), any()) }
+        }
+
+    @Test
+    fun `routeIntent with chat query forwards message and navigates to chat`() =
+        runTest {
+            val intent =
+                Intent(Intent.ACTION_VIEW).apply {
+                    data = Uri.parse("cafeteria://action/chat?query=Qual+o+melhor+cafe")
+                }
+
+            router.routeIntent(intent, this)
+
+            val navigatedTab = navigationTracker.navigationEvents.first()
+            assertEquals(TargaryenTab.CHAT, navigatedTab)
+            assertEquals("Qual o melhor cafe", navigationTracker.pendingChatMessage.value)
         }
 }
