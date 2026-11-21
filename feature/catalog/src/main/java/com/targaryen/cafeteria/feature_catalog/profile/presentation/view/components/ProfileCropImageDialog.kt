@@ -1,5 +1,3 @@
-@file:Suppress("MatchingDeclarationName")
-
 package com.targaryen.cafeteria.feature_catalog.profile.presentation.view.components
 
 import android.graphics.Bitmap
@@ -57,7 +55,7 @@ import com.targaryen.cafeteria.feature_catalog.profile.presentation.util.Profile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-sealed interface CropImageState {
+private sealed interface CropImageState {
     data object Loading : CropImageState
 
     data class Success(

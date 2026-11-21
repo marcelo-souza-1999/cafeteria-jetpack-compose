@@ -74,7 +74,7 @@ class CafeteriaIntentRouter(
 
         when {
             intent.action == Intent.ACTION_SEARCH || intent.action == AppActionConstants.GMS_SEARCH_ACTION -> {
-                routeQueryOrCatalog(intent.getStringExtra(SearchManager.QUERY).orEmpty(), scope)
+                routeQueryOrCatalog(intent.getStringExtra(SearchManager.QUERY).orEmpty())
             }
             !intent.getStringExtra(AppActionConstants.Extra.ACTION).isNullOrBlank() -> {
                 handleExtraAction(intent, scope)
@@ -89,10 +89,7 @@ class CafeteriaIntentRouter(
         }
     }
 
-    private fun routeQueryOrCatalog(
-        rawQuery: String,
-        @Suppress("UNUSED_PARAMETER") scope: CoroutineScope,
-    ) {
+    private fun routeQueryOrCatalog(rawQuery: String) {
         if (rawQuery.isBlank()) {
             appActionNavigationTracker.navigateToTab(TargaryenTab.CATALOG)
             return
@@ -185,7 +182,7 @@ class CafeteriaIntentRouter(
                 appActionNavigationTracker.requestOpenLatestOrder()
                 appActionNavigationTracker.navigateToTab(TargaryenTab.PROFILE)
             }
-            AppActionConstants.Action.SEARCH -> routeQueryOrCatalog(extractSearchQuery(data, intent), scope)
+            AppActionConstants.Action.SEARCH -> routeQueryOrCatalog(extractSearchQuery(data, intent))
             AppActionConstants.Action.FEATURE -> handleFeatureAction(intent, data)
             else -> appActionNavigationTracker.navigateToTab(TargaryenTab.CATALOG)
         }
