@@ -5,6 +5,7 @@ import androidx.appfunctions.AppFunctionSerializable
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import org.koin.core.annotation.Single
 
 /**
  * Informações e status do último pedido realizado pelo usuário imperial.
@@ -26,9 +27,10 @@ data class OrderStatusResponse(
 /**
  * Conjunto de funções para consulta de finalização de compras e pedidos da Cafeteria Targaryen.
  */
+@Single
 class CheckoutAppFunctions(
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
+    private val firestore: FirebaseFirestore,
+    private val firebaseAuth: FirebaseAuth,
 ) {
     /**
      * Recupera o status e os detalhes do último pedido realizado pelo usuário imperial autenticado.

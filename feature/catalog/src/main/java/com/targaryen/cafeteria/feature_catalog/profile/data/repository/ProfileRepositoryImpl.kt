@@ -31,8 +31,8 @@ class ProfileRepositoryImpl(
     private val context: Context,
     private val userDao: UserDao,
     private val backblazeB2DataSource: BackBlazeB2DataSource,
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
+    private val firebaseAuth: FirebaseAuth,
+    private val firestore: FirebaseFirestore,
 ) : ProfileRepository {
     override fun getProfile(): Flow<Resource<UserEntity, ProfileError>> =
         callbackFlow {

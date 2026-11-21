@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">api.mercadopago.com</domain>
+        <pin-set expiration="2027-01-01">
+            <!-- Leaf: api.mercadopago.com -->
+            <pin digest="SHA-256">Q5e9IjinLnYLRBWWwhoJ3xHWV1T11e5sQLwRXNQKxKM=</pin>
+            <!-- Backup CA: DigiCert Global G2 TLS RSA SHA256 2020 CA1 -->
+            <pin digest="SHA-256">Wec45nQiFwKvHtuHxSAMGkt19k+uPSw9JlEkxhvYPHk=</pin>
+        </pin-set>
+    </domain-config>
+
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">viacep.com.br</domain>
+        <pin-set expiration="2027-04-01">
+            <!-- Leaf: viacep.com.br -->
+            <pin digest="SHA-256">PgqsbXoXeewr+gmnfxkLIHbUJrdK+kF+h5MXjiJ8Z3w=</pin>
+            <!-- Backup CA: Sectigo Public Server Authentication CA DV R36 -->
+            <pin digest="SHA-256">a9khLOZJxlnJyrxstg/P+seiDCm+Yf3OsrXyFocBaI0=</pin>
+            <!-- Backup Root: Sectigo Public Server Authentication Root R46 -->
+            <pin digest="SHA-256">Douxi77vs4G+Ib/BogbTFymEYq0QSFXwSgVCaZcI09Q=</pin>
+        </pin-set>
+    </domain-config>
+
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>

@@ -47,11 +47,11 @@ abstract class BaseCafeteriaAppFunctionService : AppFunctionService() {
     private val catalogRepository: CatalogRepository by inject()
     private val authRepository: AuthRepository by inject()
     private val sendChatMessageUseCase: SendChatMessageUseCase by inject()
+    private val checkoutAppFunctions: CheckoutAppFunctions by inject()
 
     private val cartAppFunctions by lazy { CartAppFunctions(catalogRepository) }
     private val catalogAppFunctions by lazy { CatalogAppFunctions(catalogRepository) }
     private val favoritesAppFunctions by lazy { FavoritesAppFunctions(catalogRepository) }
-    private val checkoutAppFunctions by lazy { CheckoutAppFunctions() }
     private val authAppFunctions by lazy { AuthAppFunctions(authRepository) }
 
     /**

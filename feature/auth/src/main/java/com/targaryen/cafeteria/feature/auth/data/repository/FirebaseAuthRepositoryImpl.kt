@@ -27,8 +27,8 @@ import org.koin.core.annotation.Single
 
 @Single
 class FirebaseAuthRepositoryImpl(
-    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance(),
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
+    private val firebaseAuth: FirebaseAuth,
+    private val firestore: FirebaseFirestore,
     private val userDao: UserDao,
     private val productDao: ProductDao,
 ) : AuthRepository {
