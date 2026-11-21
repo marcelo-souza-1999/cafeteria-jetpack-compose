@@ -1,6 +1,5 @@
 package com.targaryen.cafeteria.feature_catalog.chat.appfunctions
 
-import androidx.appfunctions.AppFunctionContext
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import io.mockk.coJustRun
@@ -17,7 +16,6 @@ import org.junit.Test
 
 class CartAppFunctionsTest {
     private val catalogRepository: CatalogRepository = mockk()
-    private val appFunctionContext: AppFunctionContext = mockk()
     private lateinit var cartAppFunctions: CartAppFunctions
 
     private val mockProducts =
@@ -57,7 +55,6 @@ class CartAppFunctionsTest {
         runTest {
             val response =
                 cartAppFunctions.addProductToCart(
-                    appFunctionContext,
                     AddProductRequest("Café Expresso Valíria", 1),
                 )
 
@@ -71,7 +68,6 @@ class CartAppFunctionsTest {
         runTest {
             val response =
                 cartAppFunctions.addProductToCart(
-                    appFunctionContext,
                     AddProductRequest("Mocha", 2),
                 )
 
@@ -85,7 +81,6 @@ class CartAppFunctionsTest {
         runTest {
             val response =
                 cartAppFunctions.addProductToCart(
-                    appFunctionContext,
                     AddProductRequest("Inexistente", 1),
                 )
 
@@ -97,7 +92,7 @@ class CartAppFunctionsTest {
     @Test
     fun getCartSummary_returnsCorrectTotalAndItemList() =
         runTest {
-            val response = cartAppFunctions.getCartSummary(appFunctionContext)
+            val response = cartAppFunctions.getCartSummary()
 
             assertEquals(1, response.items.size)
             assertEquals("Café Expresso Valíria", response.items[0].name)
@@ -109,7 +104,7 @@ class CartAppFunctionsTest {
     @Test
     fun clearCart_clearsRepositoryCartSuccessfully() =
         runTest {
-            val response = cartAppFunctions.clearCart(appFunctionContext)
+            val response = cartAppFunctions.clearCart()
 
             assertTrue(response.success)
             assertTrue(response.message.contains("Carrinho imperial limpo com sucesso"))
@@ -124,7 +119,6 @@ class CartAppFunctionsTest {
 
             val response =
                 cartAppFunctions.removeProductFromCart(
-                    appFunctionContext,
                     RemoveProductRequest("Café Expresso Valíria", 1),
                 )
 
@@ -137,7 +131,6 @@ class CartAppFunctionsTest {
         runTest {
             val response =
                 cartAppFunctions.removeProductFromCart(
-                    appFunctionContext,
                     RemoveProductRequest("Café Expresso Valíria", 1),
                 )
 
@@ -151,7 +144,6 @@ class CartAppFunctionsTest {
         runTest {
             val response =
                 cartAppFunctions.removeProductFromCart(
-                    appFunctionContext,
                     RemoveProductRequest("Café Expresso Valíria", 5),
                 )
 
@@ -165,7 +157,6 @@ class CartAppFunctionsTest {
         runTest {
             val response =
                 cartAppFunctions.removeProductFromCart(
-                    appFunctionContext,
                     RemoveProductRequest("café", 1),
                 )
 

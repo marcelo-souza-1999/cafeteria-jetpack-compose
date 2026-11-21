@@ -1,6 +1,5 @@
 package com.targaryen.cafeteria.feature_catalog.chat.appfunctions
 
-import androidx.appfunctions.AppFunctionContext
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import io.mockk.coJustRun
@@ -17,7 +16,6 @@ import org.junit.Test
 
 class FavoritesAppFunctionsTest {
     private val catalogRepository: CatalogRepository = mockk()
-    private val appFunctionContext: AppFunctionContext = mockk()
     private lateinit var favoritesAppFunctions: FavoritesAppFunctions
 
     private val mockProducts =
@@ -56,7 +54,6 @@ class FavoritesAppFunctionsTest {
         runTest {
             val response =
                 favoritesAppFunctions.toggleFavoriteProduct(
-                    appFunctionContext,
                     ToggleFavoriteRequest("Café Expresso Valíria"),
                 )
 
@@ -71,7 +68,6 @@ class FavoritesAppFunctionsTest {
         runTest {
             val response =
                 favoritesAppFunctions.toggleFavoriteProduct(
-                    appFunctionContext,
                     ToggleFavoriteRequest("Inexistente"),
                 )
 
@@ -83,7 +79,7 @@ class FavoritesAppFunctionsTest {
     @Test
     fun getFavoriteProducts_whenHasFavorites_returnsListWithPrices() =
         runTest {
-            val response = favoritesAppFunctions.getFavoriteProducts(appFunctionContext)
+            val response = favoritesAppFunctions.getFavoriteProducts()
 
             assertEquals(1, response.favorites.size)
             assertEquals("Mocha Fogo de Dragão", response.favorites[0].name)
@@ -96,7 +92,7 @@ class FavoritesAppFunctionsTest {
             val noFavoritesList = mockProducts.map { prod -> prod.copy(isFavorite = false) }
             every { catalogRepository.getProducts() } returns flowOf(noFavoritesList)
 
-            val response = favoritesAppFunctions.getFavoriteProducts(appFunctionContext)
+            val response = favoritesAppFunctions.getFavoriteProducts()
 
             assertEquals(0, response.favorites.size)
             assertTrue(response.message.contains("Nenhum banquete ou café marcado como favorito"))

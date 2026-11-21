@@ -34,6 +34,7 @@ import com.targaryen.cafeteria.core_designsystem.model.TargaryenTab
 import com.targaryen.cafeteria.core_designsystem.theme.Obsidian
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
+import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.intent.CatalogIntent
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.model.ProductUiModel
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.state.CatalogUiState
@@ -51,6 +52,7 @@ import com.targaryen.cafeteria.feature_catalog.chat.presentation.view.ChatScreen
 import com.targaryen.cafeteria.feature_catalog.profile.presentation.view.ProfileScreen
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import com.targaryen.cafeteria.core_designsystem.R as DesignSystemR
 
 @Composable
@@ -61,6 +63,7 @@ fun CatalogScreen(
     onCheckoutClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CatalogViewModel = koinViewModel(),
+    navigationTracker: AppActionNavigationTracker = koinInject(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -73,6 +76,7 @@ fun CatalogScreen(
         uiState = uiState,
         onIntent = { intent -> viewModel.onIntent(intent) },
         actions = actions,
+        navigationTracker = navigationTracker,
         modifier = modifier,
     )
 }
@@ -83,6 +87,7 @@ fun CatalogScreenContent(
     uiState: CatalogUiState,
     onIntent: (CatalogIntent) -> Unit,
     actions: CatalogActions,
+    navigationTracker: AppActionNavigationTracker? = null,
     modifier: Modifier = Modifier,
 ) {
     val categories =
@@ -104,14 +109,10 @@ fun CatalogScreenContent(
 
     val currentTab = TargaryenTab.entries[pagerState.currentPage]
 
-    val cartItemsCount =
-        remember(uiState.products) {
-            uiState.products.count { product -> product.quantityInCart > 0 }
-        }
-
-    LaunchedEffect(cartItemsCount) {
-        if (cartItemsCount == 0 && pagerState.currentPage == TargaryenTab.CART.ordinal) {
-            pagerState.scrollToPage(TargaryenTab.CATALOG.ordinal)
+    LaunchedEffect(navigationTracker) {
+        navigationTracker?.navigationEvents?.collect { targetTab ->
+            pagerState.scrollToPage(targetTab.ordinal)
+            navigationTracker.consumeEvent()
         }
     }
 

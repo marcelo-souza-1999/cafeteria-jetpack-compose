@@ -538,17 +538,11 @@ private suspend fun executeVoiceCommand(
         val json = JSONObject(responseText)
         val funcName = json.optString("function")
 
-        val appCtx =
-            object : androidx.appfunctions.AppFunctionContext {
-                override val context: android.content.Context = dependencies.androidContext
-            }
-
         val actionResult =
             executeSimulationAction(
                 funcName = funcName,
                 json = json,
                 dependencies = dependencies,
-                appCtx = appCtx,
             )
         VoiceExecutionResult(
             message = actionResult,
@@ -574,7 +568,6 @@ private suspend fun executeSimulationAction(
     funcName: String,
     json: JSONObject,
     dependencies: SimulationDependencies,
-    appCtx: androidx.appfunctions.AppFunctionContext,
 ): String {
     val cartFunctions = CartAppFunctions(dependencies.catalogRepository)
     val catalogFunctions = CatalogAppFunctions(dependencies.catalogRepository)
@@ -583,24 +576,24 @@ private suspend fun executeSimulationAction(
     return when (funcName) {
         "addProductToCart" -> {
             val req = AddProductRequest(json.optString("productName"), json.optInt("quantity", 1))
-            cartFunctions.addProductToCart(appCtx, req).message
+            cartFunctions.addProductToCart(req).message
         }
         "removeProductFromCart" -> {
             val req = RemoveProductRequest(json.optString("productName"), json.optInt("quantity", 1))
-            cartFunctions.removeProductFromCart(appCtx, req).message
+            cartFunctions.removeProductFromCart(req).message
         }
         "getCartSummary" -> {
-            val res = cartFunctions.getCartSummary(appCtx)
+            val res = cartFunctions.getCartSummary()
             "${res.message}\nTotal: ${res.totalPrice} Dragões de Ouro (Itens: ${res.items.size})"
         }
-        "clearCart" -> cartFunctions.clearCart(appCtx).message
-        "getFavoriteProducts" -> favoritesFunctions.getFavoriteProducts(appCtx).message
+        "clearCart" -> cartFunctions.clearCart().message
+        "getFavoriteProducts" -> favoritesFunctions.getFavoriteProducts().message
         "toggleFavoriteProduct" -> {
             val req = ToggleFavoriteRequest(json.optString("productName"))
-            favoritesFunctions.toggleFavoriteProduct(appCtx, req).message
+            favoritesFunctions.toggleFavoriteProduct(req).message
         }
         "searchCatalog" -> {
-            val res = catalogFunctions.searchCatalog(appCtx, SearchCatalogRequest(json.optString("query")))
+            val res = catalogFunctions.searchCatalog(SearchCatalogRequest(json.optString("query")))
             res.message
         }
         "getLastOrderStatus" -> getLastOrderStatusSimulation(dependencies.firestore, dependencies.firebaseAuth)

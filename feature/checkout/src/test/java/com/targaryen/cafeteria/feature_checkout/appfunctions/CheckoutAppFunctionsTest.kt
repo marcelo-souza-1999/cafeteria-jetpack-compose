@@ -1,6 +1,5 @@
 package com.targaryen.cafeteria.feature_checkout.appfunctions
 
-import androidx.appfunctions.AppFunctionContext
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -19,7 +18,6 @@ import org.junit.Test
 class CheckoutAppFunctionsTest {
     private val firestore: FirebaseFirestore = mockk()
     private val firebaseAuth: FirebaseAuth = mockk()
-    private val appFunctionContext: AppFunctionContext = mockk()
     private val collectionRef: CollectionReference = mockk()
     private val queryTask: Task<QuerySnapshot> = mockk()
     private val querySnapshot: QuerySnapshot = mockk()
@@ -46,7 +44,7 @@ class CheckoutAppFunctionsTest {
         runTest {
             every { firebaseAuth.currentUser } returns null
 
-            val response = checkoutAppFunctions.getLastOrderStatus(appFunctionContext)
+            val response = checkoutAppFunctions.getLastOrderStatus()
 
             assertEquals("Não Autenticado", response.status)
             assertTrue(response.message.contains("Nenhum usuário imperial autenticado"))
@@ -59,7 +57,7 @@ class CheckoutAppFunctionsTest {
             every { mockUser.uid } returns "user_123"
             every { querySnapshot.documents } returns emptyList()
 
-            val response = checkoutAppFunctions.getLastOrderStatus(appFunctionContext)
+            val response = checkoutAppFunctions.getLastOrderStatus()
 
             assertEquals("Nenhum Pedido", response.status)
             assertTrue(response.message.contains("Você ainda não realizou nenhum pedido"))
@@ -85,7 +83,7 @@ class CheckoutAppFunctionsTest {
 
             every { querySnapshot.documents } returns listOf(olderDoc, recentDoc)
 
-            val response = checkoutAppFunctions.getLastOrderStatus(appFunctionContext)
+            val response = checkoutAppFunctions.getLastOrderStatus()
 
             assertEquals("Preparando", response.status)
             assertEquals("2x Café Expresso Valíria", response.summary)

@@ -59,6 +59,7 @@ import com.targaryen.cafeteria.feature_catalog.profile.domain.model.PurchaseHist
 import com.targaryen.cafeteria.feature_catalog.profile.presentation.intent.ProfileIntent
 import com.targaryen.cafeteria.feature_catalog.profile.presentation.state.ProfileState
 import com.targaryen.cafeteria.feature_catalog.profile.presentation.util.ProfileUtils
+import com.targaryen.cafeteria.feature_catalog.profile.presentation.view.components.ProfileAvatarDialogsActions
 import com.targaryen.cafeteria.feature_catalog.profile.presentation.view.components.ProfileAvatarImageDialogs
 import com.targaryen.cafeteria.feature_catalog.profile.presentation.view.components.ProfileAvatarSection
 import com.targaryen.cafeteria.feature_catalog.profile.presentation.view.components.ProfileDeleteWarningFancyDialog
@@ -327,20 +328,27 @@ fun ProfileScreenContent(
         )
     }
 
+    val avatarDialogsActions =
+        remember(cameraLauncher, photoPickerLauncher, onIntent) {
+            ProfileAvatarDialogsActions(
+                onDismissAvatarOptions = { showAvatarOptions = false },
+                onDismissCropping = { croppingImageUri = null },
+                onLaunchCamera = { cameraLauncher.launch(null) },
+                onLaunchGallery = {
+                    photoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                    )
+                },
+                onUploadCroppedPhoto = { croppedUri ->
+                    onIntent(ProfileIntent.UploadPhoto(croppedUri))
+                },
+            )
+        }
+
     ProfileAvatarImageDialogs(
         showAvatarOptions = showAvatarOptions,
         croppingImageUri = croppingImageUri,
-        onDismissAvatarOptions = { showAvatarOptions = false },
-        onDismissCropping = { croppingImageUri = null },
-        onLaunchCamera = { cameraLauncher.launch(null) },
-        onLaunchGallery = {
-            photoPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-            )
-        },
-        onUploadCroppedPhoto = { croppedUri ->
-            onIntent(ProfileIntent.UploadPhoto(croppedUri))
-        },
+        actions = avatarDialogsActions,
     )
 
     ProfileSecurityAndErrorDialogs(

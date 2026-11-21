@@ -2,6 +2,7 @@ package com.targaryen.cafeteria.feature_catalog.chat.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
 import com.targaryen.cafeteria.core_network.util.AppLogger
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.usecase.GetCatalogUseCase
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.model.ProductUiModel
@@ -28,6 +29,7 @@ class ChatViewModel(
     private val getChatMessagesUseCase: GetChatMessagesUseCase,
     private val getCatalogUseCase: GetCatalogUseCase,
     private val appLogger: AppLogger,
+    private val navigationTracker: AppActionNavigationTracker,
 ) : ViewModel() {
     val uiState: StateFlow<ChatUiState>
         field: MutableStateFlow<ChatUiState> = MutableStateFlow(ChatUiState())
@@ -46,6 +48,14 @@ class ChatViewModel(
     init {
         loadSessions()
         observeCatalog()
+        viewModelScope.launch {
+            navigationTracker.pendingChatMessage.collect { message ->
+                if (!message.isNullOrBlank()) {
+                    sendMessage(message)
+                    navigationTracker.consumeChatMessage()
+                }
+            }
+        }
     }
 
     private fun loadSessions() {

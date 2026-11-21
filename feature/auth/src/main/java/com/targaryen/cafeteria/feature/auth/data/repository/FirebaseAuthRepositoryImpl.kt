@@ -191,8 +191,13 @@ class FirebaseAuthRepositoryImpl(
             }.addOnFailureListener { onFailure(it) }
     }
 
-    private fun mapAuthException(exception: Exception): AuthError =
-        when (exception) {
+    private fun mapAuthException(exception: Exception): AuthError {
+        val msg = exception.message.orEmpty()
+        if (msg.contains("App Check", ignoreCase = true) || msg.contains("attestation", ignoreCase = true)) {
+            return AuthError.SecurityVerificationFailed
+        }
+
+        return when (exception) {
             is FirebaseAuthUserCollisionException -> AuthError.EmailAlreadyInUse
             is FirebaseAuthInvalidCredentialsException -> AuthError.InvalidCredentials
             is FirebaseAuthInvalidUserException -> AuthError.UserNotFound
@@ -206,6 +211,7 @@ class FirebaseAuthRepositoryImpl(
             }
             else -> AuthError.Unknown(exception.message)
         }
+    }
 
     companion object {
         private const val ERROR_TOO_MANY_REQUESTS = "ERROR_TOO_MANY_REQUESTS"

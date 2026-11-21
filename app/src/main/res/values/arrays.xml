@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="order_coffee_synonyms">
+        <item>Café Expresso Valíria</item>
+        <item>Café</item>
+        <item>Expresso</item>
+    </string-array>
+
+    <string-array name="feature_cart_synonyms">
+        <item>carrinho</item>
+        <item>cart</item>
+        <item>ver carrinho</item>
+        <item>meu carrinho</item>
+    </string-array>
+
+    <string-array name="feature_favorites_synonyms">
+        <item>favoritos</item>
+        <item>favorites</item>
+        <item>meus favoritos</item>
+    </string-array>
+</resources>

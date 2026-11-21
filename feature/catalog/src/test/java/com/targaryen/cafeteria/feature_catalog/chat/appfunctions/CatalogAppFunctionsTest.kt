@@ -1,6 +1,5 @@
 package com.targaryen.cafeteria.feature_catalog.chat.appfunctions
 
-import androidx.appfunctions.AppFunctionContext
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.model.Product
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import io.mockk.every
@@ -17,7 +16,6 @@ import org.junit.Test
 
 class CatalogAppFunctionsTest {
     private val catalogRepository: CatalogRepository = mockk()
-    private val appFunctionContext: AppFunctionContext = mockk()
     private lateinit var catalogAppFunctions: CatalogAppFunctions
 
     private val mockProducts =
@@ -96,7 +94,6 @@ class CatalogAppFunctionsTest {
         runTest {
             val response =
                 catalogAppFunctions.searchCatalog(
-                    appFunctionContext,
                     SearchCatalogRequest("Café Expresso Valíria"),
                 )
 
@@ -110,7 +107,6 @@ class CatalogAppFunctionsTest {
         runTest {
             val response =
                 catalogAppFunctions.searchCatalog(
-                    appFunctionContext,
                     SearchCatalogRequest("valiria"),
                 )
 
@@ -123,7 +119,6 @@ class CatalogAppFunctionsTest {
         runTest {
             val response =
                 catalogAppFunctions.searchCatalog(
-                    appFunctionContext,
                     SearchCatalogRequest("cafes"),
                 )
 
@@ -137,7 +132,6 @@ class CatalogAppFunctionsTest {
         runTest {
             val response =
                 catalogAppFunctions.searchCatalog(
-                    appFunctionContext,
                     SearchCatalogRequest("hamburguer"),
                 )
 

@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.kover)
     alias(libs.plugins.google.gms.services)
     alias(libs.plugins.koin.compiler)
+    alias(libs.plugins.google.ksp)
 }
 
 android {
@@ -99,6 +100,8 @@ dependencies {
     implementation(libs.bundles.compose.icons)
     implementation(libs.bundles.navigation)
     implementation(libs.bundles.coil)
+    implementation(libs.androidx.appfunctions)
+    ksp(libs.androidx.appfunctions.compiler)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
@@ -164,6 +167,8 @@ kover {
                     "*Dao_Impl*",
                     "*Database_Impl*",
                     "*ModuleKt*",
+                    "*AppFunctionService*",
+                    "*_AppFunction*",
                 )
                 annotatedBy("androidx.compose.runtime.Composable")
             }
