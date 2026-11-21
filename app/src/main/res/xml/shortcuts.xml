@@ -6,8 +6,8 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.targaryen.cafeteria.app"
-            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
-            android:data="cafeteria://action/order">
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity">
+            <url-template android:value="cafeteria://action/order{?productName}" />
             <parameter
                 android:name="menuItem.name"
                 android:key="productName" />
@@ -19,8 +19,8 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.targaryen.cafeteria.app"
-            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
-            android:data="cafeteria://action/search">
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity">
+            <url-template android:value="cafeteria://action/search{?query}" />
             <parameter
                 android:name="thing.name"
                 android:key="query" />
@@ -32,8 +32,9 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.targaryen.cafeteria.app"
-            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
-            android:data="cafeteria://action/status" />
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity">
+            <url-template android:value="cafeteria://action/status" />
+        </intent>
     </capability>
 
     <!-- 4. Falar com a Assistente Rhaenyra por Voz -->
@@ -41,8 +42,8 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.targaryen.cafeteria.app"
-            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
-            android:data="cafeteria://action/chat">
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity">
+            <url-template android:value="cafeteria://action/chat{?query}" />
             <parameter
                 android:name="message.text"
                 android:key="query" />
@@ -54,8 +55,8 @@
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="com.targaryen.cafeteria.app"
-            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity"
-            android:data="cafeteria://action/feature">
+            android:targetClass="com.targaryen.cafeteria.app.ui.main.MainActivity">
+            <url-template android:value="cafeteria://action/feature{?feature}" />
             <parameter
                 android:name="feature"
                 android:key="feature" />
@@ -84,7 +85,11 @@
                 android:name="quantity"
                 android:value="1" />
         </intent>
-        <capability-binding android:key="actions.intent.ORDER_MENU_ITEM" />
+        <capability-binding android:key="actions.intent.ORDER_MENU_ITEM">
+            <parameter-binding
+                android:key="menuItem.name"
+                android:value="@array/order_coffee_synonyms" />
+        </capability-binding>
     </shortcut>
 
     <!-- Atalho Estático 2: Ver Resumo do Carrinho -->
@@ -103,7 +108,11 @@
                 android:name="action"
                 android:value="cart_summary" />
         </intent>
-        <capability-binding android:key="actions.intent.OPEN_APP_FEATURE" />
+        <capability-binding android:key="actions.intent.OPEN_APP_FEATURE">
+            <parameter-binding
+                android:key="feature"
+                android:value="@array/feature_cart_synonyms" />
+        </capability-binding>
     </shortcut>
 
     <!-- Atalho Estático 3: Consultar Último Pedido -->
@@ -141,7 +150,11 @@
                 android:name="action"
                 android:value="favorites" />
         </intent>
-        <capability-binding android:key="actions.intent.OPEN_APP_FEATURE" />
+        <capability-binding android:key="actions.intent.OPEN_APP_FEATURE">
+            <parameter-binding
+                android:key="feature"
+                android:value="@array/feature_favorites_synonyms" />
+        </capability-binding>
     </shortcut>
 
 </shortcuts>

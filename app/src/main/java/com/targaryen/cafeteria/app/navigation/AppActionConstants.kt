@@ -24,7 +24,8 @@ object AppActionConstants {
     object Param {
         const val PRODUCT_NAME = "productName"
         const val QUANTITY = "quantity"
-        const val FEATURE_NAME = "name"
+        const val FEATURE = "feature"
+        const val FEATURE_LEGACY = "name"
         const val QUERY = "query"
     }
 
@@ -32,6 +33,9 @@ object AppActionConstants {
         const val ACTION = "action"
         const val PRODUCT_NAME = "productName"
         const val QUANTITY = "quantity"
+        const val FEATURE = "feature"
+        const val FEATURE_LEGACY = "name"
+        const val QUERY = "query"
     }
 
     object CheckoutStatus {

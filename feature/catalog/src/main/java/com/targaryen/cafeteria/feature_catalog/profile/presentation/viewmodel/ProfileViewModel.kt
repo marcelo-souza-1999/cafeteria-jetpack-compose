@@ -2,6 +2,7 @@ package com.targaryen.cafeteria.feature_catalog.profile.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
 import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileError
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileRepository
@@ -16,12 +17,29 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 class ProfileViewModel(
     private val repository: ProfileRepository,
+    private val navigationTracker: AppActionNavigationTracker,
 ) : ViewModel() {
     val uiState: StateFlow<ProfileState>
         field: MutableStateFlow<ProfileState> = MutableStateFlow(ProfileState())
 
     init {
         onIntent(ProfileIntent.FetchProfile)
+        viewModelScope.launch {
+            navigationTracker.openLatestOrderRequest.collect { shouldOpen ->
+                if (shouldOpen) {
+                    val latestOrder = uiState.value.purchaseHistory.firstOrNull()
+                    if (latestOrder != null) {
+                        uiState.update { state ->
+                            state.copy(
+                                isHistoryExpanded = true,
+                                selectedPurchase = latestOrder,
+                            )
+                        }
+                        navigationTracker.consumeOpenLatestOrder()
+                    }
+                }
+            }
+        }
     }
 
     fun onIntent(intent: ProfileIntent) {
@@ -119,7 +137,18 @@ class ProfileViewModel(
         viewModelScope.launch {
             repository.getPurchaseHistory().collect { resource ->
                 if (resource is Resource.Success) {
-                    uiState.update { state -> state.copy(purchaseHistory = resource.data) }
+                    val history = resource.data
+                    val shouldOpenLatest = navigationTracker.openLatestOrderRequest.value && history.isNotEmpty()
+                    uiState.update { state ->
+                        state.copy(
+                            purchaseHistory = history,
+                            isHistoryExpanded = state.isHistoryExpanded || shouldOpenLatest,
+                            selectedPurchase = if (shouldOpenLatest) history.first() else state.selectedPurchase,
+                        )
+                    }
+                    if (navigationTracker.openLatestOrderRequest.value) {
+                        navigationTracker.consumeOpenLatestOrder()
+                    }
                 }
             }
         }

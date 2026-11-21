@@ -38,7 +38,7 @@ fun List<Product>.findBestMatchingProduct(rawQuery: String): Product? {
         ?: find { prod -> normalizedQuery.contains(prod.name.normalizeForSearch()) }
 }
 
-internal fun Product.isCoffeeBeverage(): Boolean {
+fun Product.isCoffeeBeverage(): Boolean {
     val normalizedName = name.normalizeForSearch()
     val normalizedDesc = description.normalizeForSearch()
     return COFFEE_PRODUCT_KEYWORDS.any { keyword ->

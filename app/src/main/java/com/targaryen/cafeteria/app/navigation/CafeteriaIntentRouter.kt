@@ -9,10 +9,33 @@ import com.targaryen.cafeteria.core_network.tracker.PaymentStatus
 import com.targaryen.cafeteria.core_network.tracker.PaymentStatusTracker
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import com.targaryen.cafeteria.feature_catalog.chat.appfunctions.findBestMatchingProduct
+import com.targaryen.cafeteria.feature_catalog.chat.appfunctions.isCoffeeBeverage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.core.annotation.Single
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
+
+private val FEATURE_TAB_RULES: List<Pair<List<String>, TargaryenTab>> =
+    listOf(
+        listOf(AppActionConstants.FeatureName.CARRINHO, AppActionConstants.FeatureName.CART) to TargaryenTab.CART,
+        listOf(AppActionConstants.FeatureName.FAVORITOS, AppActionConstants.FeatureName.FAVORITES) to
+            TargaryenTab.FAVORITES,
+        listOf(
+            AppActionConstants.FeatureName.CHAT,
+            AppActionConstants.FeatureName.ASSISTENTE,
+            AppActionConstants.FeatureName.RHAENYRA,
+        ) to TargaryenTab.CHAT,
+        listOf(AppActionConstants.FeatureName.PERFIL, AppActionConstants.FeatureName.PROFILE) to TargaryenTab.PROFILE,
+    )
+
+private fun resolveTabByKeyword(rawText: String?): TargaryenTab? {
+    val normalized = rawText?.trim()?.lowercase() ?: return null
+    return FEATURE_TAB_RULES
+        .firstOrNull { rule -> rule.first.any { keyword -> normalized.contains(keyword) } }
+        ?.second
+}
 
 @Single
 class CafeteriaIntentRouter(
@@ -28,26 +51,37 @@ class CafeteriaIntentRouter(
 
         when {
             intent.action == Intent.ACTION_SEARCH || intent.action == AppActionConstants.GMS_SEARCH_ACTION -> {
-                handleSearchIntent(intent, scope)
+                routeQueryOrCatalog(intent.getStringExtra(SearchManager.QUERY).orEmpty(), scope)
             }
             !intent.getStringExtra(AppActionConstants.Extra.ACTION).isNullOrBlank() -> {
                 handleExtraAction(intent, scope)
             }
             intent.data?.scheme == AppActionConstants.SCHEME -> {
-                intent.data?.let { uri -> handleUriIntent(uri, scope) }
+                intent.data?.let { uri -> handleUriIntent(intent, uri, scope) }
+            }
+            !intent.getStringExtra(AppActionConstants.Extra.FEATURE).isNullOrBlank() ||
+                !intent.getStringExtra(AppActionConstants.Extra.FEATURE_LEGACY).isNullOrBlank() -> {
+                handleFeatureAction(intent, intent.data)
             }
         }
     }
 
-    private fun handleSearchIntent(
-        intent: Intent,
+    private fun routeQueryOrCatalog(
+        rawQuery: String,
         scope: CoroutineScope,
     ) {
-        val query = intent.getStringExtra(SearchManager.QUERY).orEmpty()
-        if (query.isNotBlank()) {
-            handleOrderActionByName(query, 1, scope)
-        } else {
+        if (rawQuery.isBlank()) {
             appActionNavigationTracker.navigateToTab(TargaryenTab.CATALOG)
+            return
+        }
+        val matchedTab = resolveTabByKeyword(rawQuery)
+        if (matchedTab != null) {
+            if (matchedTab == TargaryenTab.PROFILE) {
+                appActionNavigationTracker.requestOpenLatestOrder()
+            }
+            appActionNavigationTracker.navigateToTab(matchedTab)
+        } else {
+            handleOrderActionByName(rawQuery, 1, scope)
         }
     }
 
@@ -58,13 +92,9 @@ class CafeteriaIntentRouter(
         val action = intent.getStringExtra(AppActionConstants.Extra.ACTION).orEmpty()
         when (action) {
             AppActionConstants.Action.ORDER -> {
-                val productName = intent.getStringExtra(AppActionConstants.Extra.PRODUCT_NAME)
+                val productName = intent.getStringExtra(AppActionConstants.Extra.PRODUCT_NAME).orEmpty()
                 val quantity = intent.getStringExtra(AppActionConstants.Extra.QUANTITY)?.toIntOrNull() ?: 1
-                if (!productName.isNullOrBlank()) {
-                    handleOrderActionByName(productName, quantity, scope)
-                } else {
-                    appActionNavigationTracker.navigateToTab(TargaryenTab.CART)
-                }
+                handleOrderActionByName(productName, quantity, scope)
             }
             AppActionConstants.Action.CLEAR_CART -> handleClearCartAction(scope)
             AppActionConstants.Action.CART_SUMMARY,
@@ -72,19 +102,23 @@ class CafeteriaIntentRouter(
             -> appActionNavigationTracker.navigateToTab(TargaryenTab.CART)
             AppActionConstants.Action.FAVORITES -> appActionNavigationTracker.navigateToTab(TargaryenTab.FAVORITES)
             AppActionConstants.Action.CHAT -> appActionNavigationTracker.navigateToTab(TargaryenTab.CHAT)
-            AppActionConstants.Action.STATUS -> appActionNavigationTracker.navigateToTab(TargaryenTab.PROFILE)
+            AppActionConstants.Action.STATUS -> {
+                appActionNavigationTracker.requestOpenLatestOrder()
+                appActionNavigationTracker.navigateToTab(TargaryenTab.PROFILE)
+            }
             AppActionConstants.Action.SEARCH -> appActionNavigationTracker.navigateToTab(TargaryenTab.CATALOG)
             else -> appActionNavigationTracker.navigateToTab(TargaryenTab.CATALOG)
         }
     }
 
     private fun handleUriIntent(
+        intent: Intent,
         data: Uri,
         scope: CoroutineScope,
     ) {
         when (data.host) {
             AppActionConstants.Host.CHECKOUT -> handleCheckoutIntent(data)
-            AppActionConstants.Host.ACTION -> handleActionIntent(data, scope)
+            AppActionConstants.Host.ACTION -> handleActionIntent(intent, data, scope)
         }
     }
 
@@ -100,6 +134,7 @@ class CafeteriaIntentRouter(
     }
 
     private fun handleActionIntent(
+        intent: Intent,
         data: Uri,
         scope: CoroutineScope,
     ) {
@@ -112,9 +147,18 @@ class CafeteriaIntentRouter(
             -> appActionNavigationTracker.navigateToTab(TargaryenTab.CART)
             AppActionConstants.Action.FAVORITES -> appActionNavigationTracker.navigateToTab(TargaryenTab.FAVORITES)
             AppActionConstants.Action.CHAT -> appActionNavigationTracker.navigateToTab(TargaryenTab.CHAT)
-            AppActionConstants.Action.STATUS -> appActionNavigationTracker.navigateToTab(TargaryenTab.PROFILE)
-            AppActionConstants.Action.SEARCH -> appActionNavigationTracker.navigateToTab(TargaryenTab.CATALOG)
-            AppActionConstants.Action.FEATURE -> handleFeatureAction(data)
+            AppActionConstants.Action.STATUS -> {
+                appActionNavigationTracker.requestOpenLatestOrder()
+                appActionNavigationTracker.navigateToTab(TargaryenTab.PROFILE)
+            }
+            AppActionConstants.Action.SEARCH -> {
+                val query =
+                    data.getQueryParameter(AppActionConstants.Param.QUERY)
+                        ?: intent.getStringExtra(AppActionConstants.Extra.QUERY)
+                        ?: intent.getStringExtra(SearchManager.QUERY).orEmpty()
+                routeQueryOrCatalog(query, scope)
+            }
+            AppActionConstants.Action.FEATURE -> handleFeatureAction(intent, data)
             else -> appActionNavigationTracker.navigateToTab(TargaryenTab.CATALOG)
         }
     }
@@ -123,13 +167,9 @@ class CafeteriaIntentRouter(
         data: Uri,
         scope: CoroutineScope,
     ) {
-        val productName = data.getQueryParameter(AppActionConstants.Param.PRODUCT_NAME)
+        val productName = data.getQueryParameter(AppActionConstants.Param.PRODUCT_NAME).orEmpty()
         val quantity = data.getQueryParameter(AppActionConstants.Param.QUANTITY)?.toIntOrNull() ?: 1
-        if (!productName.isNullOrBlank()) {
-            handleOrderActionByName(productName, quantity, scope)
-        } else {
-            appActionNavigationTracker.navigateToTab(TargaryenTab.CART)
-        }
+        handleOrderActionByName(productName, quantity, scope)
     }
 
     private fun handleOrderActionByName(
@@ -138,8 +178,15 @@ class CafeteriaIntentRouter(
         scope: CoroutineScope,
     ) {
         scope.launch {
+            val decodedName =
+                runCatching {
+                    URLDecoder.decode(productName, StandardCharsets.UTF_8.name())
+                }.getOrDefault(productName)
             val products = catalogRepository.getProducts().first { productList -> productList.isNotEmpty() }
-            val product = products.findBestMatchingProduct(productName)
+            val product =
+                products.findBestMatchingProduct(decodedName)
+                    ?: products.find { item -> item.isCoffeeBeverage() }
+                    ?: products.firstOrNull()
             if (product != null) {
                 catalogRepository.updateProductQuantity(
                     product.id,
@@ -157,25 +204,16 @@ class CafeteriaIntentRouter(
         }
     }
 
-    private fun handleFeatureAction(data: Uri) {
-        val featureName = data.getQueryParameter(AppActionConstants.Param.FEATURE_NAME)?.lowercase()
-        val targetTab =
-            when (featureName) {
-                AppActionConstants.FeatureName.CARRINHO,
-                AppActionConstants.FeatureName.CART,
-                -> TargaryenTab.CART
-                AppActionConstants.FeatureName.FAVORITOS,
-                AppActionConstants.FeatureName.FAVORITES,
-                -> TargaryenTab.FAVORITES
-                AppActionConstants.FeatureName.CHAT,
-                AppActionConstants.FeatureName.ASSISTENTE,
-                AppActionConstants.FeatureName.RHAENYRA,
-                -> TargaryenTab.CHAT
-                AppActionConstants.FeatureName.PERFIL,
-                AppActionConstants.FeatureName.PROFILE,
-                -> TargaryenTab.PROFILE
-                else -> TargaryenTab.CATALOG
-            }
+    private fun handleFeatureAction(
+        intent: Intent,
+        data: Uri?,
+    ) {
+        val rawFeature =
+            data?.getQueryParameter(AppActionConstants.Param.FEATURE)
+                ?: data?.getQueryParameter(AppActionConstants.Param.FEATURE_LEGACY)
+                ?: intent.getStringExtra(AppActionConstants.Extra.FEATURE)
+                ?: intent.getStringExtra(AppActionConstants.Extra.FEATURE_LEGACY)
+        val targetTab = resolveTabByKeyword(rawFeature) ?: TargaryenTab.CATALOG
         appActionNavigationTracker.navigateToTab(targetTab)
     }
 }

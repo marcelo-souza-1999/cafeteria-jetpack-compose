@@ -16,6 +16,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.koin.core.annotation.Single
 
 @Single
@@ -24,27 +26,30 @@ class CatalogRepositoryImpl(
     remoteDataSource: FirestoreDataSource,
 ) : CatalogRepository {
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val dbMutex = Mutex()
 
     init {
         remoteDataSource
             .streamProducts()
             .onEach { snapshot ->
-                val currentLocalProducts = localDao.getProducts().firstOrNull() ?: emptyList()
-                val favoriteMap = currentLocalProducts.associate { it.id to it.isFavorite }
-                val quantityMap = currentLocalProducts.associate { it.id to it.quantityInCart }
+                dbMutex.withLock {
+                    val currentLocalProducts = localDao.getProducts().firstOrNull() ?: emptyList()
+                    val favoriteMap = currentLocalProducts.associate { it.id to it.isFavorite }
+                    val quantityMap = currentLocalProducts.associate { it.id to it.quantityInCart }
 
-                val entitiesToInsert =
-                    snapshot.documents.map { doc ->
-                        val isFavorite = favoriteMap[doc.id] ?: false
-                        val quantity = quantityMap[doc.id] ?: 0
-                        doc.toProductEntity(
-                            currentIsFavorite = isFavorite,
-                            currentQuantity = quantity,
-                        )
+                    val entitiesToInsert =
+                        snapshot.documents.map { doc ->
+                            val isFavorite = favoriteMap[doc.id] ?: false
+                            val quantity = quantityMap[doc.id] ?: 0
+                            doc.toProductEntity(
+                                currentIsFavorite = isFavorite,
+                                currentQuantity = quantity,
+                            )
+                        }
+
+                    if (entitiesToInsert.isNotEmpty()) {
+                        localDao.insertProducts(entitiesToInsert)
                     }
-
-                if (entitiesToInsert.isNotEmpty()) {
-                    localDao.insertProducts(entitiesToInsert)
                 }
             }.catch { error ->
                 Log.e("CatalogRepository", "Erro assíncrono na stream de produtos do Firestore", error)
@@ -57,10 +62,12 @@ class CatalogRepositoryImpl(
         }
 
     override suspend fun toggleFavorite(productId: String) {
-        val product = localDao.getProduct(productId).firstOrNull()
-        if (product != null) {
-            val newStatus = !product.isFavorite
-            localDao.updateFavoriteStatus(productId, newStatus)
+        dbMutex.withLock {
+            val product = localDao.getProduct(productId).firstOrNull()
+            if (product != null) {
+                val newStatus = !product.isFavorite
+                localDao.updateFavoriteStatus(productId, newStatus)
+            }
         }
     }
 
@@ -68,10 +75,14 @@ class CatalogRepositoryImpl(
         productId: String,
         quantity: Int,
     ) {
-        localDao.updateCartQuantity(productId, quantity)
+        dbMutex.withLock {
+            localDao.updateCartQuantity(productId, quantity)
+        }
     }
 
     override suspend fun clearCart() {
-        localDao.clearCart()
+        dbMutex.withLock {
+            localDao.clearCart()
+        }
     }
 }
