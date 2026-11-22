@@ -2,6 +2,7 @@ package com.targaryen.cafeteria.feature.auth.presentation.register.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithGoogleUseCase
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignUpWithEmailUseCase
@@ -19,6 +20,7 @@ import org.koin.core.annotation.KoinViewModel
 class RegisterViewModel(
     private val signUpWithEmailUseCase: SignUpWithEmailUseCase,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
+    private val telemetry: AppTelemetry,
 ) : ViewModel() {
     val uiState: StateFlow<RegisterUiState>
         field: MutableStateFlow<RegisterUiState> = MutableStateFlow(RegisterUiState())
@@ -80,9 +82,16 @@ class RegisterViewModel(
                 uiState.update { state -> state.copy(isEmailLoading = false) }
                 when (resource) {
                     is Resource.Success -> {
+                        telemetry.setCustomKey("is_authenticated", true)
+                        telemetry.trackEvent("sign_up", mapOf("method" to "email", "success" to true))
                         eventChannel.send(RegisterEvent.RegisterSuccess)
                     }
                     is Resource.Error -> {
+                        telemetry.trackEvent("sign_up", mapOf("method" to "email", "success" to false))
+                        telemetry.trackNonFatalError(
+                            "auth_email_register",
+                            IllegalStateException(resource.error.toString()),
+                        )
                         eventChannel.send(RegisterEvent.ShowErrorDialog(resource.error))
                     }
                 }
@@ -98,9 +107,16 @@ class RegisterViewModel(
                 uiState.update { state -> state.copy(isGoogleLoading = false) }
                 when (resource) {
                     is Resource.Success -> {
+                        telemetry.setCustomKey("is_authenticated", true)
+                        telemetry.trackEvent("sign_up", mapOf("method" to "google", "success" to true))
                         eventChannel.send(RegisterEvent.RegisterSuccess)
                     }
                     is Resource.Error -> {
+                        telemetry.trackEvent("sign_up", mapOf("method" to "google", "success" to false))
+                        telemetry.trackNonFatalError(
+                            "auth_google_register",
+                            IllegalStateException(resource.error.toString()),
+                        )
                         eventChannel.send(RegisterEvent.ShowErrorDialog(resource.error))
                     }
                 }
@@ -109,6 +125,11 @@ class RegisterViewModel(
     }
 
     fun onGoogleSignInError(message: String?) {
+        telemetry.trackEvent("sign_up", mapOf("method" to "google", "success" to false))
+        telemetry.trackNonFatalError(
+            "auth_google_register_ui",
+            IllegalStateException(message ?: "google_register_failed"),
+        )
         viewModelScope.launch {
             eventChannel.send(
                 RegisterEvent.ShowErrorDialog(

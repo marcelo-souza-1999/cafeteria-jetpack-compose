@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.callbackFlow
 import org.koin.core.annotation.Single
 
 @Single
-class FirestoreDataSource {
-    private val firestore = FirebaseFirestore.getInstance()
+class FirestoreDataSource(
+    private val firestore: FirebaseFirestore,
+) {
     private val collection = firestore.collection("products")
 
     fun streamProducts(): Flow<QuerySnapshot> =

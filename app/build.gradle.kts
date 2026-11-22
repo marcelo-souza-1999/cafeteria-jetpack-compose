@@ -1,3 +1,13 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskAction
 import java.util.Properties
 
 plugins {
@@ -7,6 +17,7 @@ plugins {
     alias(libs.plugins.detekt)
     alias(libs.plugins.kover)
     alias(libs.plugins.google.gms.services)
+    alias(libs.plugins.firebase.crashlytics)
     alias(libs.plugins.koin.compiler)
     alias(libs.plugins.google.ksp)
 }
@@ -45,6 +56,27 @@ android {
         buildConfigField("String", "MERCADO_PAGO_ACCESS_TOKEN", "\"$mpAccessToken\"")
     }
 
+    flavorDimensions += "environment"
+
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            manifestPlaceholders["appName"] = "Cafeteria Targaryen Dev"
+            buildConfigField("String", "ENVIRONMENT_NAME", "\"dev\"")
+            buildConfigField("boolean", "ENABLE_STRICT_PINNING", "false")
+            buildConfigField("boolean", "ENABLE_TELEMETRY", "true")
+        }
+        create("prod") {
+            dimension = "environment"
+            manifestPlaceholders["appName"] = "@string/app_name"
+            buildConfigField("String", "ENVIRONMENT_NAME", "\"prod\"")
+            buildConfigField("boolean", "ENABLE_STRICT_PINNING", "true")
+            buildConfigField("boolean", "ENABLE_TELEMETRY", "true")
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -53,6 +85,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            configure<CrashlyticsExtension> {
+                mappingFileUploadEnabled = !System.getenv("CI").toBoolean()
+            }
         }
     }
 
@@ -106,6 +141,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
     implementation(libs.firebase.ai)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.appcheck.playintegrity)
     implementation(libs.firebase.appcheck.debug)
 
@@ -129,6 +166,67 @@ dependencies {
 
 tasks.register("detektAll") {
     dependsOn(tasks.withType<io.gitlab.arturbosch.detekt.Detekt>())
+}
+
+@CacheableTask
+abstract class VerifyHardeningTask : DefaultTask() {
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val proguardFile: RegularFileProperty
+
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val networkSecurityFile: RegularFileProperty
+
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val manifestFile: RegularFileProperty
+
+    @get:OutputFile
+    abstract val reportFile: RegularFileProperty
+
+    @TaskAction
+    fun verify() {
+        val proguardText = proguardFile.get().asFile.readText()
+        val networkText = networkSecurityFile.get().asFile.readText()
+        val manifestText = manifestFile.get().asFile.readText()
+
+        val checks =
+            listOf(
+                "r8_log_stripping" to proguardText.contains("-assumenosideeffects class android.util.Log"),
+                "r8_stacktrace_attributes" to
+                    (proguardText.contains("SourceFile") && proguardText.contains("LineNumberTable")),
+                "cleartext_disabled" to networkText.contains("cleartextTrafficPermitted=\"false\""),
+                "certificate_pinning" to networkText.contains("<pin-set"),
+                "manifest_network_config" to
+                    manifestText.contains("android:networkSecurityConfig=\"@xml/network_security_config\""),
+                "manifest_backup_disabled" to manifestText.contains("android:allowBackup=\"false\""),
+            )
+
+        val failed = checks.filterNot { entry -> entry.second }.map { entry -> entry.first }
+        val report =
+            buildString {
+                checks.forEach { entry ->
+                    appendLine("${entry.first}=${if (entry.second) "PASS" else "FAIL"}")
+                }
+            }
+        val outFile = reportFile.get().asFile
+        outFile.parentFile.mkdirs()
+        outFile.writeText(report)
+
+        if (failed.isNotEmpty()) {
+            throw GradleException("Hardening verification failed: ${failed.joinToString()}")
+        }
+    }
+}
+
+tasks.register<VerifyHardeningTask>("verifyReleaseHardening") {
+    group = "verification"
+    description = "Audita regras de R8, Network Security Pinning e flags de Hardening no Manifesto."
+    proguardFile.set(layout.projectDirectory.file("proguard-rules.pro"))
+    networkSecurityFile.set(layout.projectDirectory.file("src/main/res/xml/network_security_config.xml"))
+    manifestFile.set(layout.projectDirectory.file("src/main/AndroidManifest.xml"))
+    reportFile.set(layout.buildDirectory.file("reports/hardening/hardening-verification.txt"))
 }
 
 koinCompiler {

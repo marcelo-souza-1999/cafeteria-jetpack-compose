@@ -1,7 +1,9 @@
 package com.targaryen.cafeteria.app.application
 
 import android.content.Context
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.targaryen.cafeteria.app.R
 import com.targaryen.cafeteria.core_designsystem.di.DesignSystemModule
@@ -36,4 +38,10 @@ class AppModule {
 
     @Single
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+    @Single
+    fun provideFirebaseAnalytics(context: Context): FirebaseAnalytics = FirebaseAnalytics.getInstance(context)
+
+    @Single
+    fun provideFirebaseCrashlytics(): FirebaseCrashlytics = FirebaseCrashlytics.getInstance()
 }

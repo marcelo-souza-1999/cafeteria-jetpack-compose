@@ -2,6 +2,7 @@ package com.targaryen.cafeteria.feature.auth.presentation.splash.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.feature.auth.domain.usecase.CheckAuthSessionUseCase
 import com.targaryen.cafeteria.feature.auth.presentation.splash.state.SplashEvent
 import kotlinx.coroutines.channels.Channel
@@ -14,6 +15,7 @@ import org.koin.core.annotation.KoinViewModel
 @KoinViewModel
 class SplashViewModel(
     private val checkAuthSessionUseCase: CheckAuthSessionUseCase,
+    private val telemetry: AppTelemetry,
 ) : ViewModel() {
     private val eventChannel = Channel<SplashEvent>()
     val events: Flow<SplashEvent> = eventChannel.receiveAsFlow()
@@ -27,6 +29,8 @@ class SplashViewModel(
             delay(SPLASH_DURATION_MS)
 
             val isUserLoggedIn = checkAuthSessionUseCase()
+            telemetry.setCustomKey("is_authenticated", isUserLoggedIn)
+            telemetry.trackEvent("session_check", mapOf("authenticated" to isUserLoggedIn))
             if (isUserLoggedIn) {
                 eventChannel.send(SplashEvent.NavigateToMain)
             } else {

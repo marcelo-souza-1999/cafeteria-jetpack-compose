@@ -1,6 +1,7 @@
 package com.targaryen.cafeteria.feature.auth.presentation.register
 
 import app.cash.turbine.test
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SignInWithGoogleUseCase
@@ -25,6 +26,7 @@ class RegisterViewModelTest {
 
     private val signUpWithEmailUseCase: SignUpWithEmailUseCase = mockk()
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase = mockk()
+    private val telemetry: AppTelemetry = mockk(relaxed = true)
 
     private lateinit var viewModel: RegisterViewModel
 
@@ -34,6 +36,7 @@ class RegisterViewModelTest {
             RegisterViewModel(
                 signUpWithEmailUseCase = signUpWithEmailUseCase,
                 signInWithGoogleUseCase = signInWithGoogleUseCase,
+                telemetry = telemetry,
             )
     }
 

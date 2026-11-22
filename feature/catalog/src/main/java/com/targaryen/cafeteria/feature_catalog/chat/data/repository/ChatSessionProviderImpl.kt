@@ -5,6 +5,8 @@ import com.targaryen.cafeteria.feature_catalog.chat.domain.repository.ChatSessio
 import org.koin.core.annotation.Single
 
 @Single
-class ChatSessionProviderImpl : ChatSessionProvider {
-    override fun getCurrentUserUid(): String? = FirebaseAuth.getInstance().currentUser?.uid
+class ChatSessionProviderImpl(
+    private val firebaseAuth: FirebaseAuth,
+) : ChatSessionProvider {
+    override fun getCurrentUserUid(): String? = firebaseAuth.currentUser?.uid
 }

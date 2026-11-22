@@ -1,6 +1,7 @@
 package com.targaryen.cafeteria.feature.auth.presentation.splash
 
 import app.cash.turbine.test
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.feature.auth.domain.usecase.CheckAuthSessionUseCase
 import com.targaryen.cafeteria.feature.auth.presentation.splash.state.SplashEvent
 import com.targaryen.cafeteria.feature.auth.presentation.splash.viewmodel.SplashViewModel
@@ -20,13 +21,14 @@ class SplashViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val checkAuthSessionUseCase: CheckAuthSessionUseCase = mockk()
+    private val telemetry: AppTelemetry = mockk(relaxed = true)
 
     @Test
     fun init_whenUserIsLoggedIn_emitsNavigateToMainEventAfterDelay() =
         runTest {
             coEvery { checkAuthSessionUseCase() } returns true
 
-            val viewModel = SplashViewModel(checkAuthSessionUseCase)
+            val viewModel = SplashViewModel(checkAuthSessionUseCase, telemetry)
 
             viewModel.events.test {
                 advanceTimeBy(1501) // SPLASH_DURATION_MS + 1
@@ -39,7 +41,7 @@ class SplashViewModelTest {
         runTest {
             coEvery { checkAuthSessionUseCase() } returns false
 
-            val viewModel = SplashViewModel(checkAuthSessionUseCase)
+            val viewModel = SplashViewModel(checkAuthSessionUseCase, telemetry)
 
             viewModel.events.test {
                 advanceTimeBy(1501)

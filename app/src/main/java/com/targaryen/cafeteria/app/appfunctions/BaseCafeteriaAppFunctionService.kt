@@ -4,6 +4,7 @@ import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.AppFunctionServiceEntryPoint
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.feature.auth.appfunctions.AuthAppFunctions
 import com.targaryen.cafeteria.feature.auth.appfunctions.AuthSessionResponse
 import com.targaryen.cafeteria.feature.auth.domain.repository.AuthRepository
@@ -47,11 +48,12 @@ abstract class BaseCafeteriaAppFunctionService : AppFunctionService() {
     private val catalogRepository: CatalogRepository by inject()
     private val authRepository: AuthRepository by inject()
     private val sendChatMessageUseCase: SendChatMessageUseCase by inject()
+    private val checkoutAppFunctions: CheckoutAppFunctions by inject()
+    private val telemetry: AppTelemetry by inject()
 
     private val cartAppFunctions by lazy { CartAppFunctions(catalogRepository) }
     private val catalogAppFunctions by lazy { CatalogAppFunctions(catalogRepository) }
     private val favoritesAppFunctions by lazy { FavoritesAppFunctions(catalogRepository) }
-    private val checkoutAppFunctions by lazy { CheckoutAppFunctions() }
     private val authAppFunctions by lazy { AuthAppFunctions(authRepository) }
 
     /**
@@ -60,7 +62,9 @@ abstract class BaseCafeteriaAppFunctionService : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun addProductToCart(request: AddProductRequest): AddProductResponse =
         withContext(Dispatchers.IO) {
-            cartAppFunctions.addProductToCart(request)
+            telemetry.traceAppFunction("addProductToCart") {
+                cartAppFunctions.addProductToCart(request)
+            }
         }
 
     /**
@@ -69,7 +73,9 @@ abstract class BaseCafeteriaAppFunctionService : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun getCartSummary(): CartSummaryResponse =
         withContext(Dispatchers.IO) {
-            cartAppFunctions.getCartSummary()
+            telemetry.traceAppFunction("getCartSummary") {
+                cartAppFunctions.getCartSummary()
+            }
         }
 
     /**
@@ -78,7 +84,9 @@ abstract class BaseCafeteriaAppFunctionService : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun clearCart(): ClearCartResponse =
         withContext(Dispatchers.IO) {
-            cartAppFunctions.clearCart()
+            telemetry.traceAppFunction("clearCart") {
+                cartAppFunctions.clearCart()
+            }
         }
 
     /**
@@ -87,7 +95,9 @@ abstract class BaseCafeteriaAppFunctionService : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun removeProductFromCart(request: RemoveProductRequest): RemoveProductResponse =
         withContext(Dispatchers.IO) {
-            cartAppFunctions.removeProductFromCart(request)
+            telemetry.traceAppFunction("removeProductFromCart") {
+                cartAppFunctions.removeProductFromCart(request)
+            }
         }
 
     /**
@@ -96,7 +106,9 @@ abstract class BaseCafeteriaAppFunctionService : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun searchCatalog(request: SearchCatalogRequest): SearchCatalogResponse =
         withContext(Dispatchers.IO) {
-            catalogAppFunctions.searchCatalog(request)
+            telemetry.traceAppFunction("searchCatalog") {
+                catalogAppFunctions.searchCatalog(request)
+            }
         }
 
     /**
@@ -105,7 +117,9 @@ abstract class BaseCafeteriaAppFunctionService : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun toggleFavoriteProduct(request: ToggleFavoriteRequest): ToggleFavoriteResponse =
         withContext(Dispatchers.IO) {
-            favoritesAppFunctions.toggleFavoriteProduct(request)
+            telemetry.traceAppFunction("toggleFavoriteProduct") {
+                favoritesAppFunctions.toggleFavoriteProduct(request)
+            }
         }
 
     /**
@@ -114,7 +128,9 @@ abstract class BaseCafeteriaAppFunctionService : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun getFavoriteProducts(): FavoritesListResponse =
         withContext(Dispatchers.IO) {
-            favoritesAppFunctions.getFavoriteProducts()
+            telemetry.traceAppFunction("getFavoriteProducts") {
+                favoritesAppFunctions.getFavoriteProducts()
+            }
         }
 
     /**
@@ -123,7 +139,9 @@ abstract class BaseCafeteriaAppFunctionService : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun getLastOrderStatus(): OrderStatusResponse =
         withContext(Dispatchers.IO) {
-            checkoutAppFunctions.getLastOrderStatus()
+            telemetry.traceAppFunction("getLastOrderStatus") {
+                checkoutAppFunctions.getLastOrderStatus()
+            }
         }
 
     /**
@@ -132,7 +150,9 @@ abstract class BaseCafeteriaAppFunctionService : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun checkAuthSession(): AuthSessionResponse =
         withContext(Dispatchers.IO) {
-            authAppFunctions.checkAuthSession()
+            telemetry.traceAppFunction("checkAuthSession") {
+                authAppFunctions.checkAuthSession()
+            }
         }
 
     /**
@@ -141,6 +161,8 @@ abstract class BaseCafeteriaAppFunctionService : AppFunctionService() {
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun askRhaenyra(query: String): String =
         withContext(Dispatchers.IO) {
-            sendChatMessageUseCase(query, emptyList()).first()
+            telemetry.traceAppFunction("askRhaenyra") {
+                sendChatMessageUseCase(query, emptyList()).first()
+            }
         }
 }

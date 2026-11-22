@@ -57,23 +57,49 @@ jobs:
                     "other_platform_oauth_client": []
                   }
                 }
+              },
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:123456789012:android:0987654321abcdef",
+                  "android_client_info": {
+                    "package_name": "com.targaryen.cafeteria.app.dev"
+                  }
+                },
+                "oauth_client": [
+                  {
+                    "client_id": "dummy-web-client-id.apps.googleusercontent.com",
+                    "client_type": 3
+                  }
+                ],
+                "api_key": [
+                  {
+                    "current_key": "dummy-api-key"
+                  }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
               }
             ],
             "configuration_version": "1"
           }
           EOF
 
-      - name: Static Inquisition (Detekt)
-        run: ./gradlew detektAll lintRelease
+      - name: Static Inquisition (Ktlint, Detekt, Hardening & Lint Prod Release)
+        run: ./gradlew ktlintCheck detektAll :app:verifyReleaseHardening :app:lintProdRelease
 
-      - name: Final Test & Coverage
-        run: ./gradlew testReleaseUnitTest koverHtmlReportRelease
+      - name: Final Test & Coverage (Prod Debug)
+        run: ./gradlew testDebugUnitTest :app:testProdDebugUnitTest :app:koverHtmlReportProdDebug
 
-      - name: Seal the Empire (Assemble Release)
-        run: ./gradlew assembleRelease
+      - name: Seal the Empire (Assemble Prod Release with R8)
+        run: ./gradlew assembleProdRelease
 
-      - name: Archive Release APK
+      - name: Archive Prod Release APK & R8 Mapping
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
-          path: app/build/outputs/apk/release/
+          name: prod-release-artifacts
+          path: |
+            app/build/outputs/apk/prod/release/
+            app/build/outputs/mapping/prodRelease/mapping.txt

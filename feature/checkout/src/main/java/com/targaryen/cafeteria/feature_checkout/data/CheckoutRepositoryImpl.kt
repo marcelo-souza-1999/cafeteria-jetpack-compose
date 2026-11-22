@@ -16,7 +16,7 @@ import org.koin.core.annotation.Single
 class CheckoutRepositoryImpl(
     private val viaCepDataSource: ViaCepDataSource,
     private val mercadoPagoDataSource: MercadoPagoDataSource,
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance(),
+    private val firestore: FirebaseFirestore,
 ) : CheckoutRepository {
     override suspend fun fetchAddressByCep(cep: String): Result<ViaCepResponse> =
         viaCepDataSource.fetchAddressByCep(cep)

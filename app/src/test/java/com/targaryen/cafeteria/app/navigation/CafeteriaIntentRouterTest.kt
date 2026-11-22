@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.targaryen.cafeteria.core_designsystem.model.TargaryenTab
 import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.core_network.tracker.PaymentStatusTracker
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
 import io.mockk.coVerify
@@ -23,6 +24,7 @@ class CafeteriaIntentRouterTest {
     private lateinit var paymentStatusTracker: PaymentStatusTracker
     private lateinit var catalogRepository: CatalogRepository
     private lateinit var navigationTracker: AppActionNavigationTracker
+    private lateinit var telemetry: AppTelemetry
     private lateinit var router: CafeteriaIntentRouter
 
     @Before
@@ -30,11 +32,13 @@ class CafeteriaIntentRouterTest {
         paymentStatusTracker = mockk(relaxed = true)
         catalogRepository = mockk(relaxed = true)
         navigationTracker = AppActionNavigationTracker()
+        telemetry = mockk(relaxed = true)
         router =
             CafeteriaIntentRouter(
                 paymentStatusTracker = paymentStatusTracker,
                 catalogRepository = catalogRepository,
                 appActionNavigationTracker = navigationTracker,
+                telemetry = telemetry,
             )
     }
 
