@@ -1,7 +1,7 @@
 package com.targaryen.cafeteria.feature_catalog.chat.presentation.viewmodel
 
 import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
-import com.targaryen.cafeteria.core_network.util.AppLogger
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.usecase.GetCatalogUseCase
 import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatMessage
 import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatPromptConstants
@@ -15,7 +15,6 @@ import io.mockk.coEvery
 import io.mockk.coJustRun
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.justRun
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -35,7 +34,7 @@ class ChatViewModelTest {
     private val getChatSessionsUseCase: GetChatSessionsUseCase = mockk()
     private val getChatMessagesUseCase: GetChatMessagesUseCase = mockk()
     private val getCatalogUseCase: GetCatalogUseCase = mockk()
-    private val appLogger: AppLogger = mockk()
+    private val telemetry: AppTelemetry = mockk(relaxed = true)
     private val navigationTracker = AppActionNavigationTracker()
 
     private lateinit var viewModel: ChatViewModel
@@ -55,7 +54,6 @@ class ChatViewModelTest {
             )
         }
         every { getCatalogUseCase() } returns flowOf(emptyList())
-        justRun { appLogger.e(any(), any(), any()) }
 
         viewModel =
             ChatViewModel(
@@ -63,7 +61,7 @@ class ChatViewModelTest {
                 getChatSessionsUseCase = getChatSessionsUseCase,
                 getChatMessagesUseCase = getChatMessagesUseCase,
                 getCatalogUseCase = getCatalogUseCase,
-                appLogger = appLogger,
+                telemetry = telemetry,
                 navigationTracker = navigationTracker,
             )
     }

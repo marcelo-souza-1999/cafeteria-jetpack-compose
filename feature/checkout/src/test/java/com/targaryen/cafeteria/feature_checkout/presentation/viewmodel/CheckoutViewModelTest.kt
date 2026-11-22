@@ -241,4 +241,24 @@ class CheckoutViewModelTest {
             assertFalse(state.showSuccessNotice)
             assertFalse(savedState.contains(CheckoutSavedStateStore.KEY_SAVED_MARKER))
         }
+
+    @Test
+    fun onFailure_whenPreferenceFails_tracksNonFatalError() =
+        runTest {
+            val error = IllegalStateException("network failure")
+            coEvery { checkoutRepository.createPreferenceForCart(mockCartProducts) } returns Result.failure(error)
+
+            val viewModel = createViewModel()
+            viewModel.onIntent(CheckoutIntent.OnCepChanged("12345678"))
+            viewModel.onIntent(CheckoutIntent.OnNumberChanged("100"))
+            viewModel.onIntent(CheckoutIntent.OnReferencePointChanged("Red Keep"))
+            viewModel.onIntent(CheckoutIntent.OnSubmitPayment)
+
+            verify(exactly = 1) {
+                checkoutTelemetry.trackPaymentPreferenceCreated(success = false, itemCount = 1)
+            }
+            verify(exactly = 1) {
+                checkoutTelemetry.trackNonFatalError("payment_preference", error)
+            }
+        }
 }

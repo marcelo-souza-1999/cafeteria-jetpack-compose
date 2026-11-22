@@ -2,6 +2,7 @@ package com.targaryen.cafeteria.feature.auth.presentation.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature.auth.domain.model.AuthError
 import com.targaryen.cafeteria.feature.auth.domain.usecase.SendPasswordResetEmailUseCase
@@ -20,6 +21,7 @@ class LoginViewModel(
     private val signInWithEmailUseCase: SignInWithEmailUseCase,
     private val signInWithGoogleUseCase: SignInWithGoogleUseCase,
     private val sendPasswordResetEmailUseCase: SendPasswordResetEmailUseCase,
+    private val telemetry: AppTelemetry,
 ) : ViewModel() {
     val uiState: StateFlow<LoginUiState>
         field: MutableStateFlow<LoginUiState> = MutableStateFlow(LoginUiState())
@@ -70,10 +72,12 @@ class LoginViewModel(
                 uiState.update { state -> state.copy(isForgotPasswordLoading = false) }
                 when (resource) {
                     is Resource.Success -> {
+                        telemetry.trackEvent("password_reset_request", mapOf("success" to true))
                         uiState.update { state -> state.copy(isForgotPasswordSuccess = true) }
                         eventChannel.send(LoginEvent.ResetPasswordEmailSent)
                     }
                     is Resource.Error -> {
+                        telemetry.trackEvent("password_reset_request", mapOf("success" to false))
                         eventChannel.send(LoginEvent.ShowErrorDialog(resource.error))
                     }
                 }
@@ -92,9 +96,21 @@ class LoginViewModel(
                 uiState.update { state -> state.copy(isEmailLoading = false) }
                 when (resource) {
                     is Resource.Success -> {
+                        telemetry.setCustomKey("is_authenticated", true)
+                        telemetry.trackEvent("login", mapOf("method" to "email", "success" to true))
                         eventChannel.send(LoginEvent.LoginSuccess)
                     }
                     is Resource.Error -> {
+                        telemetry.trackEvent("login", mapOf("method" to "email", "success" to false))
+                        if (resource.error is AuthError.NetworkError ||
+                            resource.error is AuthError.SecurityVerificationFailed ||
+                            resource.error is AuthError.Unknown
+                        ) {
+                            telemetry.trackNonFatalError(
+                                "auth_email_login",
+                                IllegalStateException(resource.error.toString()),
+                            )
+                        }
                         eventChannel.send(LoginEvent.ShowErrorDialog(resource.error))
                     }
                 }
@@ -110,9 +126,16 @@ class LoginViewModel(
                 uiState.update { state -> state.copy(isGoogleLoading = false) }
                 when (resource) {
                     is Resource.Success -> {
+                        telemetry.setCustomKey("is_authenticated", true)
+                        telemetry.trackEvent("login", mapOf("method" to "google", "success" to true))
                         eventChannel.send(LoginEvent.LoginSuccess)
                     }
                     is Resource.Error -> {
+                        telemetry.trackEvent("login", mapOf("method" to "google", "success" to false))
+                        telemetry.trackNonFatalError(
+                            "auth_google_login",
+                            IllegalStateException(resource.error.toString()),
+                        )
                         eventChannel.send(LoginEvent.ShowErrorDialog(resource.error))
                     }
                 }
@@ -121,6 +144,11 @@ class LoginViewModel(
     }
 
     fun onGoogleSignInError(message: String?) {
+        telemetry.trackEvent("login", mapOf("method" to "google", "success" to false))
+        telemetry.trackNonFatalError(
+            "auth_google_signin_ui",
+            IllegalStateException(message ?: "google_signin_failed"),
+        )
         viewModelScope.launch {
             eventChannel.send(LoginEvent.ShowErrorDialog(AuthError.Unknown(message)))
         }

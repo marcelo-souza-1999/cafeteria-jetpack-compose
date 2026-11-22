@@ -3,6 +3,7 @@ package com.targaryen.cafeteria.feature_catalog.profile.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileError
 import com.targaryen.cafeteria.feature_catalog.profile.domain.repository.ProfileRepository
@@ -18,6 +19,7 @@ import org.koin.core.annotation.KoinViewModel
 class ProfileViewModel(
     private val repository: ProfileRepository,
     private val navigationTracker: AppActionNavigationTracker,
+    private val telemetry: AppTelemetry,
 ) : ViewModel() {
     val uiState: StateFlow<ProfileState>
         field: MutableStateFlow<ProfileState> = MutableStateFlow(ProfileState())
@@ -91,10 +93,12 @@ class ProfileViewModel(
                 uiState.update { state ->
                     state.copy(showEmailSuccessDialog = false)
                 }
-            is ProfileIntent.ShowPurchaseDetail ->
+            is ProfileIntent.ShowPurchaseDetail -> {
+                telemetry.trackEvent("profile_order_detail_viewed")
                 uiState.update { state ->
                     state.copy(selectedPurchase = intent.item)
                 }
+            }
             is ProfileIntent.DismissPurchaseDetail -> uiState.update { state -> state.copy(selectedPurchase = null) }
             is ProfileIntent.ToggleHistoryExpansion ->
                 uiState.update { state ->
@@ -160,6 +164,7 @@ class ProfileViewModel(
             repository.updateProfilePhoto(url).collect { resource ->
                 when (resource) {
                     is Resource.Success -> {
+                        telemetry.trackEvent("profile_avatar_updated", mapOf("success" to true))
                         uiState.update { state ->
                             state.copy(
                                 isUpdatingPhoto = false,
@@ -169,6 +174,11 @@ class ProfileViewModel(
                         }
                     }
                     is Resource.Error -> {
+                        telemetry.trackEvent("profile_avatar_updated", mapOf("success" to false))
+                        telemetry.trackNonFatalError(
+                            "profile_update_photo",
+                            IllegalStateException(resource.error.toString()),
+                        )
                         uiState.update { state ->
                             state.copy(
                                 isUpdatingPhoto = false,
@@ -191,6 +201,10 @@ class ProfileViewModel(
                         updatePhoto(uploadedUrl)
                     }
                     is Resource.Error -> {
+                        telemetry.trackNonFatalError(
+                            "profile_upload_photo",
+                            IllegalStateException(resource.error.toString()),
+                        )
                         uiState.update { state ->
                             state.copy(
                                 isUpdatingPhoto = false,
@@ -212,6 +226,7 @@ class ProfileViewModel(
             repository.updatePassword(currentPass, newPass).collect { resource ->
                 when (resource) {
                     is Resource.Success -> {
+                        telemetry.trackEvent("profile_password_updated", mapOf("success" to true))
                         uiState.update { state ->
                             state.copy(
                                 isLoading = false,
@@ -220,6 +235,7 @@ class ProfileViewModel(
                         }
                     }
                     is Resource.Error -> {
+                        telemetry.trackEvent("profile_password_updated", mapOf("success" to false))
                         uiState.update { state ->
                             state.copy(
                                 isLoading = false,
@@ -238,6 +254,7 @@ class ProfileViewModel(
             repository.updateProfileName(name).collect { resource ->
                 when (resource) {
                     is Resource.Success -> {
+                        telemetry.trackEvent("profile_name_updated", mapOf("success" to true))
                         uiState.update { state ->
                             state.copy(
                                 isLoading = false,
@@ -247,6 +264,7 @@ class ProfileViewModel(
                         }
                     }
                     is Resource.Error -> {
+                        telemetry.trackEvent("profile_name_updated", mapOf("success" to false))
                         uiState.update { state ->
                             state.copy(
                                 isLoading = false,
@@ -265,6 +283,7 @@ class ProfileViewModel(
             repository.updateEmail(email).collect { resource ->
                 when (resource) {
                     is Resource.Success -> {
+                        telemetry.trackEvent("profile_email_updated", mapOf("success" to true))
                         uiState.update { state ->
                             state.copy(
                                 isLoading = false,
@@ -273,6 +292,7 @@ class ProfileViewModel(
                         }
                     }
                     is Resource.Error -> {
+                        telemetry.trackEvent("profile_email_updated", mapOf("success" to false))
                         uiState.update { state ->
                             state.copy(
                                 isLoading = false,
@@ -291,9 +311,16 @@ class ProfileViewModel(
             repository.deleteAccount().collect { resource ->
                 when (resource) {
                     is Resource.Success -> {
+                        telemetry.trackEvent("profile_account_deleted", mapOf("success" to true))
+                        telemetry.setCustomKey("is_authenticated", false)
                         uiState.update { state -> state.copy(isLoading = false, isAccountDeleted = true) }
                     }
                     is Resource.Error -> {
+                        telemetry.trackEvent("profile_account_deleted", mapOf("success" to false))
+                        telemetry.trackNonFatalError(
+                            "profile_delete_account",
+                            IllegalStateException(resource.error.toString()),
+                        )
                         uiState.update { state ->
                             state.copy(
                                 isLoading = false,

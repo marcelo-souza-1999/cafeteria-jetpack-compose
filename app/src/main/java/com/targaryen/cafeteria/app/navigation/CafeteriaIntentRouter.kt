@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import com.targaryen.cafeteria.core_designsystem.model.TargaryenTab
 import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.core_network.tracker.PaymentStatus
 import com.targaryen.cafeteria.core_network.tracker.PaymentStatusTracker
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.repository.CatalogRepository
@@ -65,6 +66,7 @@ class CafeteriaIntentRouter(
     private val paymentStatusTracker: PaymentStatusTracker,
     private val catalogRepository: CatalogRepository,
     private val appActionNavigationTracker: AppActionNavigationTracker,
+    private val telemetry: AppTelemetry,
 ) {
     fun routeIntent(
         intent: Intent?,
@@ -74,6 +76,7 @@ class CafeteriaIntentRouter(
 
         when {
             intent.action == Intent.ACTION_SEARCH || intent.action == AppActionConstants.GMS_SEARCH_ACTION -> {
+                telemetry.trackEvent("voice_intent_routed", mapOf("action_type" to "search_action"))
                 routeQueryOrCatalog(intent.getStringExtra(SearchManager.QUERY).orEmpty())
             }
             !intent.getStringExtra(AppActionConstants.Extra.ACTION).isNullOrBlank() -> {
@@ -84,6 +87,7 @@ class CafeteriaIntentRouter(
             }
             !intent.getStringExtra(AppActionConstants.Extra.FEATURE).isNullOrBlank() ||
                 !intent.getStringExtra(AppActionConstants.Extra.FEATURE_LEGACY).isNullOrBlank() -> {
+                telemetry.trackEvent("voice_intent_routed", mapOf("action_type" to "feature_extra"))
                 handleFeatureAction(intent, intent.data)
             }
         }
@@ -112,6 +116,7 @@ class CafeteriaIntentRouter(
         scope: CoroutineScope,
     ) {
         val action = intent.getStringExtra(AppActionConstants.Extra.ACTION).orEmpty()
+        telemetry.trackEvent("voice_intent_routed", mapOf("action_type" to action.ifBlank { "extra_default" }))
         when (action) {
             AppActionConstants.Action.ORDER -> {
                 val productName = intent.getStringExtra(AppActionConstants.Extra.PRODUCT_NAME).orEmpty()
@@ -165,6 +170,7 @@ class CafeteriaIntentRouter(
         scope: CoroutineScope,
     ) {
         val actionType = data.pathSegments.firstOrNull() ?: data.host
+        telemetry.trackEvent("voice_intent_routed", mapOf("action_type" to (actionType ?: "uri_default")))
         when (actionType) {
             AppActionConstants.Action.ORDER -> handleOrderAction(data, scope)
             AppActionConstants.Action.CLEAR_CART -> handleClearCartAction(scope)

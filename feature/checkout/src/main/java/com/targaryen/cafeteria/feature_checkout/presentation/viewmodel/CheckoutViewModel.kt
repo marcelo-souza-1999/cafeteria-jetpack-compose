@@ -22,6 +22,9 @@ import kotlinx.coroutines.launch
 import org.koin.core.annotation.KoinViewModel
 
 private const val CEP_LENGTH = 8
+private const val STAGE_CEP_LOOKUP = "cep_lookup"
+private const val STAGE_REVERSE_CEP_LOOKUP = "reverse_cep_lookup"
+private const val STAGE_PAYMENT_PREFERENCE = "payment_preference"
 
 @KoinViewModel
 class CheckoutViewModel(
@@ -299,6 +302,7 @@ class CheckoutViewModel(
                         }
                     }.onFailure { exception ->
                         runtimeDependencies.telemetry.trackCepLookup(success = false, isReverseSearch = false)
+                        runtimeDependencies.telemetry.trackNonFatalError(STAGE_CEP_LOOKUP, exception)
                         val errorId =
                             if (exception.message == "CEP não encontrado") {
                                 R.string.error_checkout_cep_not_found
@@ -351,8 +355,9 @@ class CheckoutViewModel(
                                 )
                             }
                         }
-                    }.onFailure {
+                    }.onFailure { exception ->
                         runtimeDependencies.telemetry.trackCepLookup(success = false, isReverseSearch = true)
+                        runtimeDependencies.telemetry.trackNonFatalError(STAGE_REVERSE_CEP_LOOKUP, exception)
                         uiState.update { current ->
                             current.copy(
                                 isLoadingAddress = false,
@@ -395,11 +400,12 @@ class CheckoutViewModel(
                             initPoint = response.initPoint,
                         )
                     }
-                }.onFailure {
+                }.onFailure { exception ->
                     runtimeDependencies.telemetry.trackPaymentPreferenceCreated(
                         success = false,
                         itemCount = currentState.cartItems.size,
                     )
+                    runtimeDependencies.telemetry.trackNonFatalError(STAGE_PAYMENT_PREFERENCE, exception)
                     uiState.update { state ->
                         state.copy(
                             isCreatingPreference = false,

@@ -1,12 +1,14 @@
 package com.targaryen.cafeteria.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.feature.auth.domain.repository.AuthRepository
 import com.targaryen.cafeteria.feature.auth.presentation.login.LoginScreen
 import com.targaryen.cafeteria.feature.auth.presentation.register.view.RegisterScreen
@@ -22,6 +24,18 @@ fun CafeteriaNavDisplay() {
     val backStack = rememberNavBackStack(SplashRoute)
     val scope = rememberCoroutineScope()
     val authRepository = koinInject<AuthRepository>()
+    val telemetry = koinInject<AppTelemetry>()
+    val currentRoute = backStack.lastOrNull()
+
+    LaunchedEffect(currentRoute) {
+        currentRoute?.let { route ->
+            val routeName = route::class.simpleName ?: "UnknownRoute"
+            telemetry.trackScreen(routeName)
+            if (route is CheckoutRoute) {
+                telemetry.trackEvent("begin_checkout")
+            }
+        }
+    }
 
     NavDisplay(
         backStack = backStack,

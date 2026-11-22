@@ -35,6 +35,7 @@ import com.targaryen.cafeteria.core_designsystem.theme.Obsidian
 import com.targaryen.cafeteria.core_designsystem.theme.TargaryenTheme
 import com.targaryen.cafeteria.core_designsystem.theme.ValyrianGold
 import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.intent.CatalogIntent
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.model.ProductUiModel
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.state.CatalogUiState
@@ -64,6 +65,7 @@ fun CatalogScreen(
     modifier: Modifier = Modifier,
     viewModel: CatalogViewModel = koinViewModel(),
     navigationTracker: AppActionNavigationTracker = koinInject(),
+    telemetry: AppTelemetry = koinInject(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -77,6 +79,7 @@ fun CatalogScreen(
         onIntent = { intent -> viewModel.onIntent(intent) },
         actions = actions,
         navigationTracker = navigationTracker,
+        telemetry = telemetry,
         modifier = modifier,
     )
 }
@@ -88,6 +91,7 @@ fun CatalogScreenContent(
     onIntent: (CatalogIntent) -> Unit,
     actions: CatalogActions,
     navigationTracker: AppActionNavigationTracker? = null,
+    telemetry: AppTelemetry? = null,
     modifier: Modifier = Modifier,
 ) {
     val categories =
@@ -108,6 +112,12 @@ fun CatalogScreenContent(
     val pagerState = rememberPagerState(initialPage = 0) { TargaryenTab.entries.size }
 
     val currentTab = TargaryenTab.entries[pagerState.currentPage]
+
+    LaunchedEffect(currentTab) {
+        telemetry?.setCustomKey("active_tab", currentTab.name)
+        telemetry?.trackScreen("Tab_${currentTab.name}")
+        telemetry?.trackEvent("catalog_tab_selected", mapOf("tab" to currentTab.name))
+    }
 
     LaunchedEffect(navigationTracker) {
         navigationTracker?.navigationEvents?.collect { targetTab ->

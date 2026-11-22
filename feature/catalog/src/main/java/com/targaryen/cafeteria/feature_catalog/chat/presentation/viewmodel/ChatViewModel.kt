@@ -3,7 +3,7 @@ package com.targaryen.cafeteria.feature_catalog.chat.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
-import com.targaryen.cafeteria.core_network.util.AppLogger
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.feature_catalog.catalog.domain.usecase.GetCatalogUseCase
 import com.targaryen.cafeteria.feature_catalog.catalog.presentation.model.ProductUiModel
 import com.targaryen.cafeteria.feature_catalog.chat.domain.model.ChatPromptConstants
@@ -28,7 +28,7 @@ class ChatViewModel(
     private val getChatSessionsUseCase: GetChatSessionsUseCase,
     private val getChatMessagesUseCase: GetChatMessagesUseCase,
     private val getCatalogUseCase: GetCatalogUseCase,
-    private val appLogger: AppLogger,
+    private val telemetry: AppTelemetry,
     private val navigationTracker: AppActionNavigationTracker,
 ) : ViewModel() {
     val uiState: StateFlow<ChatUiState>
@@ -86,6 +86,7 @@ class ChatViewModel(
 
             is ChatIntent.NewSession -> {
                 messagesJob?.cancel()
+                telemetry.trackEvent("chat_session_created")
                 uiState.update { state ->
                     state.copy(
                         messages = emptyList(),
@@ -129,6 +130,7 @@ class ChatViewModel(
             if (previousSessionId == null) {
                 selectSession(sessionId)
             }
+            telemetry.trackEvent("chat_message_sent", mapOf("is_new_session" to (previousSessionId == null)))
 
             getChatMessagesUseCase.saveMessage(sessionId, text, ChatPromptConstants.SENDER_USER)
 
@@ -143,12 +145,14 @@ class ChatViewModel(
             val history = uiState.value.messages
             sendChatMessageUseCase(text, history)
                 .catch { exception ->
-                    appLogger.e(TAG, ERROR_STREAM_FAILED, exception)
-                    val errorReply =
-                        if (exception.message?.contains("Quota") == true ||
+                    val isQuotaExceeded =
+                        exception.message?.contains("Quota") == true ||
                             exception.message?.contains("quota") == true ||
                             exception.toString().contains("Quota")
-                        ) {
+                    telemetry.setCustomKey("chat_quota_exceeded", isQuotaExceeded)
+                    telemetry.trackNonFatalError("chat_ai_stream", exception)
+                    val errorReply =
+                        if (isQuotaExceeded) {
                             ChatPromptConstants.REPLY_QUOTA_EXCEEDED
                         } else {
                             ChatPromptConstants.REPLY_UNAVAILABLE_FALLBACK
@@ -162,6 +166,7 @@ class ChatViewModel(
                     }
                 }.collect { reply ->
                     if (reply == ChatPromptConstants.ACTION_NAVIGATE_TO_CHECKOUT) {
+                        telemetry.trackEvent("chat_ai_checkout_redirect")
                         val friendlyReply = ChatPromptConstants.REPLY_CHECKOUT_REDIRECT
                         getChatMessagesUseCase.saveMessage(sessionId, friendlyReply, ChatPromptConstants.SENDER_AI)
                         _navigationEvents.send(ChatNavigationEvent.NavigateToCheckout)
@@ -174,6 +179,7 @@ class ChatViewModel(
     }
 
     private fun deleteSession(sessionId: String) {
+        telemetry.trackEvent("chat_session_deleted")
         viewModelScope.launch {
             val nextSessionId = getChatSessionsUseCase.deleteSession(sessionId)
 
@@ -246,10 +252,5 @@ class ChatViewModel(
                 productSuggestions = emptyList(),
             )
         }
-    }
-
-    companion object {
-        private const val TAG = "ChatViewModel"
-        private const val ERROR_STREAM_FAILED = "Erro no fluxo do chat"
     }
 }

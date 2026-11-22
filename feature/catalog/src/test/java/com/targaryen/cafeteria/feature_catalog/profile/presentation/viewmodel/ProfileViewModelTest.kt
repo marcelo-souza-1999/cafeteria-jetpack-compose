@@ -1,6 +1,7 @@
 package com.targaryen.cafeteria.feature_catalog.profile.presentation.viewmodel
 
 import com.targaryen.cafeteria.core_designsystem.tracker.AppActionNavigationTracker
+import com.targaryen.cafeteria.core_network.telemetry.AppTelemetry
 import com.targaryen.cafeteria.core_network.util.Resource
 import com.targaryen.cafeteria.coredatabase.model.UserEntity
 import com.targaryen.cafeteria.feature_catalog.profile.domain.model.PurchaseHistoryItem
@@ -27,6 +28,7 @@ class ProfileViewModelTest {
 
     private val repository: ProfileRepository = mockk()
     private val navigationTracker = AppActionNavigationTracker()
+    private val telemetry: AppTelemetry = mockk(relaxed = true)
 
     private val mockUser =
         UserEntity(
@@ -57,7 +59,7 @@ class ProfileViewModelTest {
     @Test
     fun init_fetchesProfileAndPurchaseHistory() =
         runTest {
-            val viewModel = ProfileViewModel(repository, navigationTracker)
+            val viewModel = ProfileViewModel(repository, navigationTracker, telemetry)
             val state = viewModel.uiState.value
 
             assertFalse(state.isLoading)
@@ -73,7 +75,7 @@ class ProfileViewModelTest {
         runTest {
             every { repository.getProfile() } returns flowOf(Resource.Error(ProfileError.NetworkError))
 
-            val viewModel = ProfileViewModel(repository, navigationTracker)
+            val viewModel = ProfileViewModel(repository, navigationTracker, telemetry)
             val state = viewModel.uiState.value
 
             assertFalse(state.isLoading)
@@ -85,7 +87,7 @@ class ProfileViewModelTest {
         runTest {
             val photoUrl = "preset_crown"
             every { repository.updateProfilePhoto(photoUrl) } returns flowOf(Resource.Success(Unit))
-            val viewModel = ProfileViewModel(repository, navigationTracker)
+            val viewModel = ProfileViewModel(repository, navigationTracker, telemetry)
 
             viewModel.onIntent(ProfileIntent.UpdatePhoto(photoUrl))
 
@@ -96,7 +98,7 @@ class ProfileViewModelTest {
     fun onIntent_changePassword_delegatesToRepository() =
         runTest {
             every { repository.updatePassword("old", "new") } returns flowOf(Resource.Success(Unit))
-            val viewModel = ProfileViewModel(repository, navigationTracker)
+            val viewModel = ProfileViewModel(repository, navigationTracker, telemetry)
 
             viewModel.onIntent(ProfileIntent.ChangePassword("old", "new"))
 
@@ -107,7 +109,7 @@ class ProfileViewModelTest {
     fun onIntent_changeName_delegatesToRepository() =
         runTest {
             every { repository.updateProfileName("New Name") } returns flowOf(Resource.Success(Unit))
-            val viewModel = ProfileViewModel(repository, navigationTracker)
+            val viewModel = ProfileViewModel(repository, navigationTracker, telemetry)
 
             viewModel.onIntent(ProfileIntent.ChangeName("New Name"))
 
@@ -118,7 +120,7 @@ class ProfileViewModelTest {
     fun onIntent_changeEmail_delegatesToRepository() =
         runTest {
             every { repository.updateEmail("new@email.com") } returns flowOf(Resource.Success(Unit))
-            val viewModel = ProfileViewModel(repository, navigationTracker)
+            val viewModel = ProfileViewModel(repository, navigationTracker, telemetry)
 
             viewModel.onIntent(ProfileIntent.ChangeEmail("new@email.com"))
 
@@ -128,7 +130,7 @@ class ProfileViewModelTest {
     @Test
     fun onIntent_dialogActions_updatesStateAccordingly() =
         runTest {
-            val viewModel = ProfileViewModel(repository, navigationTracker)
+            val viewModel = ProfileViewModel(repository, navigationTracker, telemetry)
 
             assertFalse(viewModel.uiState.value.showDeleteConfirmation)
 
@@ -158,7 +160,7 @@ class ProfileViewModelTest {
     fun onIntent_confirmDeleteAccount_deletesAccount() =
         runTest {
             every { repository.deleteAccount() } returns flowOf(Resource.Success(Unit))
-            val viewModel = ProfileViewModel(repository, navigationTracker)
+            val viewModel = ProfileViewModel(repository, navigationTracker, telemetry)
 
             viewModel.onIntent(ProfileIntent.ConfirmDeleteAccount)
 
@@ -169,7 +171,7 @@ class ProfileViewModelTest {
     fun onIntent_clearMessages_resetsErrorAndSuccessMessages() =
         runTest {
             every { repository.getProfile() } returns flowOf(Resource.Error(ProfileError.NetworkError))
-            val viewModel = ProfileViewModel(repository, navigationTracker)
+            val viewModel = ProfileViewModel(repository, navigationTracker, telemetry)
 
             // Assert initial error state
             assertEquals(
@@ -187,7 +189,7 @@ class ProfileViewModelTest {
     fun init_whenOpenLatestOrderRequestedAndHistoryNotEmpty_opensLatestOrderDetail() =
         runTest {
             navigationTracker.requestOpenLatestOrder()
-            val viewModel = ProfileViewModel(repository, navigationTracker)
+            val viewModel = ProfileViewModel(repository, navigationTracker, telemetry)
             val state = viewModel.uiState.value
 
             assertTrue(state.isHistoryExpanded)

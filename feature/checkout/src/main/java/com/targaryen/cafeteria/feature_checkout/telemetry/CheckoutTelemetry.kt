@@ -23,12 +23,16 @@ interface CheckoutTelemetry {
     fun trackPaymentResult(status: PaymentStatus)
 
     fun trackProcessDeathRestored()
+
+    fun trackNonFatalError(
+        stage: String,
+        throwable: Throwable,
+    )
 }
 
 /**
- * Implementação de [CheckoutTelemetry] respaldada pelo [AppLogger] injetado via Koin.
+ * Implementação local de [CheckoutTelemetry] respaldada pelo [AppLogger].
  */
-@Single
 class AppLoggerCheckoutTelemetry(
     private val appLogger: AppLogger,
 ) : CheckoutTelemetry {
@@ -63,6 +67,17 @@ class AppLoggerCheckoutTelemetry(
         appLogger.i(
             TAG_TELEMETRY,
             "event=checkout_process_death_restored",
+        )
+    }
+
+    override fun trackNonFatalError(
+        stage: String,
+        throwable: Throwable,
+    ) {
+        appLogger.e(
+            TAG_TELEMETRY,
+            "event=checkout_non_fatal_error stage=$stage",
+            throwable,
         )
     }
 
