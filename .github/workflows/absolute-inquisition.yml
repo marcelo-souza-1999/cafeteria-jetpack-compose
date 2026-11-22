@@ -90,8 +90,8 @@ jobs:
       - name: Static Inquisition (Ktlint, Detekt, Hardening & Lint Prod Release)
         run: ./gradlew ktlintCheck detektAll :app:verifyReleaseHardening :app:lintProdRelease
 
-      - name: Final Test & Coverage (Prod Release)
-        run: ./gradlew testDebugUnitTest :app:testProdDebugUnitTest :app:koverHtmlReportProdRelease
+      - name: Final Test & Coverage (Prod Debug)
+        run: ./gradlew testDebugUnitTest :app:testProdDebugUnitTest :app:koverHtmlReportProdDebug
 
       - name: Seal the Empire (Assemble Prod Release with R8)
         run: ./gradlew assembleProdRelease

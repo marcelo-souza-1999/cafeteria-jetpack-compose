@@ -3,10 +3,9 @@ package com.targaryen.cafeteria.app.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.targaryen.cafeteria.feature.auth.domain.repository.AuthRepository
 import com.targaryen.cafeteria.feature.auth.presentation.login.LoginScreen
@@ -20,7 +19,7 @@ import org.koin.compose.koinInject
 
 @Composable
 fun CafeteriaNavDisplay() {
-    val backStack = remember { mutableStateListOf<Any>(SplashRoute) }
+    val backStack = rememberNavBackStack(SplashRoute)
     val scope = rememberCoroutineScope()
     val authRepository = koinInject<AuthRepository>()
 
